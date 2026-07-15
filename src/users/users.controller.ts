@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,13 +16,13 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getProfile(@Request() req) {
-    return this.usersService.findById(req.user.userId);
+  async getProfile(@Request() req: ExpressRequest) {
+    return this.usersService.findById((req.user as any).userId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('me')
-  async updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateProfile(req.user.userId, updateUserDto);
+  async updateProfile(@Request() req: ExpressRequest, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateProfile((req.user as any).userId, updateUserDto);
   }
 }

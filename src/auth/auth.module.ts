@@ -9,17 +9,25 @@ import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    UsersModule,
     PassportModule,
+    UsersModule,
     JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') || 'ReservaplaySecretKey',
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '3600s' },
-      }),
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+            secret:
+                configService.get<string>('JWT_SECRET') ||
+                'ReservaplaySecretKey',
+
+            signOptions: {
+                expiresIn:
+                    configService.get<string>('JWT_EXPIRES_IN') ||
+                    '3600s',
+            },
+        }),
     }),
-  ],
-  providers: [AuthService, JwtStrategy],
+],
   controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
