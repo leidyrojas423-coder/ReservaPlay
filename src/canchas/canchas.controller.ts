@@ -1,35 +1,29 @@
-import { Controller, Get, Post, Put, Delete, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/user.entity';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { CreateCanchaDto } from './dto/create-cancha.dto';
+import { UpdateCanchaDto } from './dto/update-cancha.dto';
+import { CanchasService } from './canchas.service';
 
 @Controller('canchas')
 export class CanchasController {
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.CLIENT)
-  @Get()
-  findAll() {
-    return { message: 'Consulta de canchas para clientes' };
-  }
+  constructor(private readonly canchasService: CanchasService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
   @Post()
-  create() {
-    return { message: 'Crear cancha' };
+  async create(@Body() createCanchaDto: CreateCanchaDto) {
+    return this.canchasService.create(createCanchaDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
+  @Get()
+  async findAll() {
+    return this.canchasService.findAll();
+  }
+
   @Put(':id')
-  update() {
-    return { message: 'Actualizar cancha' };
+  async update(@Param('id') id: string, @Body() updateCanchaDto: UpdateCanchaDto) {
+    return this.canchasService.update(id, updateCanchaDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
   @Delete(':id')
-  remove() {
-    return { message: 'Eliminar o desactivar cancha' };
+  async remove(@Param('id') id: string) {
+    return this.canchasService.remove(id);
   }
 }

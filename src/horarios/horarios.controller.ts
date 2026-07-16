@@ -1,35 +1,29 @@
-import { Controller, Get, Post, Put, Delete, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '../users/user.entity';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { CreateHorarioDto } from './dto/create-horario.dto';
+import { UpdateHorarioDto } from './dto/update-horario.dto';
+import { HorariosService } from './horarios.service';
 
 @Controller('horarios')
 export class HorariosController {
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.CLIENT)
-  @Get()
-  findAll() {
-    return { message: 'Consulta de horarios para clientes' };
-  }
+  constructor(private readonly horariosService: HorariosService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
   @Post()
-  create() {
-    return { message: 'Crear horario' };
+  async create(@Body() createHorarioDto: CreateHorarioDto) {
+    return this.horariosService.create(createHorarioDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
+  @Get()
+  async findAll() {
+    return this.horariosService.findAll();
+  }
+
   @Put(':id')
-  update() {
-    return { message: 'Actualizar horario' };
+  async update(@Param('id') id: string, @Body() updateHorarioDto: UpdateHorarioDto) {
+    return this.horariosService.update(id, updateHorarioDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(UserRole.ADMIN)
   @Delete(':id')
-  remove() {
-    return { message: 'Eliminar horario' };
+  async remove(@Param('id') id: string) {
+    return this.horariosService.remove(id);
   }
 }

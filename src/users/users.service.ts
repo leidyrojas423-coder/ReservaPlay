@@ -1,5 +1,4 @@
 import { Injectable, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,7 +11,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
@@ -35,40 +33,11 @@ export class UsersService {
 
     try {
       const saved = await this.usersRepository.save(user);
-      const { password: _, ...userWithoutPassword } = saved as User & { password?: string };
+      const { password, ...userWithoutPassword } = saved;
       return userWithoutPassword;
     } catch (error) {
       throw new InternalServerErrorException('No se pudo crear el usuario');
     }
-  }
-
-  async ensureAdminUser(): Promise<void> {
-    const adminEmail = this.configService.get<string>('ADMIN_EMAIL');
-    const adminPassword = this.configService.get<string>('ADMIN_PASSWORD');
-
-    if (!adminEmail || !adminPassword) {
-      return;
-    }
-
-    const existingAdmin = await this.usersRepository.findOne({ where: { email: adminEmail } });
-    if (existingAdmin) {
-      if (existingAdmin.role !== UserRole.ADMIN) {
-        existingAdmin.role = UserRole.ADMIN;
-        await this.usersRepository.save(existingAdmin);
-      }
-      return;
-    }
-
-    const hashedPassword = await bcrypt.hash(adminPassword, 12);
-    const adminUser = this.usersRepository.create({
-      name: 'Administrador',
-      email: adminEmail,
-      password: hashedPassword,
-      role: UserRole.ADMIN,
-      active: true,
-    });
-
-    await this.usersRepository.save(adminUser);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -112,7 +81,7 @@ export class UsersService {
     }
 
     const updated = await this.usersRepository.save(user);
-    const { password: _, ...userWithoutPassword } = updated as User & { password?: string };
+    const { password, ...userWithoutPassword } = updated;
     return userWithoutPassword;
   }
 }
