@@ -8,23 +8,23 @@ export enum UserRole {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ length: 100 })
-  name: string;
+  name!: string;
 
   @Column({ length: 150, unique: true })
-  email: string;
+  email!: string;
 
   @Column({ select: false })
-  password: string;
+  password!: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENT })
-  role: UserRole;
+  role!: UserRole;
 
   @Column({ type: 'text', nullable: true })
   profile?: string;
 
   @Column({ default: true })
-  active: boolean;
+  active!: boolean;
 }
