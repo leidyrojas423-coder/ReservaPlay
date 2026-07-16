@@ -2,7 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { ClientesModule } from './clientes/clientes.module';
+import { AdministradoresModule } from './administradores/administradores.module';
+import { CanchasModule } from './canchas/canchas.module';
+import { HorariosModule } from './horarios/horarios.module';
+import { ReservasModule } from './reservas/reservas.module';
 
 @Module({
   imports: [
@@ -19,8 +23,12 @@ import { UsersModule } from './users/users.module';
         synchronize: true,
       }),
     }),
-    UsersModule,
     AuthModule,
+    ClientesModule,
+    AdministradoresModule,
+    CanchasModule,
+    HorariosModule,
+    ReservasModule,
   ],
   controllers: [],
   providers: [],

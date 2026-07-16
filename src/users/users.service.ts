@@ -33,8 +33,8 @@ export class UsersService {
 
     try {
       const saved = await this.usersRepository.save(user);
-      delete saved.password;
-      return saved;
+      const { password, ...userWithoutPassword } = saved;
+      return userWithoutPassword;
     } catch (error) {
       throw new InternalServerErrorException('No se pudo crear el usuario');
     }
@@ -81,7 +81,7 @@ export class UsersService {
     }
 
     const updated = await this.usersRepository.save(user);
-    delete updated.password;
-    return updated;
+    const { password, ...userWithoutPassword } = updated;
+    return userWithoutPassword;
   }
 }

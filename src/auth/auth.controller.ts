@@ -1,6 +1,9 @@
-import { Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Post, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Roles } from './decorators/roles.decorator';
+import { UserRole } from '../users/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -13,5 +16,22 @@ export class AuthController {
       throw new UnauthorizedException('Credenciales inválidas');
     }
     return this.authService.login(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Get('me')
+  getProfile(@Request() req: any) {
+    return {
+      message: 'Perfil accesible para usuarios autenticados',
+      user: req.user,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('admin/dashboard')
+  getAdminDashboard() {
+    return { message: 'Panel administrativo accesible' };
   }
 }
