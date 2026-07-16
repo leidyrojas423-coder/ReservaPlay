@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Post, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { UserRole } from '../users/user.entity';
 
@@ -19,7 +18,17 @@ export class AuthController {
     return this.authService.login(user);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRole.CLIENT, UserRole.ADMIN)
+  @Get('me')
+  getProfile(@Request() req: any) {
+    return {
+      message: 'Perfil accesible para usuarios autenticados',
+      user: req.user,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN)
   @Get('admin/dashboard')
   getAdminDashboard() {
