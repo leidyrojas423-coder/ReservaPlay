@@ -1,0 +1,103 @@
+{
+  "info": {
+    "name": "ReservaPlay Administradores CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección con los endpoints CRUD de administradores para ReservaPlay"
+  },
+  "item": [
+    {
+      "name": "Crear administrador",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana\",\n  \"apellido\": \"Rojas\",\n  \"correo\": \"ana@gmail.com\",\n  \"telefono\": \"3007654321\",\n  \"password\": \"123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/administradores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "administradores"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Listar administradores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/administradores",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "administradores"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Actualizar administrador",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"telefono\": \"3119999999\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/administradores/{{administradorId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "administradores",
+            "{{administradorId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Eliminar administrador",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/administradores/{{administradorId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "administradores",
+            "{{administradorId}}"
+          ]
+        }
+      }
+    }
+  ]
+}
