@@ -38,6 +38,7 @@
     "@types/passport-local": "^1.0.35",
     "jest": "^30.4.0",
     "ts-jest": "^29.4.11",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"
   }
