@@ -18,6 +18,16 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  @Post('admin/login')
+  async adminLogin(@Body() loginDto: LoginDto) {
+    const admin = await this.authService.validateAdmin(loginDto.email, loginDto.password);
+    if (!admin) {
+      throw new UnauthorizedException('Credenciales de administrador inválidas');
+    }
+
+    return this.authService.login(admin);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Roles(UserRole.CLIENT, UserRole.ADMIN)
   @Get('me')

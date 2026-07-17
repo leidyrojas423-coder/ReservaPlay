@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -40,9 +40,14 @@ export class AuthService {
 
   async validateAdmin(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    if (!user || user.role !== UserRole.ADMIN) {
+    if (!user) {
       return null;
     }
+
+    if (user.role !== UserRole.ADMIN) {
+      throw new UnauthorizedException('Este usuario no tiene permisos de administrador');
+    }
+
     return user;
   }
 }
