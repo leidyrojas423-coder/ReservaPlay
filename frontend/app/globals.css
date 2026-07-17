@@ -559,6 +559,12 @@ a {
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.2);
 }
 
+.welcome-button--cta {
+  color: #052e16;
+  background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.38);
+}
+
 .welcome-button--secondary {
   color: #0f172a;
   background: #ffffff;
@@ -574,6 +580,11 @@ a {
 .welcome-button--primary:hover,
 .welcome-button--primary:focus-visible {
   background: #334155;
+}
+
+.welcome-button--cta:hover,
+.welcome-button--cta:focus-visible {
+  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
 }
 
 .welcome-button--secondary:hover,
@@ -617,6 +628,498 @@ a {
   font-size: 0.95rem;
   line-height: 1.5;
   color: #475569;
+}
+
+.mis-reservas {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(251, 191, 36, 0.18), transparent 42%),
+    radial-gradient(circle at 90% 0%, rgba(34, 197, 94, 0.16), transparent 40%),
+    linear-gradient(150deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+  animation: welcome-enter 440ms ease-out both;
+}
+
+.mis-reservas__header {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.mis-reservas__eyebrow {
+  margin: 0;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.mis-reservas__title {
+  margin: 0;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  color: #0f172a;
+}
+
+.mis-reservas__description {
+  margin: 0;
+  max-width: 72ch;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.cliente-reserva-form {
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(251, 191, 36, 0.12), transparent 40%),
+    #ffffff;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.cliente-reserva-form h3 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  line-height: 0.95;
+  color: #0f172a;
+}
+
+.cliente-reserva-form__grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cliente-reserva-form__grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #334155;
+}
+
+.cliente-reserva-form__grid select,
+.cliente-reserva-form__grid input {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 10px;
+}
+
+.cliente-reserva-form__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.mis-reservas__summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.resumen-card {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  gap: 2px;
+  background: #ffffff;
+}
+
+.resumen-card span {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #475569;
+}
+
+.resumen-card strong {
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.resumen-card--pendiente {
+  border-color: #fde68a;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.resumen-card--confirmada {
+  border-color: #86efac;
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.resumen-card--finalizada {
+  border-color: #93c5fd;
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.resumen-card--cancelada {
+  border-color: #fecaca;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 100%);
+}
+
+.mis-reservas__feedback {
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #bfdbfe;
+  padding: 10px 12px;
+  color: #1e3a8a;
+  background: #eff6ff;
+}
+
+.reservas-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.reserva-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.reserva-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.reserva-card__id {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.reserva-card__head h3 {
+  margin: 6px 0 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+}
+
+.estado-chip--pendiente {
+  background: #fffbeb;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.estado-chip--confirmada {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.estado-chip--finalizada {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-color: #93c5fd;
+}
+
+.estado-chip--cancelada {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.reserva-card__meta {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.reserva-card__meta div {
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 8px 10px;
+}
+
+.reserva-card__meta dt {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.reserva-card__meta dd {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.reserva-card__actions {
+  display: grid;
+  gap: 8px;
+}
+
+.reserva-card__actions label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.reserva-card__controls {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr auto;
+}
+
+.reserva-card__controls select {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 9px 10px;
+}
+
+.reserva-card__controls button {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 14px;
+  background: #1e293b;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.reserva-card__controls button:hover,
+.reserva-card__controls button:focus-visible {
+  background: #0f172a;
+  transform: translateY(-1px);
+}
+
+.cliente-reserva-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cliente-reserva-card__actions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.cliente-reserva-card__actions button:hover,
+.cliente-reserva-card__actions button:focus-visible {
+  background: #0f172a;
+  transform: translateY(-1px);
+}
+
+.cliente-reserva-card__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.cliente-reserva-card__cancel {
+  background: #991b1b;
+}
+
+.cliente-reserva-card__cancel:hover,
+.cliente-reserva-card__cancel:focus-visible {
+  background: #7f1d1d;
+}
+
+.cliente-reserva-card__warning {
+  margin: 0;
+  border-radius: 10px;
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+  padding: 10px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.admin-estados {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-estados__header {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-estados-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+.admin-estados-column {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  min-height: 360px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.admin-estados-column > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-estados-column > header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.admin-estados-column > header span,
+.admin-estados-canceladas > header span {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #0f172a;
+  background: #e2e8f0;
+}
+
+.admin-estados-column--pendiente {
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 38%);
+}
+
+.admin-estados-column--confirmada {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 38%);
+}
+
+.admin-estados-column--finalizada {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 38%);
+}
+
+.admin-estados-column__content,
+.admin-estados-canceladas__content {
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.admin-estados-card {
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.admin-estados-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.admin-estados-card__head h3 {
+  margin: 4px 0 0;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.admin-estados-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-estados-card__actions button {
+  border: 0;
+  border-radius: 10px;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 0.86rem;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.admin-estados-card__actions button:hover,
+.admin-estados-card__actions button:focus-visible {
+  background: #0f172a;
+  transform: translateY(-1px);
+}
+
+.admin-estados-card__locked {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.admin-estados-canceladas {
+  border: 1px solid #fecaca;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 38%);
+}
+
+.admin-estados-canceladas > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #fecaca;
+}
+
+.admin-estados-canceladas > header h3 {
+  margin: 0;
+  color: #7f1d1d;
 }
 
 @keyframes welcome-enter {
@@ -689,6 +1192,43 @@ a {
   }
 
   .welcome-scoreboard__row {
+    grid-template-columns: 1fr;
+  }
+
+  .mis-reservas {
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .mis-reservas__summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cliente-reserva-form__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reservas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reserva-card__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .reserva-card__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .cliente-reserva-form__actions {
+    width: 100%;
+  }
+
+  .cliente-reserva-form__actions .welcome-button {
+    width: 100%;
+  }
+
+  .admin-estados-board {
     grid-template-columns: 1fr;
   }
 

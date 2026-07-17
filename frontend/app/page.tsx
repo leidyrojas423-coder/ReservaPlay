@@ -44,6 +44,9 @@ export default function HomePage() {
           </div>
 
           <div className="welcome-hero__actions">
+            <Link href="/mis-reservas" className="welcome-button welcome-button--cta">
+              Mis Reservas
+            </Link>
             <Link href="/dashboard" className="welcome-button welcome-button--primary">
               Ir a Reservas
             </Link>
