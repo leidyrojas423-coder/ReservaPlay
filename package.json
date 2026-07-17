@@ -32,13 +32,9 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
-<<<<<<< HEAD
-    "@types/bcrypt": "^5.0.2",
-=======
     "@nestjs/testing": "^10.4.22",
-    "@types/bcrypt": "^5.0.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/jest": "^30.0.0",
->>>>>>> ebb14c911465b6c37dec5e51fb5ac784a43c7a00
     "@types/node": "^20.11.0",
     "@types/passport-jwt": "^3.0.8",
     "@types/passport-local": "^1.0.35",

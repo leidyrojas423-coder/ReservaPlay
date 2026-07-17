@@ -84,4 +84,22 @@ export class UsersService {
     const { password, ...userWithoutPassword } = updated;
     return userWithoutPassword;
   }
+
+  async ensureAdminUser(): Promise<void> {
+    const existing = await this.usersRepository.findOne({ where: { email: 'admin@reservaplay.com' } });
+    if (existing) {
+      return;
+    }
+
+    const admin = this.usersRepository.create({
+      name: 'Administrador',
+      email: 'admin@reservaplay.com',
+      password: await bcrypt.hash('admin123', 12),
+      role: UserRole.ADMIN,
+      profile: 'Administrador principal',
+      active: true,
+    });
+
+    await this.usersRepository.save(admin);
+  }
 }
