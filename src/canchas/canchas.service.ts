@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { AdministradorEntity } from '../administradores/entities/administrador.entity';
 import { CreateCanchaDto } from './dto/create-cancha.dto';
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
 import { CanchaEntity } from './entities/cancha.entity';
@@ -11,12 +12,18 @@ export class CanchasService {
   constructor(
     @InjectRepository(CanchaEntity)
     private readonly canchasRepository: Repository<CanchaEntity>,
+    @InjectRepository(AdministradorEntity)
+    private readonly administradoresRepository: Repository<AdministradorEntity>,
   ) {}
 
   async create(createCanchaDto: CreateCanchaDto): Promise<CanchaEntity> {
+    await this.validateAdministrador(createCanchaDto.administradorId);
+    this.validateEstado(createCanchaDto.estado);
+
     const cancha = this.canchasRepository.create({
       ...createCanchaDto,
-      disponible: createCanchaDto.disponible ?? true,
+      activo: createCanchaDto.activo ?? true,
+      estado: createCanchaDto.estado,
     });
 
     try {
@@ -27,7 +34,19 @@ export class CanchasService {
   }
 
   async findAll(): Promise<CanchaEntity[]> {
-    return this.canchasRepository.find();
+    return this.canchasRepository.find({
+      where: { activo: true },
+      relations: ['administrador'],
+      order: { nombre: 'ASC' },
+    });
+  }
+
+  async findDisponibles(): Promise<CanchaEntity[]> {
+    return this.canchasRepository.find({
+      where: { activo: true, estado: 'Disponible' },
+      relations: ['administrador'],
+      order: { nombre: 'ASC' },
+    });
   }
 
   async update(id: string, updateCanchaDto: UpdateCanchaDto): Promise<CanchaEntity> {
@@ -36,11 +55,39 @@ export class CanchasService {
       throw new NotFoundException('Cancha no encontrada');
     }
 
-    await this.canchasRepository.update(id, updateCanchaDto);
+    if (updateCanchaDto.administradorId) {
+      await this.validateAdministrador(updateCanchaDto.administradorId);
+    }
 
-    const updated = await this.canchasRepository.findOne({ where: { id } });
+    if (updateCanchaDto.estado) {
+      this.validateEstado(updateCanchaDto.estado);
+    }
+
+    await this.canchasRepository.update(id, {
+      ...updateCanchaDto,
+      activo: updateCanchaDto.activo ?? cancha.activo,
+      estado: updateCanchaDto.estado ?? cancha.estado,
+    });
+
+    const updated = await this.canchasRepository.findOne({ where: { id }, relations: ['administrador'] });
     if (!updated) {
       throw new NotFoundException('Cancha no encontrada después de actualizar');
+    }
+
+    return updated;
+  }
+
+  async deactivate(id: string): Promise<CanchaEntity> {
+    const cancha = await this.canchasRepository.findOne({ where: { id } });
+    if (!cancha) {
+      throw new NotFoundException('Cancha no encontrada');
+    }
+
+    await this.canchasRepository.update(id, { activo: false, estado: 'Mantenimiento' });
+
+    const updated = await this.canchasRepository.findOne({ where: { id }, relations: ['administrador'] });
+    if (!updated) {
+      throw new NotFoundException('Cancha no encontrada después de desactivar');
     }
 
     return updated;
@@ -50,6 +97,20 @@ export class CanchasService {
     const result = await this.canchasRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Cancha no encontrada');
+    }
+  }
+
+  private validateEstado(estado: string): void {
+    const estadosValidos = ['Disponible', 'Ocupada', 'Mantenimiento'];
+    if (!estadosValidos.includes(estado)) {
+      throw new BadRequestException('El estado debe ser Disponible, Ocupada o Mantenimiento');
+    }
+  }
+
+  private async validateAdministrador(administradorId: string): Promise<void> {
+    const administrador = await this.administradoresRepository.findOne({ where: { id: administradorId } });
+    if (!administrador) {
+      throw new NotFoundException('Administrador no encontrado');
     }
   }
 }
