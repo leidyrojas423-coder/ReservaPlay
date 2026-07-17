@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateCanchaDto {
   @IsString()
@@ -6,14 +6,34 @@ export class CreateCanchaDto {
   nombre!: string;
 
   @IsString()
+  @IsOptional()
+  descripcion?: string;
+
+  @IsString()
   @IsNotEmpty()
   ubicacion!: string;
 
   @IsString()
-  @IsNotEmpty()
-  tipo!: string;
+  @IsOptional()
+  estado?: string;
+
+  @IsNumber()
+  @IsOptional()
+  capacidad?: number;
+
+  @IsNumber()
+  @IsOptional()
+  precio?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  activo?: boolean;
 
   @IsBoolean()
   @IsOptional()
   disponible?: boolean;
+
+  @IsString()
+  @IsOptional()
+  administradorId?: string;
 }

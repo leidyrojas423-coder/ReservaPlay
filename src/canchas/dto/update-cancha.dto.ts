@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCanchaDto {
   @IsString()
@@ -7,13 +7,33 @@ export class UpdateCanchaDto {
 
   @IsString()
   @IsOptional()
+  descripcion?: string;
+
+  @IsString()
+  @IsOptional()
   ubicacion?: string;
 
   @IsString()
   @IsOptional()
-  tipo?: string;
+  estado?: string;
+
+  @IsNumber()
+  @IsOptional()
+  capacidad?: number;
+
+  @IsNumber()
+  @IsOptional()
+  precio?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  activo?: boolean;
 
   @IsBoolean()
   @IsOptional()
   disponible?: boolean;
+
+  @IsString()
+  @IsOptional()
+  administradorId?: string;
 }
