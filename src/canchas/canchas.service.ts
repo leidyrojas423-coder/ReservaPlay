@@ -14,7 +14,10 @@ export class CanchasService {
   ) {}
 
   async create(createCanchaDto: CreateCanchaDto): Promise<CanchaEntity> {
-    const cancha = this.canchasRepository.create(this.normalizePayload(createCanchaDto));
+    const cancha = this.canchasRepository.create({
+      ...createCanchaDto,
+      disponible: createCanchaDto.disponible ?? true,
+    });
 
     try {
       return await this.canchasRepository.save(cancha);
@@ -24,7 +27,7 @@ export class CanchasService {
   }
 
   async findAll(): Promise<CanchaEntity[]> {
-    return this.canchasRepository.find({ order: { fechaRegistro: 'DESC' } });
+    return this.canchasRepository.find();
   }
 
   async update(id: string, updateCanchaDto: UpdateCanchaDto): Promise<CanchaEntity> {
@@ -33,8 +36,7 @@ export class CanchasService {
       throw new NotFoundException('Cancha no encontrada');
     }
 
-    const payload = this.normalizePayload(updateCanchaDto, cancha);
-    await this.canchasRepository.update(id, payload);
+    await this.canchasRepository.update(id, updateCanchaDto);
 
     const updated = await this.canchasRepository.findOne({ where: { id } });
     if (!updated) {
@@ -49,21 +51,5 @@ export class CanchasService {
     if (result.affected === 0) {
       throw new NotFoundException('Cancha no encontrada');
     }
-  }
-
-  private normalizePayload(
-    dto: Partial<CreateCanchaDto & UpdateCanchaDto>,
-    current?: CanchaEntity,
-  ): Partial<CanchaEntity> {
-    const estado = dto.estado ?? current?.estado ?? 'Disponible';
-    const activo = dto.activo ?? current?.activo ?? true;
-    const disponible = dto.disponible ?? (estado === 'Disponible' && activo);
-
-    return {
-      ...dto,
-      estado,
-      activo,
-      disponible,
-    };
   }
 }

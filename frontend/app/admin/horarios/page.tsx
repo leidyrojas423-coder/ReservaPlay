@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getStoredAuthToken } from '../../../lib/auth';
 
 interface Horario {
   id: string;
@@ -26,7 +27,7 @@ export default function AdminHorariosPage() {
     activo: true,
   });
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('reservaplay_token') : null;
+  const token = getStoredAuthToken();
 
   const cargarHorarios = async () => {
     if (!token) {

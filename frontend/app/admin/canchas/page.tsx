@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getStoredAuthToken } from '../../../lib/auth';
 
 interface Cancha {
   id: string;
@@ -30,7 +31,7 @@ export default function AdminCanchasPage() {
     activo: true,
   });
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('reservaplay_token') : null;
+  const token = getStoredAuthToken();
 
   const cargarCanchas = async () => {
     if (!token) {
