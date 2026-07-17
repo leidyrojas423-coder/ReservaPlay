@@ -230,3 +230,12 @@ Estos cinco bloques se traducen directamente al desarrollo de tu sistema:
 - **Conectar la despensa:** Configurar la conexión entre NestJS y PostgreSQL mediante un ORM.
 - **Completar el CRUD:** Implementar los endpoints para crear, consultar, actualizar y eliminar entidades del sistema.
 - **El círculo se cierra:** Lograr un flujo completo donde el usuario interactúe con el frontend, el backend procese las solicitudes y la base de datos garantice la persistencia de la información.
+
+# Avance de specs y frontend
+- Se levantaron los servidores del backend y frontend
+- Vinculación de los specs de diseño técnico con el código real del frontend
+- Actualización de la página de inicio (page.tsx) con la nueva portada deportiva y tipografía Bebas Neue
+- Limpieza y orden de terminales locales para resolver conflictos de puertos (EADDRINUSE)
+- Sincronización del servidor de desarrollo backend y frontend en localhost:3001
+- Mapeo y estructuración de los specs de Gestión de Canchas, Gestión de Horarios y Autenticación de Administradores
+
