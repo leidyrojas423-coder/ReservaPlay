@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import './globals.css';
 import AdminSessionBar from './components/admin-session-bar';
 import { AuthProvider } from './providers';
@@ -31,11 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
                 <nav>
                   <ul className="nav-list">
-                    <li><a href="#">Inicio</a></li>
-                    <li><a href="#">Reservas</a></li>
-                    <li><a href="#">Canchas</a></li>
-                    <li><a href="#">Clientes</a></li>
-                    <li><a href="#">Administradores</a></li>
+                    <li><Link href="/">Inicio</Link></li>
+                    <li><Link href="/dashboard">Reservas</Link></li>
+                    <li><Link href="/admin/canchas">Canchas</Link></li>
+                    <li><Link href="/admin/horarios">Horarios</Link></li>
+                    <li><Link href="/admin/users">Usuarios</Link></li>
                   </ul>
                 </nav>
               </aside>
