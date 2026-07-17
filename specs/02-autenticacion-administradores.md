@@ -1,3 +1,4 @@
+
 # Spec 2: Autenticación de administradores
 
 ## Objetivo

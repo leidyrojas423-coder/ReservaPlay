@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
+import { HorarioEntity } from '../horarios/entities/horario.entity';
+import { ReservaEntity } from '../reservas/entities/reserva.entity';
 import { CreateCanchaDto } from './dto/create-cancha.dto';
+import { DisponibilidadCanchaDto } from './dto/disponibilidad-cancha.dto';
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
 import { CanchaEntity } from './entities/cancha.entity';
 
@@ -14,6 +17,10 @@ export class CanchasService {
     private readonly canchasRepository: Repository<CanchaEntity>,
     @InjectRepository(AdministradorEntity)
     private readonly administradoresRepository: Repository<AdministradorEntity>,
+    @InjectRepository(HorarioEntity)
+    private readonly horariosRepository: Repository<HorarioEntity>,
+    @InjectRepository(ReservaEntity)
+    private readonly reservasRepository: Repository<ReservaEntity>,
   ) {}
 
   async create(createCanchaDto: CreateCanchaDto): Promise<CanchaEntity> {
@@ -93,6 +100,68 @@ export class CanchasService {
     return updated;
   }
 
+  async consultarDisponibilidad(filtros: DisponibilidadCanchaDto): Promise<any> {
+    const fechaConsulta = new Date(filtros.fecha);
+    if (Number.isNaN(fechaConsulta.getTime())) {
+      throw new BadRequestException('La fecha es obligatoria y debe ser válida');
+    }
+
+    const canchas = await this.canchasRepository.find({
+      where: { activo: true, estado: 'Disponible' },
+      relations: ['administrador'],
+      order: { nombre: 'ASC' },
+    });
+
+    const horarios = await this.horariosRepository.find({
+      where: { activo: true },
+      order: { fechaInicio: 'ASC' },
+    });
+
+    const reservas = await this.reservasRepository.find({
+      where: { fechaReserva: fechaConsulta },
+      order: { fechaReserva: 'ASC' },
+    });
+
+    const resultados = canchas
+      .filter((cancha) => filtros.canchaId ? cancha.id === filtros.canchaId : true)
+      .map((cancha) => {
+        const horariosDisponibles = horarios
+          .filter((horario) => horario.canchaId === cancha.id)
+          .filter((horario) => this.horarioEnRango(horario, filtros.rangoHorario))
+          .filter((horario) => !this.tieneReservaActiva(horario, reservas))
+          .map((horario) => ({
+            id: horario.id,
+            nombre: horario.nombre,
+            inicio: horario.fechaInicio,
+            fin: horario.fechaFin,
+            activo: horario.activo,
+          }));
+
+        return {
+          canchaId: cancha.id,
+          nombre: cancha.nombre,
+          estado: cancha.estado,
+          ubicacion: cancha.ubicacion,
+          disponible: horariosDisponibles.length > 0,
+          horariosDisponibles,
+        };
+      });
+
+    const disponibles = resultados.filter((item) => item.disponible);
+
+    return {
+      fecha: filtros.fecha,
+      canchaId: filtros.canchaId || null,
+      rangoHorario: filtros.rangoHorario || null,
+      totalCanchas: resultados.length,
+      totalDisponibles: disponibles.length,
+      canchas: resultados,
+      mensaje: disponibles.length > 0
+        ? 'Se encontraron canchas con disponibilidad para la fecha consultada.'
+        : 'No hay disponibilidad para la fecha consultada en este momento.',
+    };
+  }
+
   async remove(id: string): Promise<void> {
     const result = await this.canchasRepository.delete(id);
     if (result.affected === 0) {
@@ -112,5 +181,30 @@ export class CanchasService {
     if (!administrador) {
       throw new NotFoundException('Administrador no encontrado');
     }
+  }
+
+  private horarioEnRango(horario: HorarioEntity, rangoHorario?: string): boolean {
+    if (!rangoHorario) {
+      return true;
+    }
+
+    const [inicioRango, finRango] = rangoHorario.split('-').map((value) => value.trim());
+    if (!inicioRango || !finRango) {
+      return true;
+    }
+
+    const horarioInicio = horario.fechaInicio.toTimeString().slice(0, 5);
+    const horarioFin = horario.fechaFin.toTimeString().slice(0, 5);
+
+    return horarioInicio >= inicioRango && horarioFin <= finRango;
+  }
+
+  private tieneReservaActiva(horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
+    return reservas.some((reserva) => reserva.horarioId === horario.id && this.isActiveReservation(reserva));
+  }
+
+  private isActiveReservation(reserva: ReservaEntity): boolean {
+    const estado = (reserva.estado || '').toLowerCase();
+    return !['cancelada', 'cancelado', 'rechazada', 'completada', 'finalizada', 'anulada'].includes(estado);
   }
 }

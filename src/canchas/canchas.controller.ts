@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { CreateCanchaDto } from './dto/create-cancha.dto';
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
+import { DisponibilidadCanchaDto } from './dto/disponibilidad-cancha.dto';
 import { CanchasService } from './canchas.service';
 
 @Controller('canchas')
@@ -20,6 +21,11 @@ export class CanchasController {
   @Get('disponibles')
   async findDisponibles() {
     return this.canchasService.findDisponibles();
+  }
+
+  @Get('disponibilidad')
+  async consultarDisponibilidad(@Query() filtros: DisponibilidadCanchaDto) {
+    return this.canchasService.consultarDisponibilidad(filtros);
   }
 
   @Put(':id')
