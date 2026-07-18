@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getStoredAuthToken } from '../../../lib/auth';
 
 interface User {
   id: string;
@@ -17,7 +18,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('reservaplay_token');
+    const token = getStoredAuthToken();
     if (!token) {
       setError('Debe iniciar sesión como administrador.');
       setLoading(false);
