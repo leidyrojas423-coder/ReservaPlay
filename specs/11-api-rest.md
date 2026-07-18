@@ -2,7 +2,16 @@
 
 Este documento describe la API REST del backend de **ReservaPlay** con base en los controladores reales de NestJS. Debe mantenerse alineado con la implementación actual para evitar que la documentación describa rutas que no existen o permisos que no están aplicados.
 
-> Nota de coherencia: la API actual ya está definida en los controladores de `auth`, `users`, `clientes`, `administradores`, `canchas`, `horarios` y una estructura vacía en `reservas`. Por eso el spec debe reflejar el estado real del backend y diferenciar claramente entre endpoints existentes y pendientes.
+> Nota de coherencia: la API actual ya está definida en los controladores de `auth`, `users`, `clientes`, `administradores`, `canchas`, `horarios` y una estructura vacía en `reservas`. Por ello el spec debe reflejar el estado real del backend y diferenciar claramente entre endpoints existentes, protegidos y pendientes.
+
+### Estado general de la API
+- `auth`: implementado y con JWT.
+- `users`: implementado parcialmente con perfil autenticado.
+- `clientes`: implementado como CRUD básico, sin protección por guard.
+- `administradores`: implementado como CRUD básico, sin protección por guard.
+- `canchas`: implementado con operaciones de consulta, actualización y desactivación.
+- `horarios`: implementado con CRUD y desactivación.
+- `reservas`: pendiente de implementación funcional.
 
 ---
 
@@ -13,7 +22,7 @@ Este documento describe la API REST del backend de **ReservaPlay** con base en l
 | `POST` | `/auth/login` | Público | Autentica un usuario con email y password y devuelve un JWT. |
 | `POST` | `/auth/admin/login` | Público | Login específico para administradores. |
 | `GET` | `/auth/me` | Autenticado | Devuelve información del usuario autenticado. Requiere `JwtAuthGuard` y rol `client` o `admin`. |
-| `GET` | `/auth/admin/dashboard` | Admin | Endpoint administrativo de prueba/panel de control. |
+| `GET` | `/auth/admin/dashboard` | Admin | Endpoint administrativo de prueba/panel de control. Es un recurso interno de validación del rol administrador. |
 
 ---
 
@@ -83,6 +92,8 @@ Actualmente el controlador de reservas está vacío y no expone endpoints funcio
 
 ### Estado actual recomendado
 
+El módulo de reservas se encuentra vacío en el controlador actual. Por lo tanto, las rutas de abajo deben considerarse como requisitos pendientes, no como endpoints ya expuestos por la aplicación.
+
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `POST` | `/reservas` | Cliente | Pendiente: crear una reserva. |
@@ -127,3 +138,4 @@ Actualmente el controlador de reservas está vacío y no expone endpoints funcio
 3. Las rutas de acceso y parámetros deben usar el mismo nombre que aparece en los controladores (`:id`, `:canchaId`).
 4. Si un módulo queda vacío o incompleto, debe declararse como `pendiente` o `en desarrollo`.
 5. Cada cambio en el backend debe actualizar este spec para mantener la trazabilidad con los requisitos base.
+6. En esta versión de proyecto no se usa versionado de API (`/api/v1`) ni prefijos adicionales; por tanto, el spec debe documentar las rutas tal como están expuestas actualmente.
