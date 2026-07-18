@@ -10,6 +10,8 @@ Los requisitos no funcionales definen los atributos de calidad, rendimiento y re
 - **RNF-S1 (Encriptación de datos):** Las contraseñas de usuarios y perfiles deben almacenarse con hash seguro mediante `bcrypt`.
 - **RNF-S2 (Protección de endpoints):** El acceso a endpoints protegidos debe hacerse mediante `JWT` enviado en la cabecera `Authorization: Bearer <token>`.
 - **RNF-S3 (Autorización por roles):** El backend debe restringir accesos administrativos con los guards y roles ya configurados en el sistema.
+- **RNF-S4 (Secretos y configuración):** Los valores sensibles como `JWT_SECRET`, `DB_PASSWORD` y credenciales de conexión deben cargarse desde variables de entorno y nunca quedar hardcodeados en el repositorio.
+- **RNF-S5 (HTTPS en producción):** Toda comunicación con el API en producción debe realizarse sobre HTTPS para evitar exposición de tokens y datos personales en tránsito.
 
 ## 2. Rendimiento y escalabilidad (RNF-R)
 - **RNF-R1 (Tiempo de respuesta):** Los endpoints de consulta de disponibilidad y de gestión de horarios deben responder en un tiempo razonable bajo tráfico normal.
@@ -24,12 +26,14 @@ Los requisitos no funcionales definen los atributos de calidad, rendimiento y re
 - **RNF-D1 (Base de datos relacional):** El almacenamiento persistente debe utilizar PostgreSQL y las conexiones deben configurarse a través de variables de entorno.
 - **RNF-D2 (Disponibilidad):** La aplicación backend debe estar preparada para despliegue stateless en entornos cloud o contenedores.
 - **RNF-D3 (Configuración externa):** Los secretos y configuraciones sensibles deben mantenerse fuera del código fuente y cargarse mediante variables de entorno.
+- **RNF-D4 (Modo de sincronización):** En entorno de desarrollo puede usarse `synchronize: true`, pero en producción debe desactivarse para evitar alteraciones automáticas del esquema y proteger la integridad de los datos.
 
 ---
 
 ## 5. Coherencia con el proyecto
 
-1. El spec no funcional debe reflejar la infraestructura ya utilizada por el proyecto: `bcrypt`, `JWT`, `passport-jwt` y PostgreSQL.
+1. El spec no funcional debe reflejar la infraestructura ya utilizada por el proyecto: `bcrypt`, `JWT`, `passport-jwt`, `ConfigModule` y PostgreSQL.
 2. Todo requisito de seguridad o disponibilidad debe ser trazable a una configuración actual del backend o a una política de despliegue documentada.
-3. Los requerimientos relacionados con reservas deben mantenerse en una categoría clara de `pendiente` si aún no han sido implementados en el servicio correspondiente.
+3. Los requisitos relacionados con reservas deben mantenerse en una categoría clara de `pendiente` si aún no han sido implementados en el servicio correspondiente.
 4. Los objetivos de rendimiento no deben sobreespecificar un comportamiento que el backend aún no ha validado en pruebas reales.
+5. Cualquier cambio de configuración de base de datos, JWT o despliegue debe actualizar este spec para mantener el vínculo entre la arquitectura y la documentación.
