@@ -3,6 +3,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CanchasService } from './canchas.service';
 import { CanchaEntity } from './entities/cancha.entity';
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
+import { HorarioEntity } from '../horarios/entities/horario.entity';
+import { ReservaEntity } from '../reservas/entities/reserva.entity';
 
 describe('CanchasService', () => {
   let service: CanchasService;
@@ -17,6 +19,14 @@ describe('CanchasService', () => {
         },
         {
           provide: getRepositoryToken(AdministradorEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(HorarioEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(ReservaEntity),
           useValue: {},
         },
       ],
