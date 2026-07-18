@@ -11,23 +11,6 @@ Repositorio de especificaciones y requisitos para el proyecto ReservaPlay.
 ## Estado
 
 Repositorio inicializado localmente con Git.
-<<<<<<< HEAD
-## Estado 
-Repositorio inicializado localmente con Git
-## Trabajo realizado
-
-## Problema
-Se presentó un error con la librería bcrypt en entorno windows
-
-### Solución
-- Se reemplazó bcrypt por bcrypt js
-- se reinició el servidor para aplicar los cambios
-- Se verificó el correcto funcionamiento
-### Endpoints probados
-- POST/users/registrer
--POST/auth/loing
-
-=======
 
 ## Qué datos se persisten?
 
@@ -247,4 +230,12 @@ Estos cinco bloques se traducen directamente al desarrollo de tu sistema:
 - **Conectar la despensa:** Configurar la conexión entre NestJS y PostgreSQL mediante un ORM.
 - **Completar el CRUD:** Implementar los endpoints para crear, consultar, actualizar y eliminar entidades del sistema.
 - **El círculo se cierra:** Lograr un flujo completo donde el usuario interactúe con el frontend, el backend procese las solicitudes y la base de datos garantice la persistencia de la información.
->>>>>>> ebb14c911465b6c37dec5e51fb5ac784a43c7a00
+
+# Avance de specs y frontend
+- Se levantaron los servidores del backend y frontend
+- Vinculación de los specs de diseño técnico con el código real del frontend
+- Actualización de la página de inicio (page.tsx) con la nueva portada deportiva y tipografía Bebas Neue
+- Limpieza y orden de terminales locales para resolver conflictos de puertos (EADDRINUSE)
+- Sincronización del servidor de desarrollo backend y frontend en localhost:3001
+- Mapeo y estructuración de los specs de Gestión de Canchas, Gestión de Horarios y Autenticación de Administradores
+
