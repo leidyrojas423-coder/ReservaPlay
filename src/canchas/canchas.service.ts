@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
 import { HorarioEntity } from '../horarios/entities/horario.entity';
-import { ReservaEntity } from '../reservas/entities/reserva.entity';
+import { ReservaEntity, ReservaEstado } from '../reservas/entities/reserva.entity';
 import { CreateCanchaDto } from './dto/create-cancha.dto';
 import { DisponibilidadCanchaDto } from './dto/disponibilidad-cancha.dto';
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
@@ -54,6 +54,15 @@ export class CanchasService {
       relations: ['administrador'],
       order: { nombre: 'ASC' },
     });
+  }
+
+  async findOne(id: string): Promise<CanchaEntity> {
+    const cancha = await this.canchasRepository.findOne({ where: { id }, relations: ['administrador'] });
+    if (!cancha) {
+      throw new NotFoundException('Cancha no encontrada');
+    }
+
+    return cancha;
   }
 
   async update(id: string, updateCanchaDto: UpdateCanchaDto): Promise<CanchaEntity> {
@@ -118,8 +127,8 @@ export class CanchasService {
     });
 
     const reservas = await this.reservasRepository.find({
-      where: { fechaReserva: fechaConsulta },
-      order: { fechaReserva: 'ASC' },
+      where: { fecha: filtros.fecha },
+      order: { fecha: 'ASC' },
     });
 
     const resultados = canchas
@@ -128,7 +137,7 @@ export class CanchasService {
         const horariosDisponibles = horarios
           .filter((horario) => horario.canchaId === cancha.id)
           .filter((horario) => this.horarioEnRango(horario, filtros.rangoHorario))
-          .filter((horario) => !this.tieneReservaActiva(horario, reservas))
+          .filter((horario) => !this.tieneReservaActiva(cancha, horario, reservas))
           .map((horario) => ({
             id: horario.id,
             nombre: horario.nombre,
@@ -163,6 +172,22 @@ export class CanchasService {
   }
 
   async remove(id: string): Promise<void> {
+    const cancha = await this.canchasRepository.findOne({ where: { id } });
+    if (!cancha) {
+      throw new NotFoundException('Cancha no encontrada');
+    }
+
+    const reservasActivas = await this.reservasRepository.count({
+      where: {
+        cancha: cancha.nombre,
+        estado: In([ReservaEstado.PENDIENTE, ReservaEstado.CONFIRMADA]),
+      },
+    });
+
+    if (reservasActivas > 0) {
+      throw new BadRequestException('No se puede eliminar la cancha porque tiene reservas activas asociadas');
+    }
+
     const result = await this.canchasRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException('Cancha no encontrada');
@@ -199,8 +224,21 @@ export class CanchasService {
     return horarioInicio >= inicioRango && horarioFin <= finRango;
   }
 
-  private tieneReservaActiva(horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
-    return reservas.some((reserva) => reserva.horarioId === horario.id && this.isActiveReservation(reserva));
+  private tieneReservaActiva(cancha: CanchaEntity, horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
+    const rangoHorario = this.formatoRangoHorario(horario);
+
+    return reservas.some(
+      (reserva) =>
+        reserva.cancha === cancha.nombre &&
+        reserva.hora === rangoHorario &&
+        this.isActiveReservation(reserva),
+    );
+  }
+
+  private formatoRangoHorario(horario: HorarioEntity): string {
+    const inicio = horario.fechaInicio.toTimeString().slice(0, 5);
+    const fin = horario.fechaFin.toTimeString().slice(0, 5);
+    return `${inicio} - ${fin}`;
   }
 
   private isActiveReservation(reserva: ReservaEntity): boolean {

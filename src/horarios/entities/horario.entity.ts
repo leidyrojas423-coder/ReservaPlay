@@ -1,6 +1,5 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { CanchaEntity } from '../../canchas/entities/cancha.entity';
-import { ReservaEntity } from '../../reservas/entities/reserva.entity';
 
 @Entity('horarios')
 export class HorarioEntity {
@@ -28,9 +27,6 @@ export class HorarioEntity {
   @ManyToOne(() => CanchaEntity, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'canchaId' })
   cancha?: CanchaEntity;
-
-  @OneToMany(() => ReservaEntity, (reserva) => reserva.horario, { cascade: true })
-  reservas?: ReservaEntity[];
 
   @CreateDateColumn({ name: 'fecha_registro' })
   fechaRegistro!: Date;

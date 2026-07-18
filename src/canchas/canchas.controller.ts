@@ -28,6 +28,11 @@ export class CanchasController {
     return this.canchasService.consultarDisponibilidad(filtros);
   }
 
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.canchasService.findOne(id);
+  }
+
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateCanchaDto: UpdateCanchaDto) {
     return this.canchasService.update(id, updateCanchaDto);
