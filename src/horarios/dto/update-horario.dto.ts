@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class UpdateHorarioDto {
   @IsString()
@@ -9,13 +9,17 @@ export class UpdateHorarioDto {
   @IsOptional()
   descripcion?: string;
 
-  @IsString()
+  @IsUUID()
   @IsOptional()
-  horaInicio?: string;
+  canchaId?: string;
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
-  horaFin?: string;
+  fechaInicio?: string;
+
+  @IsDateString()
+  @IsOptional()
+  fechaFin?: string;
 
   @IsBoolean()
   @IsOptional()

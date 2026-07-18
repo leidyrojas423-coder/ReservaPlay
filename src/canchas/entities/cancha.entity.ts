@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AdministradorEntity } from '../../administradores/entities/administrador.entity';
 
 @Entity('canchas')
 export class CanchaEntity {
@@ -8,14 +9,30 @@ export class CanchaEntity {
   @Column({ length: 100 })
   nombre!: string;
 
+  @Column({ length: 250, nullable: true })
+  descripcion?: string;
+
   @Column({ length: 100 })
   ubicacion!: string;
 
-  @Column({ length: 50 })
-  tipo!: string;
+  @Column({ length: 50, default: 'Disponible' })
+  estado!: string;
+
+  @Column({ type: 'int', nullable: true })
+  capacidad?: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  precio?: number;
 
   @Column({ default: true })
-  disponible!: boolean;
+  activo!: boolean;
+
+  @Column({ type: 'uuid' })
+  administradorId!: string;
+
+  @ManyToOne(() => AdministradorEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'administradorId' })
+  administrador?: AdministradorEntity;
 
   @CreateDateColumn({ name: 'fecha_registro' })
   fechaRegistro!: Date;

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { RolesGuard } from './auth/guards/roles.guard';
 import { ClientesModule } from './clientes/clientes.module';
 import { AdministradoresModule } from './administradores/administradores.module';
 import { CanchasModule } from './canchas/canchas.module';
@@ -31,6 +33,11 @@ import { ReservasModule } from './reservas/reservas.module';
     ReservasModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
