@@ -30,6 +30,15 @@ export class ReservaEntity {
   @Column({ type: 'enum', enum: ReservaEstado, default: ReservaEstado.PENDIENTE })
   estado!: ReservaEstado;
 
+  @Column({ type: 'text', nullable: true })
+  motivoCancelacion!: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  canceladaEn!: Date | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  canceladaPor!: string | null;
+
   @CreateDateColumn({ name: 'fecha_registro' })
   fechaRegistro!: Date;
 }

@@ -1,49 +1,92 @@
-# Spec 12: Reglas de Negocio
+# Spec 12: Reglas de Negocio (Coherente con el proyecto actual)
 
-Este documento define las reglas de negocio lógicas que rigen el funcionamiento del sistema **ReservaPlay**. Estas reglas controlan la lógica de reservas, cancelaciones, tarifas y permisos de usuario.
+Este documento define las reglas de negocio que deben regir el comportamiento del sistema **ReservaPlay** con base en la implementación real del backend. Debe mantenerse alineado con los servicios actuales de `canchas`, `horarios` y con el flujo que aún está pendiente en `reservas`.
 
----
-
-## 1. Reglas de Gestión de Reservas
-
-### 1.1. Disponibilidad Temporal y Solapamiento
-- **Regla:** Una cancha deportiva no puede ser reservada por más de un cliente para la misma fecha y el mismo bloque horario.
-- **Validación del Sistema:** El sistema debe comprobar la existencia de una reserva activa (estado `confirmada` o `pendiente`) antes de consolidar una nueva solicitud de reserva. Si ya existe, se lanzará una excepción `409 Conflict`.
-
-### 1.2. Límite de Reservas Activas por Cliente
-- **Regla:** Un cliente regular no puede tener más de **3 reservas activas** de forma simultánea en estado `pendiente`.
-- **Objetivo:** Evitar el acaparamiento de bloques horarios que impida el uso común de las instalaciones.
+> Nota de coherencia: el proyecto actual ya valida solapamiento de horarios, disponibilidad por fecha y estado de cancha, pero aún no ha implementado el módulo de reservas con su lógica completa. Por eso este spec debe distinguir entre reglas ya soportadas en código y reglas pendientes de desarrollo.
 
 ---
 
-## 2. Reglas de Cancelación y Reembolsos
+## 1. Reglas de gestión de disponibilidad
 
-### 2.1. Ventana de Cancelación
-- **Regla:** Un cliente puede cancelar su reserva de forma autónoma hasta **24 horas antes** del inicio programado del bloque de juego.
-- **Acción:** Si se realiza dentro del plazo permitido, el estado de la reserva cambia a `cancelada` y se emite un comprobante de crédito/devolución (si aplica).
-- **Restricción:** Si quedan menos de 24 horas para el juego, el botón de cancelación estará deshabilitado para el cliente en la plataforma. Solo un administrador del sistema podrá procesar la cancelación en casos excepcionales.
+### 1.1. Solapamiento de horarios por cancha
+- **Regla:** Dos horarios activos no pueden solaparse en la misma cancha.
+- **Validación actual en el sistema:** el servicio de horarios valida el rango de fechas y rechaza solapamientos con `ConflictException`.
+- **Resultado esperado:** si el rango nuevo intersecta con otro horario activo de la misma cancha, se debe responder con un error `409 Conflict`.
+
+### 1.2. Disponibilidad por fecha y horario
+- **Regla:** Una cancha solo se considera disponible si está activa (`activo = true`) y su estado principal es `Disponible`.
+- **Validación actual en el sistema:** `CanchasService.consultarDisponibilidad()` filtra por `activo = true`, `estado = 'Disponible'`, y luego excluye los horarios que ya tienen una reserva activa asociada.
+- **Resultado esperado:** el sistema debe devolver solo los bloques horarios que no presenten conflicto con reservas activas.
+
+### 1.3. Bloqueo por mantenimiento
+- **Regla:** El administrador puede desactivar una cancha o un horario para mantenimiento. En ese estado, no debe estar disponible para nuevas reservas.
+- **Validación actual en el sistema:** `deactivate()` en canchas marca la entidad como `activo = false` y ajusta su estado a `Mantenimiento`.
 
 ---
 
-## 3. Políticas de Tarifas y Horarios
+## 2. Reglas de reservas
 
-### 3.1. Tarifas Diferenciales (Opcional)
-- **Regla:** El precio base de la cancha se define por hora en la tabla `canchas`. Sin embargo, el administrador puede definir recargos en los horarios de "alta demanda" (por ejemplo, bloques nocturnos entre las 18:00 y las 22:00 horas).
+### 2.1. Reserva activa y conflicto temporal
+- **Regla:** No se puede generar una nueva reserva si el mismo `horarioId` ya está ocupado por una reserva activa en la fecha consultada.
+- **Estado de implementación:** esta lógica se aplica de forma indirecta en la disponibilidad, pero el módulo `reservas` aún no está implementado completamente.
+- **Resultado esperado:** en el flujo final de reservas, un conflicto debe responder con `409 Conflict`.
 
-### 3.2. Bloqueo de Mantenimiento
-- **Regla:** El administrador puede deshabilitar canchas o bloques de horarios por mantenimiento. Ningún cliente podrá realizar reservas en bloques inactivos.
+### 2.2. Límite de reservas por cliente
+- **Regla objetivo:** un cliente no debería tener más de 3 reservas activas concurrentes.
+- **Estado de implementación:** esta regla aún no está codificada en la capa actual; se recomienda dejarla como requisito pendiente de validación en `ReservasService`.
+
+### 2.3. Estados de reserva
+- **Regla:** los estados de la reserva deben mantenerse en un conjunto controlado.
+- **Estados esperados:** `pendiente`, `confirmada`, `cancelada`, `rechazada`, `completada` o `finalizada`.
+- **Estado actual en código:** el servicio de canchas usa una lista de estados no activos para considerar la reserva como no vigente.
 
 ---
 
-## 4. Matriz de Permisos y Roles
+## 3. Reglas de cancelación y mantenimiento
 
-| Acción | Rol: Cliente | Rol: Administrador |
+### 3.1. Ventana de cancelación
+- **Regla objetivo:** un cliente puede cancelar una reserva hasta 24 horas antes de la fecha/hora de inicio del bloque.
+- **Estado de implementación:** esta regla no está implementada aún porque el servicio de reservas está vacío.
+- **Recomendación:** documentarla como requisito a implementar en el flujo de reservas con validación de tiempo real.
+
+### 3.2. Cancelación administrativa
+- **Regla objetivo:** un administrador puede cancelar reservas en casos excepcionales, incluso si el cliente ya no puede hacerlo por la ventana de tiempo.
+- **Estado de implementación:** pendiente.
+
+---
+
+## 4. Políticas de tarifas y horarios
+
+### 4.1. Precio base de cancha
+- **Regla:** la tarifa base de la cancha se toma del campo `precio` en la entidad `canchas`.
+- **Estado actual:** el proyecto usa este precio como dato base, pero no implementa recargos por demanda en la lógica actual.
+
+### 4.2. Horarios de alta demanda
+- **Regla objetivo:** el sistema podría admitir recargos diferenciales por horarios de alta demanda.
+- **Estado actual:** no existe implementación en el backend. Se recomienda mantenerlo como extensión futura y no como regla vigente del sistema.
+
+---
+
+## 5. Matriz de permisos y roles
+
+| Acción | Rol: `client` | Rol: `admin` |
 | :--- | :---: | :---: |
-| Registrarse en el sistema | Sí | No (Cuentas internas) |
+| Registrarse en el sistema | Sí | No (cuentas internas) |
 | Consultar disponibilidad de canchas | Sí | Sí |
-| Crear una nueva reserva | Sí | Sí (En representación de un cliente) |
-| Confirmar reservas pendientes | No | Sí |
-| Cancelar reserva propia (>24h) | Sí | Sí |
-| Cancelar reserva propia (<24h) | No | Sí |
-| Crear, modificar o desactivar canchas | No | Sí |
-| Gestionar bloques de horarios | No | Sí |
+| Crear un horario | No | Sí |
+| Actualizar o desactivar un horario | No | Sí |
+| Crear o modificar canchas | No | Sí |
+| Desactivar canchas | No | Sí |
+| Ver perfil propio | Sí | Sí |
+| Acceder a dashboard administrativo | No | Sí |
+| Gestionar reservas | Pendiente | Pendiente |
+
+---
+
+## 6. Reglas de coherencia con el proyecto
+
+1. El spec debe reflejar primero lo que ya está implementado en `canchas` y `horarios`.
+2. Las reglas de `reservas` deben marcarse como pendientes si aún no existen en el controlador o servicio correspondiente.
+3. Los roles deben usarse con la nomenclatura real del proyecto: `client` y `admin`.
+4. La validación de horarios no debe inventar comportamientos que no estén presentes en la lógica actual del servicio.
+5. Cada nueva regla de negocio debe actualizar también los servicios, DTOs y controladores para mantener trazabilidad con el código.
