@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
 import { HorarioEntity } from '../horarios/entities/horario.entity';
-import { ReservaEntity } from '../reservas/entities/reserva.entity';
+import { ReservaEntity, ReservaEstado } from '../reservas/entities/reserva.entity';
 import { CreateCanchaDto } from './dto/create-cancha.dto';
 import { DisponibilidadCanchaDto } from './dto/disponibilidad-cancha.dto';
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
@@ -118,8 +118,8 @@ export class CanchasService {
     });
 
     const reservas = await this.reservasRepository.find({
-      where: { fechaReserva: fechaConsulta },
-      order: { fechaReserva: 'ASC' },
+      where: { fecha: filtros.fecha },
+      order: { fecha: 'ASC' },
     });
 
     const resultados = canchas
@@ -128,7 +128,7 @@ export class CanchasService {
         const horariosDisponibles = horarios
           .filter((horario) => horario.canchaId === cancha.id)
           .filter((horario) => this.horarioEnRango(horario, filtros.rangoHorario))
-          .filter((horario) => !this.tieneReservaActiva(horario, reservas))
+          .filter((horario) => !this.tieneReservaActiva(cancha, horario, reservas))
           .map((horario) => ({
             id: horario.id,
             nombre: horario.nombre,
@@ -199,12 +199,29 @@ export class CanchasService {
     return horarioInicio >= inicioRango && horarioFin <= finRango;
   }
 
-  private tieneReservaActiva(horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
-    return reservas.some((reserva) => reserva.horarioId === horario.id && this.isActiveReservation(reserva));
+  private tieneReservaActiva(cancha: CanchaEntity, horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
+    const nombreCancha = this.normalizarTexto(cancha.nombre);
+    const rangoHorario = this.formatearRangoHorario(horario);
+
+    return reservas.some(
+      (reserva) =>
+        this.normalizarTexto(reserva.cancha) === nombreCancha &&
+        reserva.hora === rangoHorario &&
+        this.isActiveReservation(reserva),
+    );
+  }
+
+  private formatearRangoHorario(horario: HorarioEntity): string {
+    const inicio = horario.fechaInicio.toTimeString().slice(0, 5);
+    const fin = horario.fechaFin.toTimeString().slice(0, 5);
+    return `${inicio} - ${fin}`;
   }
 
   private isActiveReservation(reserva: ReservaEntity): boolean {
-    const estado = (reserva.estado || '').toLowerCase();
-    return !['cancelada', 'cancelado', 'rechazada', 'completada', 'finalizada', 'anulada'].includes(estado);
+    return reserva.estado === ReservaEstado.PENDIENTE || reserva.estado === ReservaEstado.CONFIRMADA;
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor.trim().toLowerCase();
   }
 }
