@@ -55,3 +55,14 @@ Este documento define el plan estratégico de hitos para completar el desarrollo
 2. El flujo de reservas debe permanecer como hito abierto hasta que el módulo esté completamente operativo.
 3. El frontend y el despliegue deben evaluarse como fases posteriores al cierre del backend funcional.
 4. Cualquier cambio de prioridad en arquitectura o negocio debe reflejarse aquí para conservar trazabilidad del plan.
+
+---
+
+## 7. Ajustes sugeridos para cerrar la ejecución real del proyecto
+
+- Separar el cierre del backend en dos etapas: `base estable` y `flujo de reservas completo`.
+- Considerar el módulo de reservas como un hito independiente porque hoy no está expuesto como API real en el controlador.
+- Incluir validaciones de `DTOs` y pruebas de integración en el hito 1, para reforzar la robustez del backend antes de abrir frontend.
+- Priorizar primero la capa de negocio y la concurrencia de horarios, y después la capa de experiencia del usuario.
+- Definir el despliegue como una fase de estabilización final y no como una tarea paralela del desarrollo funcional.
+- Mantener una trazabilidad simple entre cada hito y los módulos ya presentes en `src/` para evitar fechas de entrega ajenas a la realidad del repo.
