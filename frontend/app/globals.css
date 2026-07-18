@@ -678,6 +678,40 @@ a {
   line-height: 1.55;
 }
 
+.mis-reservas-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mis-reservas-tabs__tab {
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.mis-reservas-tabs__tab:hover,
+.mis-reservas-tabs__tab:focus-visible {
+  transform: translateY(-1px);
+  border-color: #94a3b8;
+}
+
+.mis-reservas-tabs__tab.is-active {
+  border-color: #0f172a;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.mis-reservas-panel {
+  display: grid;
+  gap: 12px;
+}
+
 .cliente-reserva-form {
   border: 1px solid #cbd5e1;
   border-radius: 18px;
@@ -724,6 +758,70 @@ a {
 .cliente-reserva-form__actions {
   display: flex;
   justify-content: flex-start;
+}
+
+.reserva-disponibilidad {
+  border: 1px solid #cbd5e1;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.reserva-disponibilidad h3 {
+  margin: 0;
+  font-size: clamp(1.4rem, 3.1vw, 2rem);
+  line-height: 0.95;
+  color: #0f172a;
+}
+
+.reserva-disponibilidad p {
+  margin: 0;
+  color: #475569;
+}
+
+.reserva-disponibilidad__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.reserva-disponibilidad__slot {
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  padding: 10px;
+  display: grid;
+  gap: 3px;
+}
+
+.reserva-disponibilidad__slot strong {
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.reserva-disponibilidad__slot span {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.reserva-disponibilidad__slot.is-libre {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.reserva-disponibilidad__slot.is-libre span {
+  color: #166534;
+}
+
+.reserva-disponibilidad__slot.is-ocupado {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.reserva-disponibilidad__slot.is-ocupado span {
+  color: #991b1b;
 }
 
 .mis-reservas__summary {
@@ -978,6 +1076,97 @@ a {
   line-height: 1.45;
 }
 
+.estado-reservas-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.estado-reservas-panel__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.estado-reservas-columna,
+.estado-reservas-canceladas {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.estado-reservas-columna > header,
+.estado-reservas-canceladas > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px;
+}
+
+.estado-reservas-columna > header h3,
+.estado-reservas-canceladas > header h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.estado-reservas-columna > header span,
+.estado-reservas-canceladas > header span {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: #e2e8f0;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.estado-reservas-columna--pendiente {
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 34%);
+}
+
+.estado-reservas-columna--confirmada {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 34%);
+}
+
+.estado-reservas-columna--finalizada {
+  background: linear-gradient(180deg, #eff6ff 0%, #ffffff 34%);
+}
+
+.estado-reservas-canceladas {
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 34%);
+  border-color: #fecaca;
+}
+
+.estado-reservas-columna__content {
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.estado-reservas-item {
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.estado-reservas-item strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.estado-reservas-item p,
+.estado-reservas-item small {
+  margin: 0;
+  color: #475569;
+}
+
 .admin-estados {
   display: grid;
   gap: 14px;
@@ -1204,11 +1393,24 @@ a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .mis-reservas-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .cliente-reserva-form__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .reserva-disponibilidad__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .reservas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .estado-reservas-panel__grid {
     grid-template-columns: 1fr;
   }
 
