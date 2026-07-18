@@ -1,6 +1,6 @@
 # Spec 18: Roadmap de Desarrollo
 
-Este documento define el plan estratégico de hitos para completar el desarrollo y despliegue del sistema **ReservaPlay**, manteniendo coherencia con la implementación real del backend.
+Este documento define el plan estratégico de hitos cronológicos para completar el desarrollo y despliegue del sistema **ReservaPlay**, manteniendo coherencia con la implementación real del backend.
 
 > Nota de coherencia: el proyecto ya cuenta con módulos de autenticación, clientes, administradores, canchas y horarios. El módulo de reservas sigue siendo parcialmente implementado. Por eso, el roadmap debe diferenciar claramente entre funcionalidades ya disponibles, pendientes y futuras.
 
