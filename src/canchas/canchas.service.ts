@@ -225,24 +225,32 @@ export class CanchasService {
   }
 
   private tieneReservaActiva(cancha: CanchaEntity, horario: HorarioEntity, reservas: ReservaEntity[]): boolean {
-    const rangoHorario = this.formatoRangoHorario(horario);
+    const nombreCancha = this.normalizarTexto(cancha.nombre);
+    const rangoHorario = this.formatearRangoHorario(horario);
 
     return reservas.some(
       (reserva) =>
-        reserva.cancha === cancha.nombre &&
+        this.normalizarTexto(reserva.cancha) === nombreCancha &&
         reserva.hora === rangoHorario &&
         this.isActiveReservation(reserva),
     );
   }
 
-  private formatoRangoHorario(horario: HorarioEntity): string {
+  private formatearRangoHorario(horario: HorarioEntity): string {
     const inicio = horario.fechaInicio.toTimeString().slice(0, 5);
     const fin = horario.fechaFin.toTimeString().slice(0, 5);
     return `${inicio} - ${fin}`;
   }
 
   private isActiveReservation(reserva: ReservaEntity): boolean {
-    const estado = (reserva.estado || '').toLowerCase();
-    return !['cancelada', 'cancelado', 'rechazada', 'completada', 'finalizada', 'anulada'].includes(estado);
+    return reserva.estado === ReservaEstado.PENDIENTE || reserva.estado === ReservaEstado.CONFIRMADA;
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor.trim().toLowerCase();
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor.trim().toLowerCase();
   }
 }
