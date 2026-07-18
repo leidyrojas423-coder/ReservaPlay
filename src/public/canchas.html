@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Canchas - ReservaPlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #218838;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        h2 {
+            color: #28a745;
+            margin: 40px 0 20px 0;
+            font-size: 1.8em;
+            font-weight: 500;
+        }
+
+        /* Estilos del Formulario */
+        #formCanchas {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            transition: all 0.3s ease;
+        }
+
+        #formCanchas:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        fieldset {
+            border: none;
+        }
+
+        legend {
+            color: #218838;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #28a745;
+            width: 100%;
+        }
+
+        #formCanchas div {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #28a745;
+            background-color: white;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.2);
+        }
+
+        button {
+            padding: 12px 24px;
+            margin-right: 10px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #218838;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            transform: translateY(-2px);
+        }
+
+        button[type="reset"] {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        button[type="reset"]:hover {
+            background-color: #5a6268;
+        }
+
+        /* Estilos de la Tabla */
+        section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background-color: #28a745;
+            color: white;
+        }
+
+        th {
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+            border: 1px solid #1e7e34;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f8f0;
+            box-shadow: inset 0 0 10px rgba(40, 167, 69, 0.1);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        tbody tr:nth-child(even):hover {
+            background-color: #f0f8f0;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            #formCanchas {
+                padding: 20px;
+            }
+
+            button {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 10px 6px;
+            }
+        }
+
+        /* Estilos para Badges de Estado */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .badge-disponible {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-mantenimiento {
+            background-color: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestión de Canchas</h1>
+        
+        <form id="formCanchas">
+            <fieldset>
+                <legend>Información de la Cancha</legend>
+                
+                <div>
+                    <label for="nombre">Nombre de la Cancha:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+                
+                <div>
+                    <label for="tipoSuperficie">Tipo de Superficie:</label>
+                    <select id="tipoSuperficie" name="tipoSuperficie" required>
+                        <option value="">Seleccionar tipo...</option>
+                        <option value="sintetica">Sintética</option>
+                        <option value="madera">Madera</option>
+                        <option value="cemento">Cemento</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="precioHora">Precio por Hora:</label>
+                    <input type="number" id="precioHora" name="precioHora" step="0.01" min="0" required>
+                </div>
+                
+                <div>
+                    <label for="estadoInicial">Estado Inicial:</label>
+                    <select id="estadoInicial" name="estadoInicial" required>
+                        <option value="disponible">Disponible</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Guardar Cancha</button>
+                <button type="reset">Limpiar</button>
+            </fieldset>
+        </form>
+        
+        <section>
+            <h2>Canchas Registradas</h2>
+            <table id="tablaCanchas">
+                <thead>
+                    <tr>
+                        <th>Nombre/ID</th>
+                        <th>Superficie</th>
+                        <th>Precio/Hora</th>
+                        <th>Estado Técnico</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Cancha Sintética F8 - UUID001</td>
+                        <td>Sintética</td>
+                        <td>$25.00</td>
+                        <td>Disponible</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        const formCanchas = document.getElementById('formCanchas');
+        const tablaCanchas = document.getElementById('tablaCanchas');
+
+        formCanchas.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Capturar valores del formulario
+            const nombre = document.getElementById('nombre').value.trim();
+            const tipoSuperficie = document.getElementById('tipoSuperficie').value;
+            const precioHora = parseFloat(document.getElementById('precioHora').value);
+            const estadoInicial = document.getElementById('estadoInicial').value;
+
+            // Validar que no haya campos vacíos
+            if (!nombre || !tipoSuperficie || !precioHora || !estadoInicial) {
+                alert('Por favor, complete todos los campos del formulario');
+                return;
+            }
+
+            // Formatear datos
+            const precioFormateado = `$${precioHora.toFixed(2)}`;
+            const id = `UUID${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+            const nombreConId = `${nombre} - ${id}`;
+
+            // Mapeo de tipos de superficie para mostrar con mayúscula inicial
+            const tiposSuperficieMap = {
+                'sintetica': 'Sintética',
+                'madera': 'Madera',
+                'cemento': 'Cemento'
+            };
+            const tipoMostrar = tiposSuperficieMap[tipoSuperficie] || tipoSuperficie;
+
+            // Crear badge para el estado
+            const estadoCapitalizado = estadoInicial.charAt(0).toUpperCase() + estadoInicial.slice(1);
+            const badgeClass = `badge badge-${estadoInicial}`;
+
+            // Crear fila de la tabla
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+                <td>${nombreConId}</td>
+                <td>${tipoMostrar}</td>
+                <td>${precioFormateado}</td>
+                <td><span class="${badgeClass}">${estadoCapitalizado}</span></td>
+            `;
+
+            // Insertar fila en la tabla
+            tablaCanchas.querySelector('tbody').appendChild(nuevaFila);
+
+            // Limpiar formulario
+            formCanchas.reset();
+
+            // Feedback visual
+            console.log('✓ Cancha registrada exitosamente:', nombreConId);
+        });
+    </script>
+</body>
+</html>
