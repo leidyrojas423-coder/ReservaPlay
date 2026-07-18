@@ -1,63 +1,100 @@
-# Spec 11: API REST Endpoints
+# Spec 11: API REST Endpoints (Coherente con el proyecto actual)
 
-Este documento detalla la estructura de la API REST para el sistema **ReservaPlay**, mapeada a partir de los módulos del código NestJS. Todos los endpoints de recursos protegidos requieren un token JWT en el encabezado `Authorization: Bearer <token>`.
+Este documento describe la API REST del backend de **ReservaPlay** con base en los controladores reales de NestJS. Debe mantenerse alineado con la implementación actual para evitar que la documentación describa rutas que no existen o permisos que no están aplicados.
+
+> Nota de coherencia: la API actual ya está definida en los controladores de `auth`, `users`, `clientes`, `administradores`, `canchas`, `horarios` y una estructura vacía en `reservas`. Por eso el spec debe reflejar el estado real del backend y diferenciar claramente entre endpoints existentes y pendientes.
 
 ---
 
-## 1. Módulo de Autenticación (`/auth`)
+## 1. Módulo de autenticación (`/auth`)
 
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/auth/login` | Público | Autentica un usuario (Cliente/Admin) y retorna el token JWT junto con el rol. |
+| `POST` | `/auth/login` | Público | Autentica un usuario con email y password y devuelve un JWT. |
+| `POST` | `/auth/admin/login` | Público | Login específico para administradores. |
+| `GET` | `/auth/me` | Autenticado | Devuelve información del usuario autenticado. Requiere `JwtAuthGuard` y rol `client` o `admin`. |
+| `GET` | `/auth/admin/dashboard` | Admin | Endpoint administrativo de prueba/panel de control. |
 
 ---
 
-## 2. Módulo de Usuarios y Clientes (`/users` y `/clientes`)
+## 2. Módulo de usuarios (`/users`)
 
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/users` | Público | Registro inicial de un usuario (crea credenciales básicas). |
-| `GET` | `/clientes/perfil` | Cliente | Obtiene los datos del perfil del cliente autenticado. |
-| `PUT` | `/clientes/perfil` | Cliente | Actualiza la información personal del cliente (nombre, teléfono). |
+| `POST` | `/users/register` | Público | Registra un nuevo usuario base en el sistema. |
+| `GET` | `/users/me` | Autenticado | Obtiene el perfil del usuario autenticado. |
+| `PATCH` | `/users/me` | Autenticado | Actualiza el perfil del usuario autenticado. |
 
 ---
 
-## 3. Módulo de Administradores y Canchas (`/administradores` y `/canchas`)
+## 3. Módulo de clientes (`/clientes`)
 
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/canchas` | Admin | Registra una nueva cancha en el sistema. |
-| `GET` | `/canchas` | Público | Lista todas las canchas disponibles (filtro opcional por tipo). |
-| `GET` | `/canchas/:id` | Público | Obtiene los detalles específicos de una cancha por su ID. |
-| `PUT` | `/canchas/:id` | Admin | Modifica los datos o desactiva de forma lógica una cancha. |
-| `DELETE` | `/canchas/:id` | Admin | Elimina una cancha (siempre que no tenga reservas asociadas). |
+| `POST` | `/clientes` | Público | Crea un cliente. |
+| `GET` | `/clientes` | Público | Lista los clientes registrados. |
+| `PUT` | `/clientes/:id` | Público | Actualiza un cliente por su ID. |
+| `DELETE` | `/clientes/:id` | Público | Elimina un cliente por su ID. |
+
+> Observación: en la implementación actual estos endpoints no usan guard de autenticación. El spec debe documentar esta condición para evitar suposiciones de seguridad.
 
 ---
 
-## 4. Módulo de Horarios (`/horarios`)
+## 4. Módulo de administradores (`/administradores`)
 
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/horarios` | Admin | Define un bloque de tiempo de alquiler para una cancha específica. |
-| `GET` | `/horarios/cancha/:canchaId`| Público | Consulta todos los bloques de horarios configurados para una cancha. |
-| `DELETE` | `/horarios/:id` | Admin | Remueve un bloque horario. |
+| `POST` | `/administradores` | Público | Crea un administrador. |
+| `GET` | `/administradores` | Público | Lista administradores. |
+| `DELETE` | `/administradores/:id` | Público | Elimina un administrador por su ID. |
 
 ---
 
-## 5. Módulo de Reservas (`/reservas`)
+## 5. Módulo de canchas (`/canchas`)
 
 | Método | Ruta | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/reservas` | Cliente | Crea una nueva solicitud de reserva adjuntando fecha, cancha y horario. |
-| `GET` | `/reservas/mis-reservas`| Cliente | Obtiene el historial completo de reservas realizadas por el cliente autenticado. |
-| `GET` | `/reservas/todas` | Admin | Permite al administrador visualizar todas las reservas del sistema (con filtros). |
-| `PATCH` | `/reservas/:id/estado` | Admin/Cliente| Modifica el estado de la reserva (`confirmada` o `cancelada` siguiendo las reglas del negocio). |
+| `POST` | `/canchas` | Admin | Registra una nueva cancha. |
+| `GET` | `/canchas` | Público | Lista todas las canchas. |
+| `GET` | `/canchas/disponibles` | Público | Lista canchas disponibles con el estado correspondiente. |
+| `GET` | `/canchas/disponibilidad` | Público | Consulta disponibilidad de canchas según filtros. |
+| `PUT` | `/canchas/:id` | Admin | Actualiza una cancha por su ID. |
+| `PATCH` | `/canchas/:id/desactivar` | Admin | Desactiva lógicamente una cancha. |
+| `DELETE` | `/canchas/:id` | Admin | Elimina una cancha. |
 
 ---
 
-## 6. Formato de Respuestas Estándar
+## 6. Módulo de horarios (`/horarios`)
 
-### Respuesta Exitosa (Ejemplo: `POST /auth/login`)
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/horarios` | Admin | Crea un bloque horario asociado a una cancha. |
+| `GET` | `/horarios` | Público | Lista todos los horarios. |
+| `GET` | `/horarios/cancha/:canchaId` | Público | Lista horarios asociados a una cancha. |
+| `PUT` | `/horarios/:id` | Admin | Actualiza un horario por su ID. |
+| `PATCH` | `/horarios/:id/desactivar` | Admin | Desactiva lógicamente un horario. |
+| `DELETE` | `/horarios/:id` | Admin | Elimina un horario por su ID. |
+
+---
+
+## 7. Módulo de reservas (`/reservas`)
+
+Actualmente el controlador de reservas está vacío y no expone endpoints funcionales. Por tanto, el spec debe tratarlas como una parte pendiente del proyecto y no documentarlas como rutas ya implementadas.
+
+### Estado actual recomendado
+
+| Método | Ruta | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/reservas` | Cliente | Pendiente: crear una reserva. |
+| `GET` | `/reservas/mis-reservas` | Cliente | Pendiente: listar reservas del cliente autenticado. |
+| `GET` | `/reservas/todas` | Admin | Pendiente: listar reservas del sistema. |
+| `PATCH` | `/reservas/:id/estado` | Admin/Cliente | Pendiente: actualizar el estado de la reserva. |
+
+---
+
+## 8. Formato de respuestas estándar
+
+### Respuesta de éxito
 ```json
 {
   "statusCode": 200,
@@ -66,7 +103,27 @@ Este documento detalla la estructura de la API REST para el sistema **ReservaPla
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
       "email": "cliente@reservaplay.com",
-      "role": "cliente"
+      "role": "client"
     }
   }
 }
+```
+
+### Respuesta de error estándar
+```json
+{
+  "statusCode": 401,
+  "message": "Credenciales inválidas",
+  "error": "Unauthorized"
+}
+```
+
+---
+
+## 9. Reglas de coherencia para mantener el spec actualizado
+
+1. El spec debe reflejar los controladores existentes y no documentar rutas que aún no estén implementadas.
+2. Los permisos deben coincidir con los decorators usados en NestJS (`@UseGuards`, `@Roles`).
+3. Las rutas de acceso y parámetros deben usar el mismo nombre que aparece en los controladores (`:id`, `:canchaId`).
+4. Si un módulo queda vacío o incompleto, debe declararse como `pendiente` o `en desarrollo`.
+5. Cada cambio en el backend debe actualizar este spec para mantener la trazabilidad con los requisitos base.
