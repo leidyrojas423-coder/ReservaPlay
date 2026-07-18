@@ -31,13 +31,13 @@ export class ReservaEntity {
   estado!: ReservaEstado;
 
   @Column({ type: 'text', nullable: true })
-  motivoCancelacion?: string | null;
+  motivoCancelacion!: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  canceladaEn?: Date | null;
+  canceladaEn!: Date | null;
 
-  @Column({ length: 100, nullable: true })
-  canceladaPor?: string | null;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  canceladaPor!: string | null;
 
   @CreateDateColumn({ name: 'fecha_registro' })
   fechaRegistro!: Date;
