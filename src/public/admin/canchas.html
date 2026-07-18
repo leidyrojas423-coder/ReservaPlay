@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReservaPlay - Gestión de Canchas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; color: #333; }
+        h1 { color: #1e293b; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #10b981; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #059669; }
+        .canchas-list { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ReservaPlay: Gestión de Canchas</h1>
+        
+        <!-- Formulario para agregar canchas -->
+        <form id="canchaForm">
+            <div class="form-group">
+                <label for="nombre">Nombre de la Cancha:</label>
+                <input type="text" id="nombre" required placeholder="Ej: Cancha Sintética 1">
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo de Superficie:</label>
+                <select id="tipo">
+                    <option value="sintetica">Sintética</option>
+                    <option value="madera">Madera / Tabloncillo</option>
+                    <option value="cemento">Cemento</option>
+                </select>
+            </div>
+            <button type="submit">Registrar Cancha</button>
+        </form>
+
+        <!-- Listado dinámico -->
+        <div class="canchas-list">
+            <h2>Canchas Registradas</h2>
+            <ul id="listaCanchas">
+                <!-- Aquí se cargarán con JavaScript desde el Backend -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Aquí conectaremos los métodos fetch con los endpoints de tu canchas.controller.ts posteriormente
+        console.log("Vista de canchas cargada correctamente.");
+    </script>
+</body>
+</html>
