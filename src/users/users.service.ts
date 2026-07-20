@@ -47,6 +47,20 @@ export class UsersService {
     });
   }
 
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    return this.usersRepository.find({
+      select: ['id', 'name', 'email', 'role', 'active', 'profile'],
+    });
+  }
+
+  async remove(id: string): Promise<{ deleted: boolean }> {
+    const result = await this.usersRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    return { deleted: true };
+  }
+
   async findById(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
