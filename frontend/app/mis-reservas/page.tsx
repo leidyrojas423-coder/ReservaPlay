@@ -4,38 +4,17 @@ import { useMemo, useState } from 'react';
 import { Bebas_Neue } from 'next/font/google';
 import styles from './page.module.css';
 
-<<<<<<< HEAD
 type ViewFilter = 'Todas' | 'Proximas' | 'Jugadas' | 'Canceladas';
 type ReservationState = 'Próximo' | 'Jugado' | 'Cancelado';
 
 type Reservation = {
-=======
-type EstadoReserva = 'Pendiente' | 'Confirmada' | 'Finalizada' | 'Cancelada';
-type TabActiva = 'reservas' | 'mis-reservas' | 'estado';
-
-type ReservaData = {
->>>>>>> feature/spec-gestion-estado-reservas
   id: string;
   cancha: string;
   fecha: string;
   hora: string;
   estado: ReservationState;
   monto: string;
-<<<<<<< HEAD
   nota: string;
-=======
-  estado: EstadoReserva;
-  motivoCancelacion?: string | null;
-  canceladaEn?: string | null;
-  canceladaPor?: string | null;
-};
-
-type FormValues = {
-  cancha: string;
-  fecha: string;
-  hora: string;
-  monto: string;
->>>>>>> feature/spec-gestion-estado-reservas
 };
 
 const sportsTitleFont = Bebas_Neue({
@@ -43,13 +22,7 @@ const sportsTitleFont = Bebas_Neue({
   subsets: ['latin'],
 });
 
-<<<<<<< HEAD
 const reservasMock: Reservation[] = [
-=======
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-const reservasIniciales: ReservaData[] = [
->>>>>>> feature/spec-gestion-estado-reservas
   {
     id: 'HR-4091',
     cancha: 'Cancha 1 - Futbol 5',
@@ -57,14 +30,7 @@ const reservasIniciales: ReservaData[] = [
     hora: '7:00 PM - 8:00 PM',
     estado: 'Próximo',
     monto: '$120.000',
-<<<<<<< HEAD
     nota: 'Reserva vigente lista para gestionarse por el cliente.',
-=======
-    estado: 'Pendiente',
-    motivoCancelacion: null,
-    canceladaEn: null,
-    canceladaPor: null,
->>>>>>> feature/spec-gestion-estado-reservas
   },
   {
     id: 'HR-4088',
@@ -73,14 +39,7 @@ const reservasIniciales: ReservaData[] = [
     hora: '8:00 PM - 9:00 PM',
     estado: 'Jugado',
     monto: '$165.000',
-<<<<<<< HEAD
     nota: 'Partido disputado y cerrado correctamente en el historial.',
-=======
-    estado: 'Confirmada',
-    motivoCancelacion: null,
-    canceladaEn: null,
-    canceladaPor: null,
->>>>>>> feature/spec-gestion-estado-reservas
   },
   {
     id: 'HR-4082',
@@ -89,7 +48,6 @@ const reservasIniciales: ReservaData[] = [
     hora: '6:00 PM - 7:00 PM',
     estado: 'Cancelado',
     monto: '$98.000',
-<<<<<<< HEAD
     nota: 'Cancelada previamente por cambio de agenda del cliente.',
   },
   {
@@ -109,12 +67,6 @@ const reservasIniciales: ReservaData[] = [
     estado: 'Jugado',
     monto: '$165.000',
     nota: 'Registro antiguo conservado como referencia de uso.',
-=======
-    estado: 'Confirmada',
-    motivoCancelacion: null,
-    canceladaEn: null,
-    canceladaPor: null,
->>>>>>> feature/spec-gestion-estado-reservas
   },
 ];
 
@@ -126,7 +78,6 @@ const stateMeta: Record<ReservationState, { label: string; className: string; do
   Cancelado: { label: 'Cancelado', className: styles.badgeCancelled, dotClassName: styles.dotCancelled },
 };
 
-<<<<<<< HEAD
 export default function MisReservasPage() {
   const [filtroActivo, setFiltroActivo] = useState<ViewFilter>('Todas');
   const [reservaActiva, setReservaActiva] = useState<Reservation | null>(null);
@@ -143,43 +94,6 @@ export default function MisReservasPage() {
         return reservasMock;
     }
   }, [filtroActivo]);
-=======
-const tabs: Array<{ id: TabActiva; label: string }> = [
-  { id: 'reservas', label: 'Reservas' },
-  { id: 'mis-reservas', label: 'Mis Reservas' },
-  { id: 'estado', label: 'Estado de Reservas' },
-];
-
-const canchasDisponibles = [
-  'Cancha 1 - Futbol 5',
-  'Cancha 2 - Futbol 7',
-  'Cancha 3 - Multiproposito',
-];
-
-const horariosDisponibles = ['17:00 - 18:00', '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00'];
-
-function getEstadoClase(estado: EstadoReserva): string {
-  switch (estado) {
-    case 'Pendiente':
-      return 'estado-chip estado-chip--pendiente';
-    case 'Confirmada':
-      return 'estado-chip estado-chip--confirmada';
-    case 'Finalizada':
-      return 'estado-chip estado-chip--finalizada';
-    case 'Cancelada':
-      return 'estado-chip estado-chip--cancelada';
-    default:
-      return 'estado-chip';
-  }
-}
-
-export default function MisReservasPage() {
-  const [tabActiva, setTabActiva] = useState<TabActiva>('reservas');
-  const [reservas, setReservas] = useState<ReservaData[]>([]);
-  const [form, setForm] = useState<FormValues>(formInicial);
-  const [mensaje, setMensaje] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
->>>>>>> feature/spec-gestion-estado-reservas
 
   const resumen = useMemo(
     () => ({
@@ -190,7 +104,6 @@ export default function MisReservasPage() {
     [],
   );
 
-<<<<<<< HEAD
   return (
     <main className={styles.page}>
       <section className={styles.hero} aria-labelledby="historial-title">
@@ -381,5 +294,6 @@ export default function MisReservasPage() {
           </section>
         </div>
       ) : null}
+    </main>
   );
 }
