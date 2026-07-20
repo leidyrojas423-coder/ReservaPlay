@@ -1,0 +1,472 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.hero,
+.panel,
+.timelineSection {
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.hero {
+  padding: clamp(1.4rem, 3vw, 2rem);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.95fr);
+  align-items: start;
+}
+
+.hero__copy {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow,
+.panel__eyebrow,
+.modal__eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.02;
+  color: #0f172a;
+}
+
+.description,
+.panel__note,
+.modal__text {
+  margin: 0;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary article {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.summary span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.summary strong {
+  font-size: 1.65rem;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.panel,
+.timelineSection {
+  padding: clamp(1.2rem, 2.8vw, 1.8rem);
+  display: grid;
+  gap: 18px;
+}
+
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.panel__title {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+  color: #0f172a;
+}
+
+.legend {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 0.88rem;
+}
+
+.dotNext,
+.dotPlayed,
+.dotCancelled {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.dotNext {
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+}
+
+.dotPlayed {
+  background: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.dotCancelled {
+  background: #dc2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterChip {
+  border: 1px solid #dbe4ee;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease,
+    color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.filterChip:hover,
+.filterChip:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.filterChipActive {
+  border-color: rgba(22, 163, 74, 0.28);
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.12), rgba(255, 255, 255, 0.95));
+  color: #166534;
+}
+
+.timelineList {
+  display: grid;
+  gap: 16px;
+}
+
+.reservationCard {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid #e2e8f0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96)),
+    repeating-linear-gradient(90deg, transparent 0 18px, rgba(203, 213, 225, 0.12) 18px 19px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.reservationCard__rail {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+}
+
+.reservationCard__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #16a34a;
+  box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+}
+
+.reservationCard__line {
+  width: 2px;
+  min-height: 100%;
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.55), transparent);
+}
+
+.reservationCard__content {
+  display: grid;
+  gap: 14px;
+}
+
+.reservationCard__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.reservationCard__id {
+  margin: 0 0 4px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.reservationCard__head h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.12rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.badgeNext {
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.18);
+}
+
+.badgePlayed {
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+  border-color: rgba(22, 163, 74, 0.18);
+}
+
+.badgeCancelled {
+  background: rgba(220, 38, 38, 0.12);
+  color: #991b1b;
+  border-color: rgba(220, 38, 38, 0.18);
+}
+
+.reservationCard__meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reservationCard__meta div {
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.reservationCard__meta dt {
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.reservationCard__meta dd {
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.55;
+}
+
+.reservationCard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.cancelButton,
+.secondaryButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, background-color 0.16s ease, color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.cancelButton {
+  background: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
+.cancelButton:hover,
+.cancelButton:focus-visible {
+  background: #14532d;
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #dbe4ee;
+}
+
+.secondaryButton:hover,
+.secondaryButton:focus-visible {
+  background: #eef6ef;
+  color: #14532d;
+  transform: translateY(-1px);
+}
+
+.lockedNote {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.54);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 40;
+}
+
+.modal {
+  width: min(520px, 100%);
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.modal__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.modal__header h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.6rem;
+}
+
+.modal__close {
+  border: 0;
+  background: #f8fafc;
+  color: #0f172a;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal__summary {
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.08), rgba(248, 250, 252, 0.96));
+  border: 1px solid rgba(22, 163, 74, 0.18);
+}
+
+.modal__summary span {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.modal__summary strong {
+  color: #14532d;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1120px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .summary,
+  .reservationCard__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .panel__header,
+  .reservationCard__head,
+  .modal__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reservationCard {
+    grid-template-columns: 1fr;
+  }
+
+  .reservationCard__rail {
+    display: none;
+  }
+
+  .modal__actions,
+  .reservationCard__actions {
+    flex-direction: column;
+  }
+
+  .cancelButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}
