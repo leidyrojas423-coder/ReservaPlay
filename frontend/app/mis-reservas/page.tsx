@@ -1,454 +1,233 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Bebas_Neue } from 'next/font/google';
-import { getStoredAuthToken } from '../../lib/auth';
+import styles from './page.module.css';
 
-type EstadoReserva = 'Pendiente' | 'Confirmada' | 'Finalizada' | 'Cancelada';
+type PasoReserva = 'Seleccionar' | 'Confirmar' | 'Finalizar';
 
-type ReservaMock = {
-  id: string;
+type ResumenReserva = {
   cancha: string;
   fecha: string;
   hora: string;
-  monto: string;
-  estado: EstadoReserva;
-  motivoCancelacion?: string | null;
-  canceladaEn?: string | null;
+  tipo: string;
+  estado: string;
 };
 
-type FormValues = {
-  cancha: string;
-  fecha: string;
-  hora: string;
-  monto: string;
+const pasos: PasoReserva[] = ['Seleccionar', 'Confirmar', 'Finalizar'];
+
+const resumen: ResumenReserva = {
+  cancha: 'Cancha 1',
+  fecha: 'Hoy · 20 Jul 2026',
+  hora: '7:00 PM - 8:00 PM',
+  tipo: 'Futbol 5',
+  estado: 'Pendiente',
 };
 
-const sportsTitleFont = Bebas_Neue({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-const reservasIniciales: ReservaMock[] = [
-  {
-    id: 'MR-3101',
-    cancha: 'Cancha 1 - Futbol 5',
-    fecha: '2026-07-20',
-    hora: '18:00 - 19:00',
-    monto: '$120.000',
-    estado: 'Pendiente',
-    motivoCancelacion: null,
-    canceladaEn: null,
-  },
-  {
-    id: 'MR-3102',
-    cancha: 'Cancha 2 - Futbol 7',
-    fecha: '2026-07-20',
-    hora: '20:00 - 21:00',
-    monto: '$165.000',
-    estado: 'Confirmada',
-    motivoCancelacion: null,
-    canceladaEn: null,
-  },
-  {
-    id: 'MR-3103',
-    cancha: 'Cancha 3 - Multiproposito',
-    fecha: '2026-07-24',
-    hora: '21:00 - 22:00',
-    monto: '$98.000',
-    estado: 'Confirmada',
-    motivoCancelacion: null,
-    canceladaEn: null,
-  },
+const datosCliente = [
+  { label: 'Nombre del cliente', value: 'Carlos Mendoza' },
+  { label: 'Teléfono', value: '+57 300 123 4567' },
+  { label: 'Correo', value: 'carlos.mendoza@mail.com' },
 ];
 
-const formInicial: FormValues = {
-  cancha: 'Cancha 1 - Futbol 5',
-  fecha: '',
-  hora: '18:00 - 19:00',
-  monto: '$120.000',
-};
-
-function getEstadoClase(estado: EstadoReserva): string {
-  switch (estado) {
-    case 'Pendiente':
-      return 'estado-chip estado-chip--pendiente';
-    case 'Confirmada':
-      return 'estado-chip estado-chip--confirmada';
-    case 'Finalizada':
-      return 'estado-chip estado-chip--finalizada';
-    case 'Cancelada':
-      return 'estado-chip estado-chip--cancelada';
-    default:
-      return 'estado-chip';
-  }
-}
+const detallesPrecio = [
+  { concepto: 'Tarifa base', valor: '$120.000' },
+  { concepto: 'Servicio administrativo', valor: '$8.000' },
+  { concepto: 'Ajuste premium cancha', valor: '$12.000' },
+];
 
 export default function MisReservasPage() {
-  const [reservas, setReservas] = useState<ReservaMock[]>([]);
-  const [form, setForm] = useState<FormValues>(formInicial);
-  const [mensaje, setMensaje] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const resumen = useMemo(
-    () => ({
-      Pendiente: reservas.filter((reserva) => reserva.estado === 'Pendiente').length,
-      Confirmada: reservas.filter((reserva) => reserva.estado === 'Confirmada').length,
-      Finalizada: reservas.filter((reserva) => reserva.estado === 'Finalizada').length,
-      Cancelada: reservas.filter((reserva) => reserva.estado === 'Cancelada').length,
-    }),
-    [reservas],
-  );
-
-  const obtenerHorasRestantes = (reserva: ReservaMock): number => {
-    const inicio = reserva.hora.split('-')[0]?.trim() ?? '00:00';
-    const fechaHora = new Date(`${reserva.fecha}T${inicio}:00`);
-    if (Number.isNaN(fechaHora.getTime())) {
-      return Number.POSITIVE_INFINITY;
-    }
-
-    return (fechaHora.getTime() - Date.now()) / (1000 * 60 * 60);
-  };
-
-  const getAuthHeaders = (): HeadersInit => {
-    const token = getStoredAuthToken();
-
-    if (!token) {
-      throw new Error('No se encontró token. Inicia sesión nuevamente.');
-    }
-
-    return {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
-  };
-
-  const cargarReservas = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/reservas/mias`, {
-        method: 'GET',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? 'No se pudieron cargar las reservas.');
-      }
-
-      const data = (await response.json()) as ReservaMock[];
-      setReservas(data);
-    } catch (error) {
-      setMensaje(error instanceof Error ? error.message : 'Error cargando reservas.');
-      setReservas(reservasIniciales);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void cargarReservas();
-  }, []);
-
-  const crearReserva = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!form.fecha) {
-      setMensaje('Debes seleccionar una fecha para crear la reserva.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/reservas`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(form),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? 'No se pudo crear la reserva.');
-      }
-
-      const nuevaReserva = (await response.json()) as ReservaMock;
-      setReservas((actual) => [nuevaReserva, ...actual]);
-      setMensaje(
-        `Reserva ${nuevaReserva.id} creada con exito en estado Pendiente. Ya puedes confirmarla o cancelarla.`,
-      );
-      setForm(formInicial);
-    } catch (error) {
-      setMensaje(error instanceof Error ? error.message : 'Error creando reserva.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const actualizarEstado = async (id: string, nuevoEstado: EstadoReserva) => {
-    const reserva = reservas.find((item) => item.id === id);
-    if (!reserva) {
-      return;
-    }
-
-    if (reserva.estado === 'Confirmada' && nuevoEstado === 'Cancelada') {
-      const horasRestantes = obtenerHorasRestantes(reserva);
-      if (horasRestantes < 24) {
-        setMensaje(
-          `La reserva ${id} esta confirmada y falta menos de 24 horas. Debes ir al punto fisico para gestionarla.`,
-        );
-        return;
-      }
-    }
-
-    const transicionValida =
-      (reserva.estado === 'Pendiente' && (nuevoEstado === 'Confirmada' || nuevoEstado === 'Cancelada')) ||
-      (reserva.estado === 'Confirmada' && nuevoEstado === 'Cancelada');
-
-    if (!transicionValida) {
-      setMensaje(`No puedes cambiar la reserva ${id} desde ${reserva.estado} hacia ${nuevoEstado}.`);
-      return;
-    }
-
-    const endpoint = nuevoEstado === 'Confirmada' ? 'confirmar' : 'cancelar';
-    const motivoCancelacion =
-      nuevoEstado === 'Cancelada'
-        ? window.prompt('Indica el motivo de cancelación para dejar trazabilidad:', 'Cambio de plan')
-        : null;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/reservas/${id}/${endpoint}`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body:
-          nuevoEstado === 'Cancelada'
-            ? JSON.stringify({ motivo: motivoCancelacion ?? 'Cancelada por el cliente' })
-            : undefined,
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message ?? 'No se pudo actualizar la reserva.');
-      }
-
-      const actualizada = (await response.json()) as ReservaMock;
-      setReservas((actual) => actual.map((item) => (item.id === id ? actualizada : item)));
-
-      if (nuevoEstado === 'Cancelada') {
-        setMensaje(`Reserva ${id} cancelada. El horario se libero en el backend.`);
-      } else {
-        setMensaje(`Reserva ${id} confirmada correctamente.`);
-      }
-    } catch (error) {
-      setMensaje(error instanceof Error ? error.message : 'Error actualizando reserva.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <section className="mis-reservas" aria-label="Mis reservas personales">
-      <header className="mis-reservas__header">
-        <p className="mis-reservas__eyebrow">Mi cuenta</p>
-        <h2 className={`mis-reservas__title ${sportsTitleFont.className}`}>Mis Reservas</h2>
-        <p className="mis-reservas__description">
-          Crea tu reserva y gestiona su estado en esta misma pantalla. Toda reserva inicia como
-          Pendiente y solo podras operar sobre tus propios turnos.
-        </p>
-      </header>
-
-      <form className="cliente-reserva-form" onSubmit={crearReserva} aria-label="Formulario de reserva">
-        <h3 className={sportsTitleFont.className}>Crear nueva reserva</h3>
-        <div className="cliente-reserva-form__grid">
-          <label>
-            Cancha
-            <select
-              value={form.cancha}
-              onChange={(event) => setForm((actual) => ({ ...actual, cancha: event.target.value }))}
-            >
-              <option value="Cancha 1 - Futbol 5">Cancha 1 - Futbol 5</option>
-              <option value="Cancha 2 - Futbol 7">Cancha 2 - Futbol 7</option>
-              <option value="Cancha 3 - Multiproposito">Cancha 3 - Multiproposito</option>
-            </select>
-          </label>
-
-          <label>
-            Fecha
-            <input
-              type="date"
-              value={form.fecha}
-              min={new Date().toISOString().split('T')[0]}
-              onChange={(event) => setForm((actual) => ({ ...actual, fecha: event.target.value }))}
-            />
-          </label>
-
-          <label>
-            Horario
-            <select
-              value={form.hora}
-              onChange={(event) => setForm((actual) => ({ ...actual, hora: event.target.value }))}
-            >
-              <option value="17:00 - 18:00">17:00 - 18:00</option>
-              <option value="18:00 - 19:00">18:00 - 19:00</option>
-              <option value="19:00 - 20:00">19:00 - 20:00</option>
-              <option value="20:00 - 21:00">20:00 - 21:00</option>
-            </select>
-          </label>
-
-          <label>
-            Valor
-            <select
-              value={form.monto}
-              onChange={(event) => setForm((actual) => ({ ...actual, monto: event.target.value }))}
-            >
-              <option value="$98.000">$98.000</option>
-              <option value="$120.000">$120.000</option>
-              <option value="$165.000">$165.000</option>
-            </select>
-          </label>
+    <main className={styles.page}>
+      <section className={styles.hero} aria-labelledby="reserva-title">
+        <div className={styles.hero__copy}>
+          <p className={styles.eyebrow}>Reserva de cliente</p>
+          <h1 id="reserva-title" className={styles.title}>
+            Crear Reserva
+          </h1>
+          <p className={styles.description}>
+            Una experiencia visual limpia y premium para iniciar una reserva sobre un horario
+            disponible, con guiños deportivos sutiles y un flujo claro de confirmación.
+          </p>
         </div>
 
-        <div className="cliente-reserva-form__actions">
-          <button type="submit" className="welcome-button welcome-button--cta" disabled={isLoading}>
-            Reservar ahora
-          </button>
-        </div>
-      </form>
+        <div className={styles.summaryCard} aria-label="Resumen de la reserva seleccionada">
+          <div className={styles.summaryCard__statusRow}>
+            <span className={styles.statusBadge}>{resumen.estado}</span>
+            <span className={styles.statusNote}>Reserva lista para confirmar</span>
+          </div>
 
-      {mensaje ? (
-        <p className="mis-reservas__feedback" role="status" aria-live="polite">
-          {mensaje}
-        </p>
-      ) : null}
-
-      <section className="mis-reservas__summary" aria-label="Resumen de estados">
-        <article className="resumen-card resumen-card--pendiente">
-          <span>Pendientes</span>
-          <strong>{resumen.Pendiente}</strong>
-        </article>
-        <article className="resumen-card resumen-card--confirmada">
-          <span>Confirmadas</span>
-          <strong>{resumen.Confirmada}</strong>
-        </article>
-        <article className="resumen-card resumen-card--finalizada">
-          <span>Finalizadas</span>
-          <strong>{resumen.Finalizada}</strong>
-        </article>
-        <article className="resumen-card resumen-card--cancelada">
-          <span>Canceladas</span>
-          <strong>{resumen.Cancelada}</strong>
-        </article>
-      </section>
-
-      <section className="historial-cancelaciones" aria-label="Historial de cancelaciones">
-        <div className="historial-cancelaciones__header">
-          <h3 className={sportsTitleFont.className}>Historial de cancelaciones</h3>
-          <p>Registra las reservas canceladas con su motivo y fecha de cancelación.</p>
-        </div>
-
-        <div className="historial-cancelaciones__grid">
-          {reservas.filter((reserva) => reserva.estado === 'Cancelada').length > 0 ? (
-            reservas
-              .filter((reserva) => reserva.estado === 'Cancelada')
-              .map((reserva) => (
-                <article className="historial-cancelaciones__card" key={`historial-${reserva.id}`}>
-                  <p className="reserva-card__id">{reserva.id}</p>
-                  <h4>{reserva.cancha}</h4>
-                  <p>
-                    <strong>Fecha:</strong> {reserva.fecha} | <strong>Horario:</strong> {reserva.hora}
-                  </p>
-                  <p>
-                    <strong>Motivo:</strong> {reserva.motivoCancelacion ?? 'Sin motivo registrado'}
-                  </p>
-                  <p>
-                    <strong>Cancelada en:</strong>{' '}
-                    {reserva.canceladaEn ? new Date(reserva.canceladaEn).toLocaleString('es-CO') : 'Sin fecha'}
-                  </p>
-                </article>
-              ))
-          ) : (
-            <p className="historial-cancelaciones__empty">Aún no tienes reservas canceladas.</p>
-          )}
-        </div>
-      </section>
-
-      <div className="reservas-grid" role="list" aria-label="Listado de reservas">
-        {isLoading && reservas.length === 0 ? <p>Cargando reservas...</p> : null}
-        {reservas.map((reserva) => {
-          const horasRestantes = obtenerHorasRestantes(reserva);
-          const bloquearCancelacionConfirmada =
-            reserva.estado === 'Confirmada' && Number.isFinite(horasRestantes) && horasRestantes < 24;
-
-          return (
-            <article className="reserva-card" key={reserva.id} role="listitem">
-              <div className="reserva-card__head">
-                <div>
-                  <p className="reserva-card__id">{reserva.id}</p>
-                  <h3>Reserva personal</h3>
-                </div>
-                <span className={getEstadoClase(reserva.estado)}>{reserva.estado}</span>
-              </div>
-
-              <dl className="reserva-card__meta">
-                <div>
-                  <dt>Cancha</dt>
-                  <dd>{reserva.cancha}</dd>
-                </div>
-                <div>
-                  <dt>Fecha</dt>
-                  <dd>{reserva.fecha}</dd>
-                </div>
-                <div>
-                  <dt>Horario</dt>
-                  <dd>{reserva.hora}</dd>
-                </div>
-                <div>
-                  <dt>Valor</dt>
-                  <dd>{reserva.monto}</dd>
-                </div>
-              </dl>
-
-              <div className="cliente-reserva-card__actions">
-                <button
-                  type="button"
-                  onClick={() => actualizarEstado(reserva.id, 'Confirmada')}
-                  disabled={reserva.estado !== 'Pendiente' || isLoading}
-                >
-                  Confirmar Reserva
-                </button>
-                <button
-                  type="button"
-                  className="cliente-reserva-card__cancel"
-                  onClick={() => actualizarEstado(reserva.id, 'Cancelada')}
-                  disabled={
-                    reserva.estado === 'Cancelada' ||
-                    reserva.estado === 'Finalizada' ||
-                    bloquearCancelacionConfirmada ||
-                    isLoading
-                  }
-                >
-                  Cancelar Reserva
-                </button>
-              </div>
-
-              {reserva.estado === 'Cancelada' ? (
-                <p className="cliente-reserva-card__warning">
-                  Esta reserva quedó en tu historial con trazabilidad de cancelación.
-                </p>
-              ) : null}
-
-              {bloquearCancelacionConfirmada ? (
-                <p className="cliente-reserva-card__warning">
-                  Faltan menos de 24 horas y la reserva ya esta Confirmada. Debes ir al punto fisico
-                  para gestionar la cancelacion.
-                </p>
-              ) : null}
+          <div className={styles.summaryCard__items}>
+            <article>
+              <span>Cancha</span>
+              <strong>{resumen.cancha}</strong>
             </article>
-          );
-        })}
-      </div>
-    </section>
+            <article>
+              <span>Fecha</span>
+              <strong>{resumen.fecha}</strong>
+            </article>
+            <article>
+              <span>Horario</span>
+              <strong>{resumen.hora}</strong>
+            </article>
+            <article>
+              <span>Tipo</span>
+              <strong>{resumen.tipo}</strong>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.panel} aria-labelledby="stepper-title">
+        <div className={styles.panel__header}>
+          <div>
+            <p className={styles.panel__eyebrow}>Flujo de reserva</p>
+            <h2 id="stepper-title" className={styles.panel__title}>
+              Paso a paso
+            </h2>
+          </div>
+          <p className={styles.panel__note}>
+            Mock data únicamente. No hay peticiones reales ni lógica de persistencia.
+          </p>
+        </div>
+
+        <div className={styles.stepper} aria-label="Pasos del proceso de reserva">
+          {pasos.map((paso, index) => (
+            <div key={paso} className={styles.step}>
+              <span className={styles.step__number}>{index + 1}</span>
+              <div>
+                <strong>{paso}</strong>
+                <p>
+                  {index === 0
+                    ? 'Escoge cancha, fecha y horario.'
+                    : index === 1
+                      ? 'Revisa tus datos y el precio.'
+                      : 'Confirma la reserva y deja todo listo.'}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.contentGrid}>
+        <section className={styles.panel} aria-labelledby="form-title">
+          <div className={styles.panel__header}>
+            <div>
+              <p className={styles.panel__eyebrow}>Datos requeridos</p>
+              <h2 id="form-title" className={styles.panel__title}>
+                Información del cliente
+              </h2>
+            </div>
+          </div>
+
+          <form className={styles.form} onSubmit={(event) => event.preventDefault()}>
+            <div className={styles.form__grid}>
+              <label className={styles.field}>
+                <span>Nombre del cliente</span>
+                <input type="text" value={datosCliente[0].value} readOnly />
+              </label>
+
+              <label className={styles.field}>
+                <span>Teléfono</span>
+                <input type="tel" value={datosCliente[1].value} readOnly />
+              </label>
+
+              <label className={styles.field}>
+                <span>Correo</span>
+                <input type="email" value={datosCliente[2].value} readOnly />
+              </label>
+
+              <label className={styles.field}>
+                <span>Selección de usuario</span>
+                <select defaultValue="Carlos Mendoza">
+                  <option>Carlos Mendoza</option>
+                  <option>Laura Rojas</option>
+                  <option>Andrés Toro</option>
+                </select>
+              </label>
+
+              <label className={`${styles.field} ${styles.fieldWide}`}>
+                <span>Observaciones</span>
+                <textarea
+                  rows={4}
+                  defaultValue="Reserva recreativa de ejemplo para una jornada premium con acceso anticipado."
+                />
+              </label>
+            </div>
+
+            <div className={styles.actions}>
+              <button type="submit" className={styles.primaryAction}>
+                Confirmar Reserva
+              </button>
+              <button type="button" className={styles.secondaryAction}>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside className={styles.sideColumn}>
+          <section className={styles.panel} aria-labelledby="price-title">
+            <div className={styles.panel__header}>
+              <div>
+                <p className={styles.panel__eyebrow}>Desglose</p>
+                <h2 id="price-title" className={styles.panel__title}>
+                  Precio y método de pago
+                </h2>
+              </div>
+            </div>
+
+            <div className={styles.priceCard}>
+              {detallesPrecio.map((item) => (
+                <div key={item.concepto} className={styles.priceRow}>
+                  <span>{item.concepto}</span>
+                  <strong>{item.valor}</strong>
+                </div>
+              ))}
+
+              <div className={styles.priceTotal}>
+                <span>Total estimado</span>
+                <strong>$140.000</strong>
+              </div>
+            </div>
+
+            <div className={styles.paymentBox}>
+              <p>Método de pago simulado</p>
+              <div className={styles.paymentChipRow}>
+                <span className={styles.paymentChip}>Tarjeta</span>
+                <span className={styles.paymentChip}>Transferencia</span>
+                <span className={styles.paymentChip}>Billetera</span>
+              </div>
+            </div>
+          </section>
+
+          <section className={styles.panel} aria-labelledby="preview-title">
+            <div className={styles.panel__header}>
+              <div>
+                <p className={styles.panel__eyebrow}>Vista rápida</p>
+                <h2 id="preview-title" className={styles.panel__title}>
+                  Confirmación visual
+                </h2>
+              </div>
+            </div>
+
+            <div className={styles.previewCard}>
+              <div className={styles.previewCard__top}>
+                <span className={styles.statusBadge}>Pendiente</span>
+                <span className={styles.previewCard__label}>Reserva activa</span>
+              </div>
+
+              <h3>{resumen.cancha}</h3>
+              <p>{resumen.fecha}</p>
+              <p>{resumen.hora}</p>
+
+              <div className={styles.previewCard__footer}>
+                <span>Estado inicial</span>
+                <strong>La reserva se crea en Pendiente</strong>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
   );
 }
