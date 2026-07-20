@@ -1,11 +1,12 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Bebas_Neue } from 'next/font/google';
+import styles from './page.module.css';
 
-type EstadoReserva = 'Pendiente' | 'Confirmada' | 'Finalizada' | 'Cancelada';
+type EstadoFiltro = 'Todas' | 'Pendientes' | 'Aprobadas' | 'Finalizadas' | 'Canceladas';
+type EstadoReserva = 'Pendiente' | 'Aprobada' | 'Finalizada' | 'Cancelada';
 
-type ReservaAdmin = {
+type Reserva = {
   id: string;
   cliente: string;
   cancha: string;
@@ -15,12 +16,7 @@ type ReservaAdmin = {
   estado: EstadoReserva;
 };
 
-const sportsTitleFont = Bebas_Neue({
-  weight: '400',
-  subsets: ['latin'],
-});
-
-const reservasIniciales: ReservaAdmin[] = [
+const reservasIniciales: Reserva[] = [
   {
     id: 'R-1201',
     cliente: 'Andres Toro',
@@ -37,13 +33,13 @@ const reservasIniciales: ReservaAdmin[] = [
     fecha: '2026-07-20',
     hora: '20:00 - 21:00',
     monto: '$165.000',
-    estado: 'Confirmada',
+    estado: 'Aprobada',
   },
   {
     id: 'R-1203',
     cliente: 'Carlos Duran',
     cancha: 'Cancha 3 - Multiproposito',
-    fecha: '2026-07-21',
+    fecha: '2026-07-15',
     hora: '17:00 - 18:00',
     monto: '$98.000',
     estado: 'Pendiente',
@@ -57,194 +53,201 @@ const reservasIniciales: ReservaAdmin[] = [
     monto: '$120.000',
     estado: 'Finalizada',
   },
+  {
+    id: 'R-1205',
+    cliente: 'Camilo Perez',
+    cancha: 'Cancha 2 - Futbol 7',
+    fecha: '2026-07-23',
+    hora: '21:00 - 22:00',
+    monto: '$165.000',
+    estado: 'Cancelada',
+  },
 ];
 
-const transicionesPermitidas: Record<EstadoReserva, EstadoReserva[]> = {
-  Pendiente: ['Confirmada', 'Cancelada'],
-  Confirmada: ['Finalizada', 'Cancelada'],
-  Finalizada: [],
-  Cancelada: [],
+const filtros: EstadoFiltro[] = ['Todas', 'Pendientes', 'Aprobadas', 'Finalizadas', 'Canceladas'];
+
+const etiquetaEstado: Record<EstadoReserva, { label: string; className: string }> = {
+  Pendiente: { label: 'Pendiente', className: styles.badgePendiente },
+  Aprobada: { label: 'Aprobada', className: styles.badgeAprobada },
+  Finalizada: { label: 'Finalizada', className: styles.badgeFinalizada },
+  Cancelada: { label: 'Cancelada', className: styles.badgeCancelada },
 };
 
-function getEstadoClase(estado: EstadoReserva): string {
-  switch (estado) {
-    case 'Pendiente':
-      return 'estado-chip estado-chip--pendiente';
-    case 'Confirmada':
-      return 'estado-chip estado-chip--confirmada';
-    case 'Finalizada':
-      return 'estado-chip estado-chip--finalizada';
-    case 'Cancelada':
-      return 'estado-chip estado-chip--cancelada';
-    default:
-      return 'estado-chip';
-  }
-}
-
-function getAccionesPermitidas(estado: EstadoReserva): EstadoReserva[] {
-  return transicionesPermitidas[estado];
-}
-
-function crearMensajeAccion(destino: EstadoReserva): string {
-  switch (destino) {
-    case 'Confirmada':
-      return 'Confirmar pago';
-    case 'Finalizada':
-      return 'Finalizar';
-    case 'Cancelada':
-      return 'Cancelar';
-    default:
-      return 'Actualizar';
-  }
-}
+const acciones = {
+  Pendiente: ['Cambiar a Aprobada', 'Cambiar a Cancelada'],
+  Aprobada: ['Cambiar a Finalizada', 'Cambiar a Cancelada'],
+  Finalizada: ['Ver detalle'],
+  Cancelada: ['Revisar motivo'],
+} as const;
 
 export default function AdminEstadosReservasPage() {
-  const [reservas, setReservas] = useState<ReservaAdmin[]>(reservasIniciales);
-  const [mensaje, setMensaje] = useState('');
+  const [filtroActivo, setFiltroActivo] = useState<EstadoFiltro>('Todas');
 
-  const columnas = useMemo(() => {
-    const pendientes = reservas.filter((r) => r.estado === 'Pendiente');
-    const confirmadas = reservas.filter((r) => r.estado === 'Confirmada');
-    const finalizadas = reservas.filter((r) => r.estado === 'Finalizada');
-    const canceladas = reservas.filter((r) => r.estado === 'Cancelada');
-
-    return { pendientes, confirmadas, finalizadas, canceladas };
-  }, [reservas]);
-
-  const cambiarEstado = (id: string, nuevoEstado: EstadoReserva) => {
-    const reserva = reservas.find((item) => item.id === id);
-
-    if (!reserva) {
-      return;
+  const reservasFiltradas = useMemo(() => {
+    if (filtroActivo === 'Todas') {
+      return reservasIniciales;
     }
 
-    if (reserva.estado === nuevoEstado) {
-      setMensaje(`La reserva ${id} ya esta en estado ${nuevoEstado}.`);
-      return;
+    if (filtroActivo === 'Pendientes') {
+      return reservasIniciales.filter((reserva) => reserva.estado === 'Pendiente');
     }
 
-    const permitido = transicionesPermitidas[reserva.estado].includes(nuevoEstado);
-
-    if (!permitido) {
-      setMensaje(`Transicion invalida: ${reserva.estado} -> ${nuevoEstado}.`);
-      return;
+    if (filtroActivo === 'Aprobadas') {
+      return reservasIniciales.filter((reserva) => reserva.estado === 'Aprobada');
     }
 
-    setReservas((actual) =>
-      actual.map((item) => (item.id === id ? { ...item, estado: nuevoEstado } : item)),
-    );
-    setMensaje(`Reserva ${id} actualizada: ${reserva.estado} -> ${nuevoEstado}.`);
-  };
+    if (filtroActivo === 'Finalizadas') {
+      return reservasIniciales.filter((reserva) => reserva.estado === 'Finalizada');
+    }
 
-  const renderTarjeta = (reserva: ReservaAdmin) => {
-    const acciones = getAccionesPermitidas(reserva.estado);
+    return reservasIniciales.filter((reserva) => reserva.estado === 'Cancelada');
+  }, [filtroActivo]);
 
-    return (
-      <article className="admin-estados-card" key={reserva.id}>
-        <div className="admin-estados-card__head">
-          <div>
-            <p className="reserva-card__id">{reserva.id}</p>
-            <h3>{reserva.cliente}</h3>
-          </div>
-          <span className={getEstadoClase(reserva.estado)}>{reserva.estado}</span>
-        </div>
-
-        <dl className="reserva-card__meta">
-          <div>
-            <dt>Cancha</dt>
-            <dd>{reserva.cancha}</dd>
-          </div>
-          <div>
-            <dt>Fecha</dt>
-            <dd>{reserva.fecha}</dd>
-          </div>
-          <div>
-            <dt>Horario</dt>
-            <dd>{reserva.hora}</dd>
-          </div>
-          <div>
-            <dt>Valor</dt>
-            <dd>{reserva.monto}</dd>
-          </div>
-        </dl>
-
-        {acciones.length > 0 ? (
-          <div className="admin-estados-card__actions">
-            {acciones.map((accion) => (
-              <button key={`${reserva.id}-${accion}`} type="button" onClick={() => cambiarEstado(reserva.id, accion)}>
-                {crearMensajeAccion(accion)}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <p className="admin-estados-card__locked">Sin acciones disponibles.</p>
-        )}
-      </article>
-    );
-  };
+  const resumen = useMemo(
+    () => ({
+      pendientes: reservasIniciales.filter((reserva) => reserva.estado === 'Pendiente').length,
+      aprobadas: reservasIniciales.filter((reserva) => reserva.estado === 'Aprobada').length,
+      finalizadas: reservasIniciales.filter((reserva) => reserva.estado === 'Finalizada').length,
+      canceladas: reservasIniciales.filter((reserva) => reserva.estado === 'Cancelada').length,
+    }),
+    [],
+  );
 
   return (
-    <section className="admin-estados" aria-label="Gestion de estados de reservas">
-      <header className="admin-estados__header">
-        <p className="mis-reservas__eyebrow">Panel administrativo</p>
-        <h2 className={`mis-reservas__title ${sportsTitleFont.className}`}>Estados de reservas</h2>
-        <p className="mis-reservas__description">
-          Flujo habilitado: Pendiente a Confirmada a Finalizada, Pendiente a Cancelada y
-          Confirmada a Cancelada.
-        </p>
-      </header>
+    <main className={styles.page}>
+      <section className={styles.hero} aria-labelledby="estados-title">
+        <div className={styles.hero__copy}>
+          <p className={styles.eyebrow}>Panel administrativo</p>
+          <h1 id="estados-title" className={styles.title}>
+            Gestión de Estados de Reserva
+          </h1>
+          <p className={styles.description}>
+            Un tablero visual limpio para monitorear y cambiar estados de reservas con una estética
+            deportiva moderna, clara y alineada con la interfaz base de ReservaPlay.
+          </p>
+        </div>
 
-      {mensaje ? (
-        <p className="mis-reservas__feedback" role="status" aria-live="polite">
-          {mensaje}
-        </p>
-      ) : null}
-
-      <div className="admin-estados-board" role="list" aria-label="Tablero de estados">
-        <section className="admin-estados-column admin-estados-column--pendiente" role="listitem" aria-label="Pendientes">
-          <header>
-            <h3>Pendientes</h3>
-            <span>{columnas.pendientes.length}</span>
-          </header>
-          <div className="admin-estados-column__content">
-            {columnas.pendientes.map(renderTarjeta)}
-          </div>
-        </section>
-
-        <section className="admin-estados-column admin-estados-column--confirmada" role="listitem" aria-label="Confirmadas">
-          <header>
-            <h3>Confirmadas</h3>
-            <span>{columnas.confirmadas.length}</span>
-          </header>
-          <div className="admin-estados-column__content">
-            {columnas.confirmadas.map(renderTarjeta)}
-          </div>
-        </section>
-
-        <section className="admin-estados-column admin-estados-column--finalizada" role="listitem" aria-label="Finalizadas">
-          <header>
-            <h3>Finalizadas</h3>
-            <span>{columnas.finalizadas.length}</span>
-          </header>
-          <div className="admin-estados-column__content">
-            {columnas.finalizadas.map(renderTarjeta)}
-          </div>
-        </section>
-      </div>
-
-      <section className="admin-estados-canceladas" aria-label="Reservas canceladas">
-        <header>
-          <h3>Canceladas</h3>
-          <span>{columnas.canceladas.length}</span>
-        </header>
-        <div className="admin-estados-canceladas__content">
-          {columnas.canceladas.length > 0 ? (
-            columnas.canceladas.map(renderTarjeta)
-          ) : (
-            <p>No hay reservas canceladas.</p>
-          )}
+        <div className={styles.summaryBoard} aria-label="Resumen rápido de estados">
+          <article>
+            <span>Pendientes</span>
+            <strong>{resumen.pendientes}</strong>
+          </article>
+          <article>
+            <span>Aprobadas</span>
+            <strong>{resumen.aprobadas}</strong>
+          </article>
+          <article>
+            <span>Finalizadas</span>
+            <strong>{resumen.finalizadas}</strong>
+          </article>
+          <article>
+            <span>Canceladas</span>
+            <strong>{resumen.canceladas}</strong>
+          </article>
         </div>
       </section>
-    </section>
+
+      <section className={styles.panel} aria-labelledby="filtros-title">
+        <div className={styles.panel__header}>
+          <div>
+            <p className={styles.panel__eyebrow}>Filtros rápidos</p>
+            <h2 id="filtros-title" className={styles.panel__title}>
+              Visualización por estado
+            </h2>
+          </div>
+          <p className={styles.panel__note}>
+            Mock data únicamente. No hay lógica de backend ni cambios en rutas globales.
+          </p>
+        </div>
+
+        <div className={styles.filterBar} role="tablist" aria-label="Filtrar reservas por estado">
+          {filtros.map((filtro) => {
+            const isActive = filtro === filtroActivo;
+
+            return (
+              <button
+                key={filtro}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`${styles.filterChip} ${isActive ? styles.filterChipActive : ''}`}
+                onClick={() => setFiltroActivo(filtro)}
+              >
+                {filtro}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className={styles.gridSection} aria-labelledby="board-title">
+        <div className={styles.panel__header}>
+          <div>
+            <p className={styles.panel__eyebrow}>Tablero de reservas</p>
+            <h2 id="board-title" className={styles.panel__title}>
+              {filtroActivo === 'Todas' ? 'Todas las reservas' : `Reservas ${filtroActivo.toLowerCase()}`}
+            </h2>
+          </div>
+          <div className={styles.legend} aria-label="Leyenda visual">
+            <span className={styles.legendItem}><i className={styles.dotPendiente} /> Pendiente</span>
+            <span className={styles.legendItem}><i className={styles.dotAprobada} /> Aprobada</span>
+            <span className={styles.legendItem}><i className={styles.dotCancelada} /> Cancelada</span>
+          </div>
+        </div>
+
+        <div className={styles.cardsGrid} role="list" aria-label="Listado de reservas">
+          {reservasFiltradas.map((reserva) => {
+            const meta = etiquetaEstado[reserva.estado];
+
+            return (
+              <article key={reserva.id} className={styles.reservaCard} role="listitem">
+                <div className={styles.reservaCard__head}>
+                  <div>
+                    <p className={styles.reservaCard__id}>{reserva.id}</p>
+                    <h3>{reserva.cliente}</h3>
+                  </div>
+                  <span className={`${styles.badge} ${meta.className}`}>{meta.label}</span>
+                </div>
+
+                <dl className={styles.reservaCard__meta}>
+                  <div>
+                    <dt>Cancha</dt>
+                    <dd>{reserva.cancha}</dd>
+                  </div>
+                  <div>
+                    <dt>Fecha</dt>
+                    <dd>{reserva.fecha}</dd>
+                  </div>
+                  <div>
+                    <dt>Horario</dt>
+                    <dd>{reserva.hora}</dd>
+                  </div>
+                  <div>
+                    <dt>Valor</dt>
+                    <dd>{reserva.monto}</dd>
+                  </div>
+                </dl>
+
+                <div className={styles.actionsBox}>
+                  <label className={styles.actionsBox__label} htmlFor={`accion-${reserva.id}`}>
+                    Acción rápida
+                  </label>
+                  <div className={styles.actionsBox__controls}>
+                    <select id={`accion-${reserva.id}`} defaultValue={acciones[reserva.estado][0]}>
+                      {acciones[reserva.estado].map((accion) => (
+                        <option key={accion} value={accion}>
+                          {accion}
+                        </option>
+                      ))}
+                    </select>
+                    <button type="button">Aplicar</button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </main>
   );
 }
