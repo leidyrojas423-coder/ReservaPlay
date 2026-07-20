@@ -1,212 +1,181 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getStoredAuthToken } from '../../../lib/auth';
+import styles from './page.module.css';
 
-interface Cancha {
+type EstadoCancha = 'Disponible' | 'Ocupada' | 'Mantenimiento';
+
+type CanchaMock = {
   id: string;
   nombre: string;
-  descripcion?: string;
+  descripcion: string;
   ubicacion: string;
-  estado: string;
-  capacidad?: number;
-  precio?: number;
-  activo: boolean;
-  administradorId?: string;
-}
+  estado: EstadoCancha;
+  precio: string;
+};
+
+const canchas: CanchaMock[] = [
+  {
+    id: 'CAN-001',
+    nombre: 'Cancha Sintética Norte',
+    descripcion: 'Césped sintético de alto tráfico con iluminación nocturna y gradería lateral.',
+    ubicacion: 'Sede Norte, bloque A',
+    estado: 'Disponible',
+    precio: '$120.000',
+  },
+  {
+    id: 'CAN-002',
+    nombre: 'Cancha Multipropósito Central',
+    descripcion: 'Espacio adaptable para fútbol 5, microfútbol y eventos deportivos internos.',
+    ubicacion: 'Sede Central, nivel 1',
+    estado: 'Ocupada',
+    precio: '$145.000',
+  },
+  {
+    id: 'CAN-003',
+    nombre: 'Cancha Premium Sur',
+    descripcion: 'Superficie premium con cerramiento completo y zona de hidratación cercana.',
+    ubicacion: 'Sede Sur, módulo deportivo',
+    estado: 'Mantenimiento',
+    precio: '$180.000',
+  },
+  {
+    id: 'CAN-004',
+    nombre: 'Cancha Mixta Oriente',
+    descripcion: 'Perfecta para reservas rápidas de grupos pequeños con acceso controlado.',
+    ubicacion: 'Sede Oriente, acceso principal',
+    estado: 'Disponible',
+    precio: '$110.000',
+  },
+];
+
+const estadoMetadata: Record<EstadoCancha, { label: string; className: string }> = {
+  Disponible: { label: 'Disponible', className: styles.badgeDisponible },
+  Ocupada: { label: 'Ocupada', className: styles.badgeOcupada },
+  Mantenimiento: { label: 'Mantenimiento', className: styles.badgeMantenimiento },
+};
+
+const resumen = {
+  total: canchas.length,
+  disponibles: canchas.filter((cancha) => cancha.estado === 'Disponible').length,
+  ocupadas: canchas.filter((cancha) => cancha.estado === 'Ocupada').length,
+  mantenimiento: canchas.filter((cancha) => cancha.estado === 'Mantenimiento').length,
+};
 
 export default function AdminCanchasPage() {
-  const [canchas, setCanchas] = useState<Cancha[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [form, setForm] = useState({
-    nombre: '',
-    descripcion: '',
-    ubicacion: '',
-    estado: 'Disponible',
-    capacidad: '',
-    precio: '',
-    administradorId: '',
-    activo: true,
-  });
-
-  const token = getStoredAuthToken();
-
-  const cargarCanchas = async () => {
-    if (!token) {
-      setError('Debe iniciar sesión como administrador.');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('http://localhost:3000/canchas', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'No se pudieron cargar las canchas');
-      }
-
-      const data = await response.json();
-      setCanchas(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    cargarCanchas();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!token) {
-      setError('Debe iniciar sesión como administrador.');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:3000/canchas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          nombre: form.nombre,
-          descripcion: form.descripcion,
-          ubicacion: form.ubicacion,
-          estado: form.estado,
-          capacidad: form.capacidad ? Number(form.capacidad) : undefined,
-          precio: form.precio ? Number(form.precio) : undefined,
-          administradorId: form.administradorId,
-          activo: form.activo,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'No se pudo crear la cancha');
-      }
-
-      setSuccess('Cancha creada correctamente');
-      setForm({
-        nombre: '',
-        descripcion: '',
-        ubicacion: '',
-        estado: 'Disponible',
-        capacidad: '',
-        precio: '',
-        administradorId: '',
-        activo: true,
-      });
-      await cargarCanchas();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
-    }
-  };
-
   return (
-    <main style={{ maxWidth: 1200, margin: '40px auto', padding: 24 }}>
-      <h1>Gestión de Canchas</h1>
-      <p>Administra las canchas disponibles para reservas.</p>
+    <main className={styles.page}>
+      <section className={styles.hero} aria-labelledby="gestion-canchas-title">
+        <div className={styles.hero__copy}>
+          <p className={styles.eyebrow}>Administración</p>
+          <h1 id="gestion-canchas-title" className={styles.title}>
+            Gestión de Canchas
+          </h1>
+          <p className={styles.description}>
+            Vista visual de ejemplo para revisar el catálogo de canchas con sus estados,
+            ubicación y precio, respetando el layout base de ReservaPlay.
+          </p>
+        </div>
 
-      {error ? <p style={{ color: 'crimson' }}>{error}</p> : null}
-      {success ? <p style={{ color: 'green' }}>{success}</p> : null}
+        <div className={styles.hero__summary} aria-label="Resumen de canchas">
+          <article>
+            <span>Total</span>
+            <strong>{resumen.total}</strong>
+          </article>
+          <article>
+            <span>Disponibles</span>
+            <strong>{resumen.disponibles}</strong>
+          </article>
+          <article>
+            <span>Ocupadas</span>
+            <strong>{resumen.ocupadas}</strong>
+          </article>
+          <article>
+            <span>Mantenimiento</span>
+            <strong>{resumen.mantenimiento}</strong>
+          </article>
+        </div>
+      </section>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
-        <input
-          placeholder="Nombre de la cancha"
-          value={form.nombre}
-          onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          required
-        />
-        <input
-          placeholder="Descripción"
-          value={form.descripcion}
-          onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
-        />
-        <input
-          placeholder="Ubicación"
-          value={form.ubicacion}
-          onChange={(e) => setForm({ ...form, ubicacion: e.target.value })}
-          required
-        />
-        <select value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value })}>
-          <option value="Disponible">Disponible</option>
-          <option value="Ocupada">Ocupada</option>
-          <option value="Mantenimiento">Mantenimiento</option>
-        </select>
-        <input
-          type="number"
-          placeholder="Capacidad"
-          value={form.capacidad}
-          onChange={(e) => setForm({ ...form, capacidad: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Precio"
-          value={form.precio}
-          onChange={(e) => setForm({ ...form, precio: e.target.value })}
-        />
-        <input
-          placeholder="Administrador ID"
-          value={form.administradorId}
-          onChange={(e) => setForm({ ...form, administradorId: e.target.value })}
-          required
-        />
-        <label>
-          <input
-            type="checkbox"
-            checked={form.activo}
-            onChange={(e) => setForm({ ...form, activo: e.target.checked })}
-          />
-          Activa
-        </label>
-        <button type="submit" style={{ maxWidth: 220 }}>
-          Crear Cancha
-        </button>
-      </form>
+      <section className={styles.panel} aria-labelledby="canchas-table-title">
+        <div className={styles.panel__header}>
+          <div>
+            <p className={styles.panel__eyebrow}>Listado de referencia</p>
+            <h2 id="canchas-table-title" className={styles.panel__title}>
+              Canchas registradas
+            </h2>
+          </div>
+          <p className={styles.panel__note}>
+            Mock data únicamente. No hay llamadas a API ni lógica de persistencia.
+          </p>
+        </div>
 
-      {loading ? (
-        <p>Cargando canchas...</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: 8 }}>Nombre</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Ubicación</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Estado</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Capacidad</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Precio</th>
-            </tr>
-          </thead>
-          <tbody>
-            {canchas.map((cancha) => (
-              <tr key={cancha.id}>
-                <td style={{ padding: 8 }}>{cancha.nombre}</td>
-                <td style={{ padding: 8 }}>{cancha.ubicacion}</td>
-                <td style={{ padding: 8 }}>{cancha.estado}</td>
-                <td style={{ padding: 8 }}>{cancha.capacidad ?? '-'}</td>
-                <td style={{ padding: 8 }}>{cancha.precio ?? '-'}</td>
+        <div className={styles.tableWrap}>
+          <table className={styles.table} aria-label="Tabla de gestión de canchas">
+            <thead>
+              <tr>
+                <th>Nombre de cancha</th>
+                <th>Descripción</th>
+                <th>Ubicación</th>
+                <th>Estado</th>
+                <th>Precio</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {canchas.map((cancha) => {
+                const meta = estadoMetadata[cancha.estado];
+
+                return (
+                  <tr key={cancha.id}>
+                    <td>
+                      <div className={styles.primaryCell}>
+                        <strong>{cancha.nombre}</strong>
+                        <span>{cancha.id}</span>
+                      </div>
+                    </td>
+                    <td>{cancha.descripcion}</td>
+                    <td>{cancha.ubicacion}</td>
+                    <td>
+                      <span className={`${styles.badge} ${meta.className}`}>{meta.label}</span>
+                    </td>
+                    <td>{cancha.precio}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className={styles.mobileCards} aria-label="Tarjetas de canchas">
+          {canchas.map((cancha) => {
+            const meta = estadoMetadata[cancha.estado];
+
+            return (
+              <article key={cancha.id} className={styles.card}>
+                <div className={styles.card__head}>
+                  <div>
+                    <p>{cancha.id}</p>
+                    <h3>{cancha.nombre}</h3>
+                  </div>
+                  <span className={`${styles.badge} ${meta.className}`}>{meta.label}</span>
+                </div>
+
+                <p className={styles.card__description}>{cancha.descripcion}</p>
+
+                <dl className={styles.card__meta}>
+                  <div>
+                    <dt>Ubicación</dt>
+                    <dd>{cancha.ubicacion}</dd>
+                  </div>
+                  <div>
+                    <dt>Precio</dt>
+                    <dd>{cancha.precio}</dd>
+                  </div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }

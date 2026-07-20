@@ -1,0 +1,269 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.hero,
+.panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.hero {
+  padding: clamp(1.4rem, 3vw, 2rem);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.9fr);
+  align-items: start;
+}
+
+.hero__copy {
+  display: grid;
+  gap: 12px;
+}
+
+.eyebrow,
+.panel__eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.02;
+  color: #0f172a;
+}
+
+.description {
+  margin: 0;
+  max-width: 64ch;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.hero__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hero__summary article {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.hero__summary span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.hero__summary strong {
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.panel {
+  padding: clamp(1.2rem, 2.8vw, 1.8rem);
+  display: grid;
+  gap: 18px;
+}
+
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.panel__title {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+  color: #0f172a;
+}
+
+.panel__note {
+  margin: 0;
+  max-width: 42ch;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.primaryCell {
+  display: grid;
+  gap: 4px;
+}
+
+.primaryCell strong {
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.primaryCell span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badgeDisponible {
+  background: rgba(22, 163, 74, 0.12);
+  color: #166534;
+  border-color: rgba(22, 163, 74, 0.22);
+}
+
+.badgeOcupada {
+  background: rgba(202, 138, 4, 0.12);
+  color: #92400e;
+  border-color: rgba(202, 138, 4, 0.22);
+}
+
+.badgeMantenimiento {
+  background: rgba(220, 38, 38, 0.12);
+  color: #991b1b;
+  border-color: rgba(220, 38, 38, 0.22);
+}
+
+.mobileCards {
+  display: none;
+  gap: 14px;
+}
+
+.card {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: grid;
+  gap: 12px;
+}
+
+.card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.card__head p {
+  margin: 0 0 4px;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.card__head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+}
+
+.card__description {
+  margin: 0;
+  color: #334155;
+  line-height: 1.65;
+}
+
+.card__meta {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.card__meta div {
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.card__meta dt {
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.card__meta dd {
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.55;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .hero__summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tableWrap {
+    display: none;
+  }
+
+  .mobileCards {
+    display: grid;
+  }
+}
