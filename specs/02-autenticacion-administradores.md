@@ -1,62 +1,76 @@
-# Spec 2: Autenticación de administradores
+# Spec 02: Autenticación de administradores
 
 ## Objetivo
 
-Permitir que un administrador inicie sesión de forma segura para acceder al panel administrativo del sistema ReservaPlay, desde donde podrá gestionar canchas, horarios, reservas y usuarios según los permisos asignados.
+Permitir que un administrador inicie sesión de forma segura en ReservaPlay y acceda al panel administrativo para gestionar clientes, canchas, horarios y reservas.
 
 ---
 
 ## Alcance
 
-Este caso de uso comprende el proceso de autenticación de administradores mediante credenciales válidas, la validación de permisos, la generación del token JWT y el acceso a las funcionalidades administrativas.
+Este caso de uso incluye:
 
-No contempla el registro público de administradores ni la recuperación de contraseña.
+- Inicio de sesión de administradores con credenciales válidas.
+- Validación del rol de administrador.
+- Generación y uso de un token JWT para sesiones protegidas.
+- Acceso al panel administrativo.
+- Protección de rutas que permiten gestionar clientes, canchas, horarios y reservas.
+
+No incluye registro público de administradores, recuperación de contraseña ni autenticación con redes sociales.
 
 ---
 
 ## Actores
 
-- Administrador
-- Sistema ReservaPlay
+- Administrador.
+- Sistema ReservaPlay.
+
+---
+
+## Precondiciones
+
+- El usuario debe existir en el sistema.
+- El usuario debe estar registrado con rol de administrador.
 
 ---
 
 ## Entradas
 
-- Usuario o correo electrónico.
+- Correo electrónico o nombre de usuario.
 - Contraseña.
 
 ---
 
 ## Salidas
 
-- Token JWT.
+- Token JWT de acceso.
 - Información básica del administrador autenticado.
-- Mensaje de autenticación exitosa.
-- Mensaje de error cuando las credenciales son incorrectas.
+- Mensaje de éxito o error según el resultado del proceso.
 
 ---
 
 ## Reglas de negocio
 
-- Solo administradores registrados pueden autenticarse.
-- La contraseña debe coincidir con la almacenada en la base de datos.
-- El sistema debe generar un token JWT válido.
-- El token debe enviarse en las peticiones protegidas.
-- Los clientes no pueden acceder a rutas administrativas.
-- RN-12: Solo el administrador puede administrar canchas, horarios y reservas.
+- RN-01: Solo los usuarios registrados como administradores pueden autenticarse para el panel administrativo.
+- RN-02: Las credenciales ingresadas deben coincidir con las almacenadas en la base de datos.
+- RN-03: El sistema debe generar un token JWT válido para la sesión del administrador.
+- RN-04: El token debe enviarse en las peticiones a rutas protegidas.
+- RN-05: Los clientes autenticados no pueden acceder al panel administrativo.
+- RN-06: Un administrador autenticad puede gestionar clientes, canchas, horarios y reservas.
+- RN-07: El sistema debe bloquear el acceso cuando el token sea inválido o expirado.
 
 ---
 
 ## Flujo principal
 
 1. El administrador accede al formulario de inicio de sesión.
-2. Ingresa usuario o correo electrónico.
-3. Ingresa la contraseña.
-4. El sistema valida las credenciales.
-5. El sistema verifica que el usuario tenga rol de administrador.
-6. Se genera un token JWT.
+2. Ingresa su correo electrónico o usuario y contraseña.
+3. El sistema valida que las credenciales existan y sean correctas.
+4. El sistema verifica que el usuario tenga rol de administrador.
+5. Se genera un token JWT.
+6. El sistema devuelve el token y la información del administrador.
 7. El administrador accede al panel administrativo.
+8. Desde allí puede gestionar clientes, canchas, horarios y reservas.
 
 ---
 
@@ -64,21 +78,27 @@ No contempla el registro público de administradores ni la recuperación de cont
 
 ### Credenciales incorrectas
 
-1. El usuario ingresa información incorrecta.
+1. El usuario ingresa datos incorrectos.
 2. El sistema rechaza el inicio de sesión.
-3. Se muestra un mensaje de credenciales inválidas.
+3. Se devuelve un mensaje de credenciales inválidas.
 
 ### Usuario sin permisos
 
-1. El usuario posee una cuenta válida.
-2. No tiene rol de administrador.
-3. El sistema bloquea el acceso al panel administrativo.
+1. El usuario tiene una cuenta válida.
+2. No posee rol de administrador.
+3. El sistema niega el acceso al panel administrativo.
+
+### Token inválido o expirado
+
+1. El administrador intenta acceder a una ruta protegida con un token inválido o vencido.
+2. El sistema rechaza la solicitud.
+3. Se devuelve un error de autenticación o autorización.
 
 ---
 
 ## Validaciones
 
-- Usuario obligatorio.
+- Correo o usuario obligatorio.
 - Contraseña obligatoria.
 - Usuario existente.
 - Contraseña correcta.
@@ -90,10 +110,10 @@ No contempla el registro público de administradores ni la recuperación de cont
 ## Endpoints
 
 | Método | Endpoint | Descripción |
-|---------|----------|-------------|
+|--------|----------|-------------|
 | POST | /auth/admin/login | Inicio de sesión del administrador |
-| GET | /auth/admin/dashboard | Acceso al panel administrativo |
 | GET | /auth/me | Obtener información del usuario autenticado |
+| GET | /auth/admin/dashboard | Acceso al panel administrativo |
 
 ---
 
@@ -103,7 +123,7 @@ No contempla el registro público de administradores ni la recuperación de cont
 
 ```ts
 {
-  username: string;
+  email: string;
   password: string;
 }
 ```
@@ -113,11 +133,11 @@ No contempla el registro público de administradores ni la recuperación de cont
 ## Respuestas HTTP
 
 | Código | Descripción |
-|---------|-------------|
+|--------|-------------|
 | 200 | Inicio de sesión exitoso |
 | 400 | Datos inválidos |
 | 401 | Credenciales incorrectas |
-| 403 | Usuario sin permisos |
+| 403 | Usuario sin permisos o acceso denegado |
 | 500 | Error interno del servidor |
 
 ---
@@ -126,7 +146,7 @@ No contempla el registro público de administradores ni la recuperación de cont
 
 - Usuario inexistente.
 - Contraseña vacía.
-- Usuario vacío.
+- Correo o usuario vacío.
 - Token expirado.
 - Token inválido.
 - Cliente intentando acceder al panel administrativo.
@@ -135,12 +155,13 @@ No contempla el registro público de administradores ni la recuperación de cont
 
 ## Criterios de aceptación
 
-- El administrador puede iniciar sesión con credenciales válidas.
-- Se genera un token JWT.
-- El administrador accede al panel administrativo.
+- Un administrador puede iniciar sesión con credenciales válidas.
+- El sistema genera un token JWT válido.
+- El administrador puede acceder al panel administrativo.
 - El sistema rechaza credenciales inválidas.
 - Un cliente autenticado no puede acceder al panel administrativo.
-- El sistema protege las rutas administrativas mediante autenticación.
+- Las rutas administrativas quedan protegidas mediante autenticación y autorización.
+- El administrador autenticado puede gestionar clientes, canchas, horarios y reservas.
 
 ---
 
@@ -159,5 +180,5 @@ No contempla el registro público de administradores ni la recuperación de cont
 - Passport JWT.
 - JwtModule.
 - UsersModule.
-- AdministradoresModule.
-- Base de datos PostgreSQL.
+- Base de datos.
+- Guards y decoradores de roles para autorización.
