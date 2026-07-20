@@ -5,21 +5,20 @@
 
 .hero,
 .panel,
-.timelineSection {
-  border: 1px solid #e2e8f0;
+.listSection {
+  border: 1px solid #dbe4ee;
   border-radius: 24px;
   background:
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(22, 163, 74, 0.08), transparent 30%),
     linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
 .hero {
-  padding: clamp(1.4rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 3vw, 2.2rem);
   display: grid;
   gap: 20px;
-  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.95fr);
-  align-items: start;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
 }
 
 .hero__copy {
@@ -31,16 +30,16 @@
 .panel__eyebrow,
 .modal__eyebrow {
   margin: 0;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.76rem;
   font-weight: 700;
-  color: #64748b;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 3.25rem);
   line-height: 1.02;
   color: #0f172a;
 }
@@ -49,8 +48,8 @@
 .panel__note,
 .modal__text {
   margin: 0;
-  color: #334155;
-  line-height: 1.7;
+  color: #475569;
+  line-height: 1.6;
 }
 
 .summary {
@@ -62,7 +61,7 @@
 .summary article {
   padding: 16px;
   border-radius: 18px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe4ee;
   background: #ffffff;
 }
 
@@ -76,14 +75,14 @@
 }
 
 .summary strong {
-  font-size: 1.65rem;
+  font-size: 1.7rem;
   line-height: 1;
   color: #0f172a;
 }
 
 .panel,
-.timelineSection {
-  padding: clamp(1.2rem, 2.8vw, 1.8rem);
+.listSection {
+  padding: clamp(1.2rem, 2.6vw, 1.8rem);
   display: grid;
   gap: 18px;
 }
@@ -91,15 +90,15 @@
 .panel__header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
 }
 
 .panel__title {
   margin: 6px 0 0;
-  font-size: 1.45rem;
   color: #0f172a;
+  font-size: 1.45rem;
 }
 
 .legend {
@@ -114,14 +113,14 @@
   gap: 8px;
   padding: 10px 12px;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe4ee;
   background: #ffffff;
   color: #334155;
   font-size: 0.88rem;
 }
 
-.dotNext,
-.dotPlayed,
+.dotPending,
+.dotApproved,
 .dotCancelled {
   width: 10px;
   height: 10px;
@@ -129,12 +128,12 @@
   display: inline-block;
 }
 
-.dotNext {
+.dotPending {
   background: #f59e0b;
   box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
 }
 
-.dotPlayed {
+.dotApproved {
   background: #16a34a;
   box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
 }
@@ -174,55 +173,26 @@
   color: #166534;
 }
 
-.timelineList {
+.reservationList {
   display: grid;
   gap: 16px;
 }
 
 .reservationCard {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr);
-  gap: 16px;
+  gap: 14px;
   padding: 18px;
   border-radius: 22px;
-  border: 1px solid #e2e8f0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96)),
-    repeating-linear-gradient(90deg, transparent 0 18px, rgba(203, 213, 225, 0.12) 18px 19px);
+  border: 1px solid #dbe4ee;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
-}
-
-.reservationCard__rail {
-  display: grid;
-  justify-items: center;
-  align-content: start;
-  gap: 6px;
-}
-
-.reservationCard__dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: #16a34a;
-  box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
-}
-
-.reservationCard__line {
-  width: 2px;
-  min-height: 100%;
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.55), transparent);
-}
-
-.reservationCard__content {
-  display: grid;
-  gap: 14px;
 }
 
 .reservationCard__head {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .reservationCard__id {
@@ -234,10 +204,10 @@
   font-weight: 700;
 }
 
-.reservationCard__head h3 {
+.reservationCard h3 {
   margin: 0;
   color: #0f172a;
-  font-size: 1.12rem;
+  font-size: 1.1rem;
 }
 
 .badge {
@@ -260,13 +230,13 @@
   display: inline-block;
 }
 
-.badgeNext {
+.badgePending {
   background: rgba(245, 158, 11, 0.12);
   color: #92400e;
   border-color: rgba(245, 158, 11, 0.18);
 }
 
-.badgePlayed {
+.badgeApproved {
   background: rgba(22, 163, 74, 0.12);
   color: #166534;
   border-color: rgba(22, 163, 74, 0.18);
@@ -278,6 +248,18 @@
   border-color: rgba(220, 38, 38, 0.18);
 }
 
+.dotPending {
+  background: #f59e0b;
+}
+
+.dotApproved {
+  background: #16a34a;
+}
+
+.dotCancelled {
+  background: #dc2626;
+}
+
 .reservationCard__meta {
   margin: 0;
   display: grid;
@@ -287,7 +269,7 @@
 
 .reservationCard__meta div {
   padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #dbe4ee;
 }
 
 .reservationCard__meta dt {
@@ -353,7 +335,7 @@
   padding: 12px 16px;
   border-radius: 999px;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe4ee;
   color: #64748b;
   font-size: 0.9rem;
   font-weight: 600;
@@ -373,7 +355,7 @@
   width: min(520px, 100%);
   border-radius: 24px;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe4ee;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
   padding: 20px;
   display: grid;
@@ -384,7 +366,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: start;
+  align-items: flex-start;
 }
 
 .modal__header h3 {
@@ -450,14 +432,6 @@
   .modal__header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .reservationCard {
-    grid-template-columns: 1fr;
-  }
-
-  .reservationCard__rail {
-    display: none;
   }
 
   .modal__actions,
