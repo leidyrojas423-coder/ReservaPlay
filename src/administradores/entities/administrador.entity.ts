@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { User } from '../../users/user.entity';
 
 @Entity('administradores')
 export class AdministradorEntity {
@@ -11,18 +12,22 @@ export class AdministradorEntity {
   @Column({ length: 100 })
   apellido!: string;
 
-  @Column({ length: 150, unique: true })
-  correo!: string;
-
   @Column({ length: 20 })
   telefono!: string;
-
-  @Column({ select: false })
-  password!: string;
 
   @Column({ default: true })
   estado!: boolean;
 
-  @CreateDateColumn({ name: 'fecha_registro' })
-  fechaRegistro!: Date;
+  @Column({ type: 'uuid', unique: true })
+  userId!: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'userId' })
+  user!: User;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }

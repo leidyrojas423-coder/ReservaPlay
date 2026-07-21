@@ -1,10 +1,14 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { ClienteEntity } from '../../clientes/entities/cliente.entity';
+import { CanchaEntity } from '../../canchas/entities/cancha.entity';
+import { HorarioEntity } from '../../horarios/entities/horario.entity';
 
 export enum ReservaEstado {
-  PENDIENTE = 'Pendiente',
-  CONFIRMADA = 'Confirmada',
-  FINALIZADA = 'Finalizada',
-  CANCELADA = 'Cancelada',
+  PENDIENTE = 'pendiente',
+  CONFIRMADA = 'confirmada',
+  CANCELADA = 'cancelada',
+  RECHAZADA = 'rechazada',
+  COMPLETADA = 'completada',
 }
 
 @Entity('reservas')
@@ -12,33 +16,42 @@ export class ReservaEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 100 })
+  @Column({ type: 'uuid' })
   clienteId!: string;
 
-  @Column({ length: 150 })
-  cancha!: string;
+  @ManyToOne(() => ClienteEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'clienteId' })
+  cliente!: ClienteEntity;
 
-  @Column({ length: 10 })
-  fecha!: string;
+  @Column({ type: 'uuid' })
+  canchaId!: string;
 
-  @Column({ length: 30 })
-  hora!: string;
+  @ManyToOne(() => CanchaEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'canchaId' })
+  cancha!: CanchaEntity;
 
-  @Column({ length: 30 })
-  monto!: string;
+  @Column({ type: 'uuid' })
+  horarioId!: string;
+
+  @ManyToOne(() => HorarioEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'horarioId' })
+  horario!: HorarioEntity;
+
+  @Column({ type: 'timestamp' })
+  fechaReserva!: Date;
 
   @Column({ type: 'enum', enum: ReservaEstado, default: ReservaEstado.PENDIENTE })
   estado!: ReservaEstado;
 
-  @Column({ type: 'text', nullable: true })
-  motivoCancelacion!: string | null;
-
   @Column({ type: 'timestamp', nullable: true })
-  canceladaEn!: Date | null;
+  fechaConfirmacion?: Date;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  canceladaPor!: string | null;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  motivoCancelacion?: string;
 
-  @CreateDateColumn({ name: 'fecha_registro' })
-  fechaRegistro!: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }
