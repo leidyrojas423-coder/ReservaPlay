@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { HorarioEntity } from '../../horarios/entities/horario.entity';
 
 export enum ReservaEstado {
   PENDIENTE = 'Pendiente',
@@ -26,6 +27,13 @@ export class ReservaEntity {
 
   @Column({ length: 30 })
   monto!: string;
+
+  @Column({ type: 'uuid', nullable: true })
+  horarioId?: string;
+
+  @ManyToOne(() => HorarioEntity, (horario) => horario.reservas, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'horarioId' })
+  horario?: HorarioEntity;
 
   @Column({ type: 'enum', enum: ReservaEstado, default: ReservaEstado.PENDIENTE })
   estado!: ReservaEstado;

@@ -118,8 +118,8 @@ export class CanchasService {
     });
 
     const reservas = await this.reservasRepository.find({
-      where: { fechaReserva: fechaConsulta },
-      order: { fechaReserva: 'ASC' },
+      where: { fecha: filtros.fecha },
+      order: { fecha: 'ASC' },
     });
 
     const resultados = canchas
