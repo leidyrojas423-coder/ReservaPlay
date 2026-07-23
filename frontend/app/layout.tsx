@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import Header from "./components/Header";
+import Navbar from "./components/Navbar";
+import Aside from "./components/Aside";
 import { AuthProvider } from "./providers";
 
 export const metadata: Metadata = {
@@ -19,13 +21,24 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <div className="app-shell">
-
             <Header />
 
-            <main>
-              {children}
-            </main>
+            <div className="page-body">
+              <Navbar />
 
+              <Aside />
+
+              <main className="page-main">
+                {children}
+              </main>
+            </div>
+
+            <footer className="page-footer">
+              <p>
+                © {new Date().getFullYear()} ReservaPlay. Todos los derechos
+                reservados.
+              </p>
+            </footer>
           </div>
         </AuthProvider>
       </body>
