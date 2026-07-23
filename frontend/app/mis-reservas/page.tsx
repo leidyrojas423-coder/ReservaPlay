@@ -13,6 +13,8 @@ type ReservaMock = {
   hora: string;
   monto: string;
   estado: EstadoReserva;
+  motivoCancelacion?: string | null;
+  canceladaEn?: string | null;
 };
 
 type FormValues = {
@@ -37,6 +39,8 @@ const reservasIniciales: ReservaMock[] = [
     hora: '18:00 - 19:00',
     monto: '$120.000',
     estado: 'Pendiente',
+    motivoCancelacion: null,
+    canceladaEn: null,
   },
   {
     id: 'MR-3102',
@@ -45,6 +49,8 @@ const reservasIniciales: ReservaMock[] = [
     hora: '20:00 - 21:00',
     monto: '$165.000',
     estado: 'Confirmada',
+    motivoCancelacion: null,
+    canceladaEn: null,
   },
   {
     id: 'MR-3103',
@@ -53,6 +59,8 @@ const reservasIniciales: ReservaMock[] = [
     hora: '21:00 - 22:00',
     monto: '$98.000',
     estado: 'Confirmada',
+    motivoCancelacion: null,
+    canceladaEn: null,
   },
 ];
 
@@ -204,12 +212,20 @@ export default function MisReservasPage() {
     }
 
     const endpoint = nuevoEstado === 'Confirmada' ? 'confirmar' : 'cancelar';
+    const motivoCancelacion =
+      nuevoEstado === 'Cancelada'
+        ? window.prompt('Indica el motivo de cancelación para dejar trazabilidad:', 'Cambio de plan')
+        : null;
 
     setIsLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/reservas/${id}/${endpoint}`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
+        body:
+          nuevoEstado === 'Cancelada'
+            ? JSON.stringify({ motivo: motivoCancelacion ?? 'Cancelada por el cliente' })
+            : undefined,
       });
 
       if (!response.ok) {
@@ -326,6 +342,38 @@ export default function MisReservasPage() {
         </article>
       </section>
 
+      <section className="historial-cancelaciones" aria-label="Historial de cancelaciones">
+        <div className="historial-cancelaciones__header">
+          <h3 className={sportsTitleFont.className}>Historial de cancelaciones</h3>
+          <p>Registra las reservas canceladas con su motivo y fecha de cancelación.</p>
+        </div>
+
+        <div className="historial-cancelaciones__grid">
+          {reservas.filter((reserva) => reserva.estado === 'Cancelada').length > 0 ? (
+            reservas
+              .filter((reserva) => reserva.estado === 'Cancelada')
+              .map((reserva) => (
+                <article className="historial-cancelaciones__card" key={`historial-${reserva.id}`}>
+                  <p className="reserva-card__id">{reserva.id}</p>
+                  <h4>{reserva.cancha}</h4>
+                  <p>
+                    <strong>Fecha:</strong> {reserva.fecha} | <strong>Horario:</strong> {reserva.hora}
+                  </p>
+                  <p>
+                    <strong>Motivo:</strong> {reserva.motivoCancelacion ?? 'Sin motivo registrado'}
+                  </p>
+                  <p>
+                    <strong>Cancelada en:</strong>{' '}
+                    {reserva.canceladaEn ? new Date(reserva.canceladaEn).toLocaleString('es-CO') : 'Sin fecha'}
+                  </p>
+                </article>
+              ))
+          ) : (
+            <p className="historial-cancelaciones__empty">Aún no tienes reservas canceladas.</p>
+          )}
+        </div>
+      </section>
+
       <div className="reservas-grid" role="list" aria-label="Listado de reservas">
         {isLoading && reservas.length === 0 ? <p>Cargando reservas...</p> : null}
         {reservas.map((reserva) => {
@@ -384,6 +432,12 @@ export default function MisReservasPage() {
                   Cancelar Reserva
                 </button>
               </div>
+
+              {reserva.estado === 'Cancelada' ? (
+                <p className="cliente-reserva-card__warning">
+                  Esta reserva quedó en tu historial con trazabilidad de cancelación.
+                </p>
+              ) : null}
 
               {bloquearCancelacionConfirmada ? (
                 <p className="cliente-reserva-card__warning">

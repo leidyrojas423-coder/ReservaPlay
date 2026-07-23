@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateReservaDto } from './dto/create-reserva.dto';
+import { CancelReservaDto } from './dto/cancel-reserva.dto';
 import { ReservaEntity, ReservaEstado } from './entities/reserva.entity';
 
 @Injectable()
@@ -47,7 +48,7 @@ export class ReservasService {
 		return this.reservasRepository.save(reserva);
 	}
 
-	async cancel(clienteId: string, id: string): Promise<ReservaEntity> {
+	async cancel(clienteId: string, id: string, cancelReservaDto: CancelReservaDto = {}): Promise<ReservaEntity> {
 		const reserva = await this.findOwnedReserva(clienteId, id);
 
 		if (reserva.estado === ReservaEstado.CANCELADA || reserva.estado === ReservaEstado.FINALIZADA) {
@@ -61,6 +62,9 @@ export class ReservasService {
 		}
 
 		reserva.estado = ReservaEstado.CANCELADA;
+		reserva.motivoCancelacion = cancelReservaDto.motivo?.trim() || 'Cancelada por el cliente';
+		reserva.canceladaEn = new Date();
+		reserva.canceladaPor = clienteId;
 		return this.reservasRepository.save(reserva);
 	}
 

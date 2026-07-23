@@ -4,6 +4,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateReservaDto } from './dto/create-reserva.dto';
+import { CancelReservaDto } from './dto/cancel-reserva.dto';
 import { ReservasService } from './reservas.service';
 
 @Controller('reservas')
@@ -28,7 +29,11 @@ export class ReservasController {
 	}
 
 	@Patch(':id/cancelar')
-	async cancel(@Request() req: ExpressRequest, @Param('id') id: string) {
-		return this.reservasService.cancel((req.user as any).userId, id);
+	async cancel(
+		@Request() req: ExpressRequest,
+		@Param('id') id: string,
+		@Body() cancelReservaDto: CancelReservaDto,
+	) {
+		return this.reservasService.cancel((req.user as any).userId, id, cancelReservaDto);
 	}
 }

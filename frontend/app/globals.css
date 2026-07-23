@@ -783,6 +783,66 @@ a {
   background: #eff6ff;
 }
 
+.historial-cancelaciones {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fef2f2 0%, #ffffff 35%);
+  padding: 14px;
+}
+
+.historial-cancelaciones__header {
+  display: grid;
+  gap: 4px;
+}
+
+.historial-cancelaciones__header h3 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3.2vw, 2rem);
+  color: #7f1d1d;
+}
+
+.historial-cancelaciones__header p {
+  margin: 0;
+  color: #7f1d1d;
+}
+
+.historial-cancelaciones__grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.historial-cancelaciones__card {
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 8px 20px rgba(127, 29, 29, 0.06);
+}
+
+.historial-cancelaciones__card h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.historial-cancelaciones__card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.historial-cancelaciones__empty {
+  margin: 0;
+  color: #7f1d1d;
+  font-weight: 600;
+}
+
 .reservas-grid {
   display: grid;
   gap: 12px;
@@ -1206,6 +1266,10 @@ a {
 
   .cliente-reserva-form__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .historial-cancelaciones__grid {
+    grid-template-columns: 1fr;
   }
 
   .reservas-grid {
