@@ -5,63 +5,119 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+export default function AdminLayout({
+  children,
+}: AdminLayoutProps) {
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      {/* Menú lateral */}
-      <aside
+    <>
+      {/* Header */}
+      <header
         style={{
-          width: "260px",
-          background: "#1f2937",
+          height: "70px",
+          background: "#111827",
           color: "white",
-          padding: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 30px",
         }}
       >
-        <h2 style={{ marginBottom: "30px" }}>⚽ ReservaPlay</h2>
+        <h2>⚽ ReservaPlay</h2>
+        <span>Panel Administrativo</span>
+      </header>
 
-        <nav
+      {/* Contenedor principal */}
+      <div
+        style={{
+          display: "flex",
+          minHeight: "calc(100vh - 120px)",
+        }}
+      >
+        {/* Menú lateral */}
+        <aside
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px",
+            width: "260px",
+            background: "#1f2937",
+            color: "white",
+            padding: "20px",
           }}
         >
-          <Link href="/dashboard" style={{ color: "white" }}>
-            Dashboard
-          </Link>
+          <nav
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+            }}
+          >
+            <Link
+              href="/dashboard"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Dashboard
+            </Link>
 
-          <Link href="/admin/users" style={{ color: "white" }}>
-            Usuarios
-          </Link>
+            <Link
+              href="/admin/users"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Usuarios
+            </Link>
 
-          <Link href="/admin/canchas" style={{ color: "white" }}>
-            Canchas
-          </Link>
+            <Link
+              href="/admin/canchas"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Canchas
+            </Link>
 
-          <Link href="/admin/horarios" style={{ color: "white" }}>
-            Horarios
-          </Link>
+            <Link
+              href="/admin/horarios"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Horarios
+            </Link>
 
-          <Link href="/admin/reservas" style={{ color: "white" }}>
-            Reservas
-          </Link>
+            <Link
+              href="/admin/reservas"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Reservas
+            </Link>
 
-          <Link href="/admin/estados-reservas" style={{ color: "white" }}>
-            Estados
-          </Link>
-        </nav>
-      </aside>
+            <Link
+              href="/admin/estados-reservas"
+              style={{ color: "white", textDecoration: "none" }}
+            >
+              Estados de Reservas
+            </Link>
+          </nav>
+        </aside>
 
-      {/* Contenido */}
-      <main
+        {/* Contenido */}
+        <main
+          style={{
+            flex: 1,
+            padding: "30px",
+            background: "#f4f4f4",
+          }}
+        >
+          {children}
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer
         style={{
-          flex: 1,
-          padding: "30px",
-          background: "#f4f4f4",
+          height: "50px",
+          background: "#111827",
+          color: "white",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        {children}
-      </main>
-    </div>
+        © 2026 ReservaPlay - Todos los derechos reservados
+      </footer>
+    </>
   );
 }

@@ -205,8 +205,8 @@ export default function AdminCanchasPage() {
               </tr>
             ))}
           </tbody>
-        </table>
-      )}
+          </table>
+)}
     </main>
   );
 }
