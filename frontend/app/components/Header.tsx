@@ -1,11 +1,16 @@
+import AdminSessionBar from "./admin-session-bar";
+
 export default function Header() {
   return (
-    <header>
-      <h1>⚽ ReservaPlay</h1>
+    <header className="page-header">
+      <div className="page-header__content">
+        <div>
+          <p className="eyebrow">Panel principal</p>
+          <h1>Bienvenido a ReservaPlay</h1>
+        </div>
 
-      <p>
-        Reserva tu cancha fácilmente
-      </p>
+        <AdminSessionBar />
+      </div>
     </header>
   );
 }

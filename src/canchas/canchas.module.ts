@@ -8,7 +8,14 @@ import { CanchasService } from './canchas.service';
 import { CanchaEntity } from './entities/cancha.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CanchaEntity, AdministradorEntity, HorarioEntity, ReservaEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      CanchaEntity,
+      AdministradorEntity,
+      HorarioEntity,
+      ReservaEntity,
+    ]),
+  ],
   controllers: [CanchasController],
   providers: [CanchasService],
 })

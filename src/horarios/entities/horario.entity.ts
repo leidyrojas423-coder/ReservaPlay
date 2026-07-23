@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { CanchaEntity } from '../../canchas/entities/cancha.entity';
 
 @Entity('horarios')
@@ -21,13 +21,16 @@ export class HorarioEntity {
   @Column({ default: true })
   activo!: boolean;
 
-  @Column({ type: 'uuid', nullable: true })
-  canchaId?: string;
+  @Column({ type: 'uuid' })
+  canchaId!: string;
 
-  @ManyToOne(() => CanchaEntity, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => CanchaEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'canchaId' })
-  cancha?: CanchaEntity;
+  cancha!: CanchaEntity;
 
-  @CreateDateColumn({ name: 'fecha_registro' })
-  fechaRegistro!: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }
