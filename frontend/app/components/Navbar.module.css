@@ -1,0 +1,40 @@
+.navbar {
+  background: #14532d;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 6px 16px rgba(20, 83, 45, 0.28);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+  font-weight: 600;
+  line-height: 1;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.link:focus-visible {
+  outline: 2px solid #86efac;
+  outline-offset: 2px;
+}

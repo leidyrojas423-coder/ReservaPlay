@@ -1,14 +1,14 @@
 import Link from "next/link";
-import styles from "./Navbar.module.css";
+import styles from "./Aside.module.css";
 
-export default function Navbar() {
+export default function Aside() {
   return (
-    <aside className="sidebar" aria-label="Navegación principal">
-      <div className="brand">
-        <span className="brand-name">ReservaPlay</span>
+    <aside className={styles.aside} aria-label="Navegación principal">
+      <div className={styles.brand}>
+        <h2 className={styles.brandName}>ReservaPlay</h2>
       </div>
 
-      <nav className={styles.navbar}>
+      <nav className={styles.nav}>
         <ul className={styles.list}>
           <li><Link href="/" className={styles.link}>Inicio</Link></li>
           <li><Link href="/mis-reservas" className={styles.link}>Mis Reservas</Link></li>

@@ -1,0 +1,22 @@
+.header {
+  background: #15803d;
+  color: #ffffff;
+  text-align: center;
+  padding: 1.25rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0 0 0.35rem;
+  color: #ffffff;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
