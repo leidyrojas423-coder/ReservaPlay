@@ -1,6 +1,14 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { ClienteEntity } from '../../clientes/entities/cliente.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { CanchaEntity } from '../../canchas/entities/cancha.entity';
+import { ClienteEntity } from '../../clientes/entities/cliente.entity';
 import { HorarioEntity } from '../../horarios/entities/horario.entity';
 
 export enum ReservaEstado {
