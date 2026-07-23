@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../providers';
+import styles from "./login.module.css";
 
 type LoginResponse = {
   access_token?: string;
@@ -106,3 +107,53 @@ export default function AdminLoginPage() {
     </main>
   );
 }
+export default function LoginPage() {
+  return (
+    <div>
+      <h1>ReservaPlay</h1>
+
+      <p>Iniciar sesión</p>
+
+      <form>
+        <div>
+          <label>Correo electrónico</label>
+          <br />
+          <input type="email" placeholder="correo@ejemplo.com" />
+        </div>
+
+        <br />
+
+        <div>
+          <label>Contraseña</label>
+          <br />
+          <input type="password" placeholder="********" />
+        </div>
+
+        <br />
+
+        <button type="submit">
+          Ingresar
+        </button>
+      </form>
+    </div>
+  );
+}
+<div className={styles.container}>
+  <h1 className={styles.title}>ReservaPlay</h1>
+
+  <input
+    className={styles.input}
+    type="email"
+    placeholder="Correo"
+  />
+
+  <input
+    className={styles.input}
+    type="password"
+    placeholder="Contraseña"
+  />
+
+  <button className={styles.button}>
+    Ingresar
+  </button>
+</div>
