@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 import "./globals.css";
 
@@ -28,12 +29,7 @@ export default function RootLayout({
               <main className="page-main">{children}</main>
             </div>
 
-            <footer className="page-footer">
-              <p>
-                © {new Date().getFullYear()} ReservaPlay. Todos los derechos
-                reservados.
-              </p>
-            </footer>
+            <Footer />
           </div>
         </AuthProvider>
       </body>
