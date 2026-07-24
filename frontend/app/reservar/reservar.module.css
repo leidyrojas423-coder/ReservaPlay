@@ -1,0 +1,29 @@
+.container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+
+.form{
+    width:350px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    padding:30px;
+    border-radius:12px;
+    border:1px solid #ddd;
+}
+
+
+.form input,
+.form select{
+    padding:10px;
+}
+
+
+.form button{
+    padding:12px;
+    cursor:pointer;
+}
