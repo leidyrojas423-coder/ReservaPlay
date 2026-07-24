@@ -1,0 +1,136 @@
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 24px;
+}
+
+
+.title {
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+
+.description {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+
+/* Mensajes */
+.error {
+  color: crimson;
+  background-color: #ffe5e5;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+
+.success {
+  color: green;
+  background-color: #e8f8e8;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+
+/* Formulario */
+.form {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 40px;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+}
+
+
+.form input,
+.form select {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* Botones */
+.button {
+  width: 220px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+
+/* Tabla */
+.tableContainer {
+  overflow-x: auto;
+}
+
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.table th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+
+.table tr:hover {
+  background-color: #f8f8f8;
+}
+
+
+/* Estado */
+.estado {
+  font-weight: bold;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+
+  .container {
+    padding: 15px;
+  }
+
+
+  .title {
+    font-size: 24px;
+  }
+
+
+  .form {
+    padding: 15px;
+  }
+
+
+  .table {
+    font-size: 14px;
+  }
+
+}
