@@ -1,0 +1,31 @@
+.container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+
+.form{
+    width:350px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    padding:30px;
+    border-radius:10px;
+}
+
+
+.form input{
+    padding:12px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+
+.form button{
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
