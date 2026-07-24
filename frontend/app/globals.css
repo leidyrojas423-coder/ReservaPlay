@@ -49,9 +49,8 @@ a {
 }
 
 .page-body {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  min-height: 0;
+  display: flex;
+  min-height: calc(100vh - 80px);
 }
 
 .sidebar {
@@ -90,9 +89,6 @@ a {
   color: #fff;
 }
 
-.page-main {
-  padding: 32px;
-}
 
 .page-header__content {
   display: flex;
@@ -1232,9 +1228,7 @@ a {
     gap: 10px;
   }
 
-  .page-main {
-    padding: 20px;
-  }
+
 
   .welcome-hero {
     border-radius: 18px;

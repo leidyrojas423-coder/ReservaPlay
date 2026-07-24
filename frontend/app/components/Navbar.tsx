@@ -3,6 +3,7 @@ import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   return (
+<<<<<<< HEAD
     <aside className="sidebar" aria-label="Navegación principal">
       <div className="brand">
         <span className="brand-name">ReservaPlay</span>
@@ -20,5 +21,24 @@ export default function Navbar() {
         </ul>
       </nav>
     </aside>
+=======
+    <nav className={styles.navbar}>
+      <Link href="/dashboard" className={styles.link}>
+        Dashboard
+      </Link>
+      <Link href="/admin/canchas" className={styles.link}>
+        Canchas
+      </Link>
+      <Link href="/admin/reservas" className={styles.link}>
+        Reservas
+      </Link>
+      <Link href="/admin/horarios" className={styles.link}>
+        Horarios
+      </Link>
+      <Link href="/admin/users" className={styles.link}>
+        Usuarios
+      </Link>
+    </nav>
+>>>>>>> bf164fcfc111077981523662cb8b034c5f6598a0
   );
 }
