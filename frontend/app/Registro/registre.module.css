@@ -1,0 +1,40 @@
+.container{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+
+.form{
+    width:380px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 0 10px #ccc;
+}
+
+
+.form h1,
+.form h2{
+    text-align:center;
+}
+
+
+.form input{
+    padding:12px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+
+.form button{
+    padding:12px;
+    background:#0b5ed7;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
