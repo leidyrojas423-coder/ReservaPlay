@@ -1,20 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const [token, setToken] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('reservaplay_token');
-    if (!savedToken) {
-      router.replace('/');
-      return;
-    }
-    setToken(savedToken);
-  }, [router]);
+    setToken(savedToken ?? 'No hay token activo en esta sesión.');
+  }, []);
 
   return (
     <main className="login-page">

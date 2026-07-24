@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
-import Aside from "./components/Aside";
 
 import "./globals.css";
 
@@ -23,15 +22,10 @@ export default function RootLayout({
         <AuthProvider>
           <div className="app-shell">
             <Header />
+            <Navbar />
 
             <div className="page-body">
-              <Navbar />
-
-              <Aside />
-
-              <main className="page-main">
-                {children}
-              </main>
+              <main className="page-main">{children}</main>
             </div>
 
             <footer className="page-footer">
