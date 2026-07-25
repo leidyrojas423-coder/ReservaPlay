@@ -11,7 +11,7 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
 
@@ -25,6 +25,21 @@
 
 .card h2 {
     margin-bottom: 15px;
+}
+
+.card p {
+    margin: 8px 0;
+}
+
+.message {
+    text-align: center;
+    color: #555;
+}
+
+.error {
+    text-align: center;
+    color: #b42318;
+    font-weight: 600;
 }
 
 
