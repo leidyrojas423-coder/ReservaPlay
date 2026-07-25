@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import styles from "./reservar.module.css";
-import { getStoredAuthToken } from "../../lib/auth";
 
 export default function ReservarPage() {
 
@@ -13,26 +12,44 @@ export default function ReservarPage() {
   const [mensaje, setMensaje] = useState("");
 
 
-
   const handleSubmit = async (
-    e: React.FormEvent
+    e: React.FormEvent<HTMLFormElement>
   ) => {
 
     e.preventDefault();
 
     setMensaje("");
 
-    const token = getStoredAuthToken();
+
+    // Leer token directamente del navegador
+    const token = localStorage.getItem(
+      "reservaplay_token"
+    );
+
+
+    console.log(
+      "TOKEN EN RESERVAR:",
+      token
+    );
 
 
     if (!token) {
 
       setMensaje(
-        "Debe iniciar sesión para reservar"
+        "Usuario no autenticado"
       );
 
       return;
+    }
 
+
+    if (!fechaReserva) {
+
+      setMensaje(
+        "Seleccione una fecha de reserva"
+      );
+
+      return;
     }
 
 
@@ -77,7 +94,14 @@ export default function ReservarPage() {
 
 
 
-      if(!response.ok){
+      console.log(
+        "RESPUESTA BACKEND:",
+        data
+      );
+
+
+
+      if (!response.ok) {
 
         throw new Error(
           data.message ||
@@ -93,22 +117,25 @@ export default function ReservarPage() {
       );
 
 
+    } catch(error) {
 
-    } catch(error){
 
-
-      setMensaje(
-        error instanceof Error
-        ? error.message
-        : "Error inesperado"
+      console.error(
+        error
       );
 
 
+      setMensaje(
+
+        error instanceof Error
+          ? error.message
+          : "Error inesperado"
+
+      );
+
     }
 
-
   };
-
 
 
 
@@ -135,15 +162,22 @@ export default function ReservarPage() {
 
 
         <select
+
           value={canchaId}
+
           onChange={
-            e=>setCanchaId(e.target.value)
+            (e) =>
+              setCanchaId(
+                e.target.value
+              )
           }
+
         >
 
           <option value="canchas-demo">
             Cancha 1 - Fútbol 5
           </option>
+
 
         </select>
 
@@ -161,7 +195,10 @@ export default function ReservarPage() {
           value={fechaReserva}
 
           onChange={
-            e=>setFechaReserva(e.target.value)
+            (e) =>
+              setFechaReserva(
+                e.target.value
+              )
           }
 
           required
@@ -180,7 +217,10 @@ export default function ReservarPage() {
           value={horarioId}
 
           onChange={
-            e=>setHorarioId(e.target.value)
+            (e) =>
+              setHorarioId(
+                e.target.value
+              )
           }
 
         >
@@ -203,10 +243,13 @@ export default function ReservarPage() {
 
 
         {
-          mensaje &&
-          <p>
-            {mensaje}
-          </p>
+          mensaje && (
+
+            <p>
+              {mensaje}
+            </p>
+
+          )
         }
 
 
