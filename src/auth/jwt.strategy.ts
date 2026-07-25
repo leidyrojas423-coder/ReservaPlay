@@ -12,41 +12,34 @@ interface JwtPayload {
 
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(
-  Strategy,
-) {
+export class JwtStrategy extends PassportStrategy(Strategy) {
 
 
   constructor(
     private readonly configService: ConfigService,
   ) {
 
-
     super({
 
       jwtFromRequest:
         ExtractJwt.fromAuthHeaderAsBearerToken(),
 
-
       ignoreExpiration: false,
 
-
       secretOrKey:
-        configService.get<string>(
-          'JWT_SECRET',
-        ) ||
-        'ReservaplaySecretKey',
+        configService.get<string>('JWT_SECRET')
+        || 'ReservaplaySecretKey',
 
     });
-
 
   }
 
 
 
-  async validate(
-    payload: JwtPayload,
-  ) {
+  async validate(payload: JwtPayload) {
+
+
+    console.log("JWT RECIBIDO:", payload);
 
 
     return {
@@ -58,7 +51,6 @@ export class JwtStrategy extends PassportStrategy(
       role: payload.role,
 
     };
-
 
   }
 

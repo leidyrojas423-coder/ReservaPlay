@@ -11,13 +11,11 @@ import { UsersModule } from '../users/users.module';
 
 
 @Module({
-
   imports: [
 
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),
-
 
     UsersModule,
 
@@ -27,19 +25,20 @@ import { UsersModule } from '../users/users.module';
       inject: [ConfigService],
 
       useFactory: (
-        configService: ConfigService,
+        configService: ConfigService
       ) => ({
 
         secret:
-          configService.get<string>('JWT_SECRET')
-          || 'ReservaplaySecretKey',
+          configService.get<string>(
+            'JWT_SECRET'
+          ) ||
+          'ReservaplaySecretKey',
 
 
         signOptions: {
 
           expiresIn:
-            configService.get<string>('JWT_EXPIRES_IN')
-            || '3600s',
+            '3600s',
 
         },
 
@@ -66,5 +65,6 @@ import { UsersModule } from '../users/users.module';
   ],
 
 })
+
 
 export class AuthModule {}
