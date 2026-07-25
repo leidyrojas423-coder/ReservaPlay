@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
+import { AdministradoresModule } from './administradores/administradores.module';
 import { CanchasModule } from './canchas/canchas.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { ReservasModule } from './reservas/reservas.module';
@@ -54,6 +55,8 @@ import { HorariosModule } from './horarios/horarios.module';
 
     }),
 
+
+    AdministradoresModule,
 
     ClientesModule,
 

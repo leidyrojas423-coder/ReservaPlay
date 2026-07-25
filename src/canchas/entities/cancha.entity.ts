@@ -14,11 +14,14 @@ import { HorarioEntity } from '../../horarios/entities/horario.entity';
 
 
 export enum CanchaEstado {
-  DISPONIBLE = 'Disponible',
-  OCUPADA = 'Ocupada',
-  MANTENIMIENTO = 'Mantenimiento',
-}
 
+  DISPONIBLE = 'Disponible',
+
+  OCUPADA = 'Ocupada',
+
+  MANTENIMIENTO = 'Mantenimiento',
+
+}
 
 
 @Entity('canchas')
@@ -97,6 +100,7 @@ export class CanchaEntity {
     {
       nullable: true,
       eager: false,
+      onDelete: 'SET NULL',
     },
   )
   @JoinColumn({
@@ -115,14 +119,14 @@ export class CanchaEntity {
 
 
   @CreateDateColumn({
-    name: 'created_at',
+    name:'created_at',
   })
   createdAt!: Date;
 
 
 
   @UpdateDateColumn({
-    name: 'updated_at',
+    name:'updated_at',
   })
   updatedAt!: Date;
 
