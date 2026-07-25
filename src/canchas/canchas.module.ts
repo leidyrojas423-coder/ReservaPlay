@@ -6,33 +6,30 @@ import { CanchasService } from './canchas.service';
 
 import { CanchaEntity } from './entities/cancha.entity';
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
+import { HorarioEntity } from '../horarios/entities/horario.entity';
 import { ReservaEntity } from '../reservas/entities/reserva.entity';
 
 
 @Module({
-
-  imports:[
+  imports: [
     TypeOrmModule.forFeature([
       CanchaEntity,
       AdministradorEntity,
+      HorarioEntity,
       ReservaEntity,
     ]),
   ],
 
-
-  controllers:[
+  controllers: [
     CanchasController,
   ],
 
-
-  providers:[
+  providers: [
     CanchasService,
   ],
 
-
-  exports:[
+  exports: [
     CanchasService,
   ],
-
 })
 export class CanchasModule {}

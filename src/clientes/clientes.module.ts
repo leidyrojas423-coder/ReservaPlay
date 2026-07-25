@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ClienteEntity } from './entities/cliente.entity';
+import { ClientesController } from './clientes.controller';
+import { ClientesService } from './clientes.service';
 
 
 @Module({
@@ -11,7 +13,16 @@ import { ClienteEntity } from './entities/cliente.entity';
     ]),
   ],
 
+  controllers: [
+    ClientesController,
+  ],
+
+  providers: [
+    ClientesService,
+  ],
+
   exports: [
+    ClientesService,
     TypeOrmModule,
   ],
 })
