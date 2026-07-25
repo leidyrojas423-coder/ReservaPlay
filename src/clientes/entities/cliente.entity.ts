@@ -23,6 +23,13 @@ export class ClienteEntity {
 
   @Column({
     type: 'varchar',
+    length: 100,
+  })
+  apellido!: string;
+
+
+  @Column({
+    type: 'varchar',
     length: 20,
     unique: true,
   })
