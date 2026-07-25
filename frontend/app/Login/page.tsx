@@ -1,229 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./login.module.css";
-import { setStoredAuthToken } from "../../lib/auth";
 import { useRouter } from "next/navigation";
+import styles from "./login.module.css";
+import { authApi } from "@/lib/api";
+import { setStoredAuthToken } from "@/lib/auth";
 
+type LoginResponse = {
+  access_token?: string;
+  token?: string;
+};
 
 export default function LoginPage() {
-
   const router = useRouter();
-
-
-  const [email, setEmail] = useState("");
-
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const [mensaje, setMensaje] = useState("");
-
-  const [cargando, setCargando] = useState(false);
-
-
-
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-
-    e.preventDefault();
-
-    setMensaje("");
-
-    setCargando(true);
-
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
+      const data = await authApi.login<LoginResponse>({ correo, password });
+      const token = data.access_token ?? data.token;
 
-      const response = await fetch(
-        "http://localhost:3000/auth/login",
-        {
-
-          method: "POST",
-
-          headers: {
-
-            "Content-Type": "application/json",
-
-          },
-
-
-          body: JSON.stringify({
-
-            email,
-
-            password,
-
-          }),
-
-        }
-      );
-
-
-      const data = await response.json();
-
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          "Credenciales inválidas"
-        );
-
+      if (!token) {
+        throw new Error("La respuesta del servidor no incluyo un token.");
       }
 
-
-
-      // Guardar JWT en el navegador
-
-      setStoredAuthToken(
-        data.access_token
-      );
-
-
-
-      setMensaje(
-        "Inicio de sesión correcto"
-      );
-
-
-
-      // Ir a reservar
-
-      router.push(
-        "/reservar"
-      );
-
-
-
-    } catch (error) {
-
-
-      setMensaje(
-
-        error instanceof Error
-
-        ? error.message
-
-        : "Error inesperado"
-
-      );
-
-
+      setStoredAuthToken(token);
+      setSuccess("Inicio de sesion exitoso.");
+      router.push("/reservar");
+    } catch (loginError) {
+      setError(loginError instanceof Error ? loginError.message : "Error inesperado al iniciar sesion.");
     } finally {
-
-      setCargando(false);
-
+      setLoading(false);
     }
-
   };
 
-
-
-
   return (
-
     <main className={styles.container}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <h1>ReservaPlay</h1>
+        <h2>Iniciar sesion</h2>
 
-
-      <form
-
-        className={styles.form}
-
-        onSubmit={handleSubmit}
-
-      >
-
-
-        <h1>
-          ReservaPlay
-        </h1>
-
-
-
-        <h2>
-          Iniciar sesión
-        </h2>
-
-
-
-
+        <label className={styles.label} htmlFor="correo">
+          Correo
+        </label>
         <input
-
+          id="correo"
+          name="correo"
           type="email"
-
-          placeholder="Correo electrónico"
-
-          value={email}
-
-          onChange={
-            (e)=>setEmail(e.target.value)
-          }
-
+          placeholder="correo@ejemplo.com"
+          value={correo}
+          onChange={(event) => setCorreo(event.target.value)}
           required
-
         />
 
-
-
-
+        <label className={styles.label} htmlFor="password">
+          Contrasena
+        </label>
         <input
-
+          id="password"
+          name="password"
           type="password"
-
-          placeholder="Contraseña"
-
+          placeholder="Tu contrasena"
           value={password}
-
-          onChange={
-            (e)=>setPassword(e.target.value)
-          }
-
+          onChange={(event) => setPassword(event.target.value)}
           required
-
         />
 
-
-
-
-        <button
-
-          type="submit"
-
-          disabled={cargando}
-
-        >
-
-          {
-            cargando
-            ? "Ingresando..."
-            : "Ingresar"
-          }
-
-
+        <button type="submit" disabled={loading}>
+          {loading ? "Ingresando..." : "Ingresar"}
         </button>
 
-
-
-
-        {
-          mensaje &&
-
-          <p>
-
-            {mensaje}
-
-          </p>
-
-        }
-
-
-
+        {success && <p className={styles.success}>{success}</p>}
+        {error && <p className={styles.error}>{error}</p>}
       </form>
-
-
     </main>
-
   );
-
 }
