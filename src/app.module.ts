@@ -1,43 +1,68 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './auth/auth.module';
-import { RolesGuard } from './auth/guards/roles.guard';
-import { ClientesModule } from './clientes/clientes.module';
-import { AdministradoresModule } from './administradores/administradores.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+
 import { CanchasModule } from './canchas/canchas.module';
-import { HorariosModule } from './horarios/horarios.module';
+import { ClientesModule } from './clientes/clientes.module';
 import { ReservasModule } from './reservas/reservas.module';
+import { HorariosModule } from './horarios/horarios.module';
+
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        port: Number(process.env.DB_PORT) || 5432,
-        username: process.env.DB_USER || 'postgres',
-        password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_NAME || 'reservaplay',
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
-      }),
+
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
-    AuthModule,
+
+
+    TypeOrmModule.forRoot({
+
+      type: 'postgres',
+
+      host: 'localhost',
+
+      port: 5432,
+
+      username: 'postgres',
+
+      password: 'Samu15',
+
+      database: 'reservaplay',
+
+      autoLoadEntities: true,
+
+      synchronize: true,
+
+    }),
+
+
+    PassportModule,
+
+
+    JwtModule.register({
+
+      global: true,
+
+      secret: 'reservaplay_secret',
+
+      signOptions: {
+        expiresIn: '1d',
+      },
+
+    }),
+
+
     ClientesModule,
-    AdministradoresModule,
+
     CanchasModule,
+
     HorariosModule,
+
     ReservasModule,
-  ],
-  controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+
   ],
 })
 export class AppModule {}

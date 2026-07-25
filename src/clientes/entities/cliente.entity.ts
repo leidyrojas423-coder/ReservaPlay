@@ -1,33 +1,65 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { User } from '../../users/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
 
 @Entity('clientes')
 export class ClienteEntity {
+
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 100 })
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   nombre!: string;
 
-  @Column({ length: 100 })
-  apellido!: string;
 
-  @Column({ length: 20 })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    unique: true,
+  })
+  documento!: string;
+
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+  })
   telefono!: string;
 
-  @Column({ default: true })
-  estado!: boolean;
 
-  @Column({ type: 'uuid', unique: true })
-  userId!: string;
+  @Column({
+    type: 'varchar',
+    length: 150,
+    unique: true,
+  })
+  correo!: string;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user!: User;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+  })
+  password!: string;
+
+
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt!: Date;
+
 }
