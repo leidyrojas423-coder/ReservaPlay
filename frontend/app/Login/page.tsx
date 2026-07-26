@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
-import { authApi } from "@/lib/api";
-import { setStoredAuthToken } from "@/lib/auth";
+import { authApi } from "../../lib/api";
+import { setStoredAuthToken } from "../../lib/auth";
 
 type LoginResponse = {
   access_token?: string;
