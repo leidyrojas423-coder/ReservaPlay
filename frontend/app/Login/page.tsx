@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
-import { authApi } from "../../lib/api";
-import { setStoredAuthToken } from "../../lib/auth";
+import { loginUsuario } from "../../services/auth.service";
+import { useAuth } from "../providers";
 
 type LoginResponse = {
   access_token?: string;
@@ -12,34 +13,36 @@ type LoginResponse = {
 };
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const router = useRouter();
-  const [correo, setCorreo] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [esError, setEsError] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
+    setMensaje(null);
 
     try {
-      const data = await authApi.login<LoginResponse>({ correo, password });
-      const token = data.access_token ?? data.token;
+      const data = (await loginUsuario({
+        email,
+        password,
+      })) as LoginResponse;
 
+      const token = data?.access_token ?? data?.token;
       if (!token) {
-        throw new Error("La respuesta del servidor no incluyo un token.");
+        throw new Error("El servidor no devolvió un token de acceso.");
       }
 
-      setStoredAuthToken(token);
-      setSuccess("Inicio de sesion exitoso.");
+      login(token);
+
+      setEsError(false);
+      setMensaje("Inicio de sesión exitoso.");
       router.push("/reservar");
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : "Error inesperado al iniciar sesion.");
-    } finally {
-      setLoading(false);
+      setEsError(true);
+      setMensaje(loginError instanceof Error ? loginError.message : "Error al iniciar sesión.");
     }
   };
 
@@ -47,40 +50,41 @@ export default function LoginPage() {
     <main className={styles.container}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <h1>ReservaPlay</h1>
-        <h2>Iniciar sesion</h2>
+        <h2>Iniciar sesión</h2>
 
-        <label className={styles.label} htmlFor="correo">
-          Correo
+        <label className={styles.label} htmlFor="email">
+          Email
         </label>
         <input
-          id="correo"
-          name="correo"
+          id="email"
+          name="email"
           type="email"
           placeholder="correo@ejemplo.com"
-          value={correo}
-          onChange={(event) => setCorreo(event.target.value)}
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           required
         />
 
         <label className={styles.label} htmlFor="password">
-          Contrasena
+          Contraseña
         </label>
         <input
           id="password"
           name="password"
           type="password"
-          placeholder="Tu contrasena"
+          placeholder="Tu contraseña"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Ingresando..." : "Ingresar"}
-        </button>
+        <button type="submit">Iniciar sesión</button>
 
-        {success && <p className={styles.success}>{success}</p>}
-        {error && <p className={styles.error}>{error}</p>}
+        <p>
+          ¿No tienes cuenta? <Link href="/registro">Regístrate aquí</Link>
+        </p>
+
+        {mensaje && <p className={esError ? styles.error : styles.success}>{mensaje}</p>}
       </form>
     </main>
   );

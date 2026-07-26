@@ -1,221 +1,77 @@
-import Link from "next/link";
-import { ReactNode } from "react";
+'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ReactNode } from 'react';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
+const navigationItems = [
+  { href: '/admin/dashboard', label: 'Dashboard' },
+  { href: '/admin/canchas', label: 'Canchas' },
+  { href: '/admin/horarios', label: 'Horarios' },
+  { href: '/admin/reservas', label: 'Reservas' },
+];
 
-export default function AdminLayout({
-  children,
-}: AdminLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const pathname = usePathname();
+  const isAuthRoute = pathname === '/admin/login' || pathname === '/admin/registro';
 
+  if (isAuthRoute) {
+    return <>{children}</>;
+  }
 
   return (
-
-    <>
-
-      {/* Header administrador */}
-
-      <header
-        style={{
-          height: "70px",
-          background: "#111827",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 30px",
-        }}
-      >
-
-        <h2>
-          ⚽ ReservaPlay
-        </h2>
-
-
-        <span>
-          Panel Administrativo
-        </span>
-
-
+    <div className="app-shell">
+      <header className="page-header">
+        <div className="page-header__content">
+          <div>
+            <p className="eyebrow">Centro de operaciones</p>
+            <h1>ReservaPlay Admin</h1>
+          </div>
+          <div className="admin-session-bar" role="presentation">
+            <span className="admin-session-bar__state">Gestión deportiva en tiempo real</span>
+          </div>
+        </div>
       </header>
 
+      <div className="page-body">
+        <aside className="sidebar">
+          <div>
+            <div className="brand-name">ReservaPlay</div>
+            <p style={{ margin: '10px 0 0', color: '#94a3b8', lineHeight: 1.5 }}>
+              Control administrativo de canchas, horarios y reservas.
+            </p>
+          </div>
 
+          <nav aria-label="Navegación del administrador">
+            <ul className="nav-list">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href;
 
-
-
-      {/* Contenedor principal */}
-
-      <div
-        style={{
-          display:"flex",
-          minHeight:"calc(100vh - 120px)",
-        }}
-      >
-
-
-
-        {/* Sidebar */}
-
-        <aside
-          style={{
-            width:"260px",
-            background:"#1f2937",
-            color:"white",
-            padding:"20px",
-          }}
-        >
-
-
-          <nav
-            style={{
-              display:"flex",
-              flexDirection:"column",
-              gap:"15px",
-            }}
-          >
-
-
-
-            <Link
-              href="/admin/dashboard"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Dashboard
-            </Link>
-
-
-
-
-
-            <Link
-              href="/admin/users"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Usuarios
-            </Link>
-
-
-
-
-
-            <Link
-              href="/admin/canchas"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Canchas
-            </Link>
-
-
-
-
-
-            <Link
-              href="/admin/horarios"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Horarios
-            </Link>
-
-
-
-
-
-            <Link
-              href="/admin/reservas"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Reservas
-            </Link>
-
-
-
-
-
-            <Link
-              href="/admin/estados-reservas"
-              style={{
-                color:"white",
-                textDecoration:"none"
-              }}
-            >
-              Estados Reservas
-            </Link>
-
-
-
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      style={isActive ? { background: '#22c55e', color: '#052e16', fontWeight: 700 } : undefined}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </nav>
-
-
         </aside>
 
-
-
-
-
-        {/* Contenido de páginas */}
-
-        <main
-          style={{
-            flex:1,
-            padding:"30px",
-            background:"#f4f4f4",
-          }}
-        >
-
-          {children}
-
-
-        </main>
-
-
-
+        <main className="page-main">{children}</main>
       </div>
 
-
-
-
-
-      {/* Footer */}
-
-      <footer
-        style={{
-          height:"50px",
-          background:"#111827",
-          color:"white",
-          display:"flex",
-          justifyContent:"center",
-          alignItems:"center",
-        }}
-      >
-
-        © 2026 ReservaPlay - Todos los derechos reservados
-
-
+      <footer className="page-footer">
+        <p>Panel administrativo para la operación diaria de ReservaPlay.</p>
       </footer>
-
-
-
-    </>
-
+    </div>
   );
-
-
 }

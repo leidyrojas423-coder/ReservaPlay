@@ -1,5 +1,6 @@
 import {
   Body,
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -57,10 +58,18 @@ export class AuthController {
     @Body() loginDto: LoginDto,
   ) {
 
+    const email = loginDto.email ?? loginDto.correo;
+
+    if (!email) {
+      throw new BadRequestException(
+        'Debe enviar email o correo',
+      );
+    }
+
 
     const user =
       await this.authService.validateUser(
-        loginDto.email,
+        email,
         loginDto.password,
       );
 
@@ -93,10 +102,18 @@ export class AuthController {
     @Body() loginDto: LoginDto,
   ) {
 
+    const email = loginDto.email ?? loginDto.correo;
+
+    if (!email) {
+      throw new BadRequestException(
+        'Debe enviar email o correo',
+      );
+    }
+
 
     const admin =
       await this.authService.validateAdmin(
-        loginDto.email,
+        email,
         loginDto.password,
       );
 

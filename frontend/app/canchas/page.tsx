@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { canchasApi } from "../../lib/api";
+import { obtenerCanchas } from "../../services/canchas.service";
 import styles from "./canchas.module.css";
 
 type Cancha = {
@@ -29,8 +30,9 @@ export default function CanchasPage() {
         setLoading(true);
         setError(null);
 
-        const response = await canchasApi.getAll<CanchasResponse>();
-        const data = Array.isArray(response) ? response : response.data;
+        const response = await obtenerCanchas();
+        const payload = response?.data as CanchasResponse;
+        const data = Array.isArray(payload) ? payload : payload?.data;
 
         setCanchas(Array.isArray(data) ? data : []);
       } catch {
@@ -79,20 +81,21 @@ export default function CanchasPage() {
       <div className={styles.grid}>
 
         {canchas.map((cancha) => (
-
-          <div 
-            key={cancha.id}
+          <div
+            key={String(cancha._id ?? cancha.id ?? cancha.nombre)}
             className={styles.card}
           >
-
             <h2>{cancha.nombre}</h2>
             <p><strong>Descripción:</strong> {cancha.descripcion}</p>
             <p><strong>Ubicación:</strong> {cancha.ubicacion}</p>
-            <p><strong>Capacidad:</strong> {cancha.capacidad}</p>
             <p><strong>Precio:</strong> {cancha.precio}</p>
             <p><strong>Estado:</strong> {cancha.estado}</p>
 
-
+            {String(cancha._id ?? cancha.id ?? "") && (
+              <Link href={`/canchas/${String(cancha._id ?? cancha.id)}`}>
+                <button type="button">Ver horarios</button>
+              </Link>
+            )}
           </div>
 
         ))}

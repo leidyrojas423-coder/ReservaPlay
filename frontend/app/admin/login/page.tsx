@@ -1,275 +1,99 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './login.module.css';
-import { setStoredAuthToken } from '../../../lib/auth';
+import { useAuth } from '../../providers';
+import { loginAdministrador } from '../../../services/auth.service';
 
 
 export default function AdminLoginPage() {
-
-
+  const { login } = useAuth();
   const router = useRouter();
-
   const searchParams = useSearchParams();
-
-
   const [email, setEmail] = useState('');
-
   const [password, setPassword] = useState('');
-
   const [error, setError] = useState('');
-
   const [loading, setLoading] = useState(false);
-
-
-
-
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-
-
-    e.preventDefault();
-
-
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setError('');
-
     setLoading(true);
-
-
-
     try {
-
-
-      const response = await fetch(
-        'http://localhost:3000/auth/login',
-        {
-
-          method: 'POST',
-
-          headers: {
-
-            'Content-Type':
-              'application/json',
-
-          },
-
-
-          body: JSON.stringify({
-
-            email,
-
-            password,
-
-          }),
-
-
-        }
-      );
-
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          'Correo o contraseña incorrectos'
-        );
-
-      }
-
-
-
-
-      const data = await response.json();
-
-
-
-
-      const token =
-        data.access_token ||
-        data.token;
-
-
-
+      const data = await loginAdministrador({ email, password });
+      const token = data.access_token ?? data.token;
 
       if (!token) {
-
-        throw new Error(
-          'El servidor no devolvió token de acceso'
-        );
-
+        throw new Error('El servidor no devolvió token de acceso');
       }
 
-
-
-
-
-      // Guarda JWT para middleware y páginas protegidas
-
-      setStoredAuthToken(token);
-
-
-
-
-
-      const next =
-        searchParams.get('next')
-        || '/admin/dashboard';
-
-
-
-
-      router.push(next);
-
-
-
-
-
-    } catch (error) {
-
-
-      setError(
-
-        error instanceof Error
-          ? error.message
-          : 'Error iniciando sesión'
-
-      );
-
-
-
+      login(token);
+      router.push(searchParams.get('next') || '/admin/dashboard');
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Error iniciando sesión');
     } finally {
-
-
       setLoading(false);
-
-
     }
-
-
   };
 
-
-
-
-
-
-
   return (
-
     <main className={styles.container}>
+      <section className={styles.panel}>
+        <div className={styles.hero}>
+          <span className={styles.kicker}>Aplicación deportiva</span>
+          <h1>ReservaPlay Admin</h1>
+          <p>
+            Supervisa ocupación, disponibilidad y pagos manuales desde un solo panel.
+          </p>
+          <ul className={styles.metrics}>
+            <li>Control de canchas</li>
+            <li>Horarios operativos</li>
+            <li>Reservas y pagos</li>
+          </ul>
+        </div>
 
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.formHeader}>
+            <p className={styles.eyebrow}>Acceso administrativo</p>
+            <h2>Iniciar sesión</h2>
+          </div>
 
-      <form
+          {error ? <p className={styles.error}>{error}</p> : null}
 
-        className={styles.form}
+          <label className={styles.label} htmlFor="admin-email">
+            Correo corporativo
+          </label>
+          <input
+            id="admin-email"
+            type="email"
+            placeholder="admin@reservaplay.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
 
-        onSubmit={handleSubmit}
+          <label className={styles.label} htmlFor="admin-password">
+            Contraseña
+          </label>
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="Tu contraseña"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
 
-      >
+          <button type="submit" disabled={loading}>
+            {loading ? 'Validando acceso...' : 'Entrar al dashboard'}
+          </button>
 
-
-
-        <h1>
-          ReservaPlay
-        </h1>
-
-
-
-        <h2>
-          Acceso Administrador
-        </h2>
-
-
-
-
-
-        {
-          error && (
-
-            <p className={styles.error}>
-              {error}
-            </p>
-
-          )
-        }
-
-
-
-
-
-
-        <input
-
-          type="email"
-
-          placeholder="Correo electrónico"
-
-          value={email}
-
-          onChange={
-            (e) =>
-              setEmail(e.target.value)
-          }
-
-          required
-
-        />
-
-
-
-
-
-
-
-        <input
-
-          type="password"
-
-          placeholder="Contraseña"
-
-          value={password}
-
-          onChange={
-            (e) =>
-              setPassword(e.target.value)
-          }
-
-          required
-
-        />
-
-
-
-
-
-
-
-        <button
-
-          type="submit"
-
-          disabled={loading}
-
-        >
-
-          {
-            loading
-            ? 'Ingresando...'
-            : 'Ingresar'
-          }
-
-        </button>
-
-
-
-
-      </form>
-
-
+          <p className={styles.helper}>
+            ¿Aún no tienes acceso? <Link href="/admin/registro">Solicita tu alta administrativa</Link>
+          </p>
+        </form>
+      </section>
     </main>
-
   );
-
 }

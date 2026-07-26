@@ -1,58 +1,29 @@
-import axios, { type AxiosResponse } from "axios";
+import axios, { AxiosHeaders } from "axios";
+import { getStoredAuthToken } from "./auth";
 
-export const apiClient = axios.create({
+export const api = axios.create({
   baseURL: "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-const toData = <T>(request: Promise<AxiosResponse<T>>): Promise<T> =>
-  request.then((response) => response.data);
+api.interceptors.request.use((config) => {
+  const token = getStoredAuthToken();
 
-type ApiPayload = Record<string, unknown>;
+  if (!token) {
+    return config;
+  }
 
-export const authApi = {
-  login<TResponse = unknown, TBody extends ApiPayload = ApiPayload>(payload: TBody) {
-    return toData(apiClient.post<TResponse>("/auth/login", payload));
-  },
-};
+  if (config.headers && typeof config.headers.set === "function") {
+    config.headers.set("Authorization", `Bearer ${token}`);
+    return config;
+  }
 
-export const clientesApi = {
-  create<TResponse = unknown, TBody extends ApiPayload = ApiPayload>(payload: TBody) {
-    return toData(apiClient.post<TResponse>("/clientes", payload));
-  },
-  getAll<TResponse = unknown>() {
-    return toData(apiClient.get<TResponse>("/clientes"));
-  },
-};
+  config.headers = AxiosHeaders.from({
+    ...(config.headers ?? {}),
+    Authorization: `Bearer ${token}`,
+  });
 
-export const canchasApi = {
-  getAll<TResponse = unknown>() {
-    return toData(apiClient.get<TResponse>("/canchas"));
-  },
-  getDisponibles<TResponse = unknown>() {
-    return toData(apiClient.get<TResponse>("/canchas/disponibles"));
-  },
-};
-
-export const horariosApi = {
-  getByCancha<TResponse = unknown>(canchaId: string | number) {
-    return toData(apiClient.get<TResponse>(`/horarios/cancha/${canchaId}`));
-  },
-};
-
-export const reservasApi = {
-  create<TResponse = unknown, TBody extends ApiPayload = ApiPayload>(payload: TBody) {
-    return toData(apiClient.post<TResponse>("/reservas", payload));
-  },
-  getMias<TResponse = unknown>() {
-    return toData(apiClient.get<TResponse>("/reservas/mias"));
-  },
-  confirmar<TResponse = unknown>(id: string | number) {
-    return toData(apiClient.patch<TResponse>(`/reservas/${id}/confirmar`));
-  },
-  cancelar<TResponse = unknown>(id: string | number) {
-    return toData(apiClient.patch<TResponse>(`/reservas/${id}/cancelar`));
-  },
-};
+  return config;
+});

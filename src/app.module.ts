@@ -9,6 +9,7 @@ import { CanchasModule } from './canchas/canchas.module';
 import { ClientesModule } from './clientes/clientes.module';
 import { ReservasModule } from './reservas/reservas.module';
 import { HorariosModule } from './horarios/horarios.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -65,6 +66,8 @@ import { HorariosModule } from './horarios/horarios.module';
     HorariosModule,
 
     ReservasModule,
+
+    AuthModule,
 
   ],
 })

@@ -1,40 +1,56 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./registro.module.css";
+import { registrarUsuario } from "../../services/auth.service";
 
 export default function RegistroPage() {
+  const router = useRouter();
 
-  const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    correo: "",
-    telefono: "",
-    password: "",
-    confirmarPassword: ""
-  });
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [documento, setDocumento] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [registroExitoso, setRegistroExitoso] = useState(false);
 
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if(formData.password !== formData.confirmarPassword){
-      alert("Las contraseñas no coinciden");
-      return;
+    setMensaje("");
+    setRegistroExitoso(false);
+
+    try {
+      await registrarUsuario({
+        nombre,
+        apellido,
+        documento,
+        email,
+        password,
+        telefono,
+      });
+
+      setRegistroExitoso(true);
+      setMensaje("Registro exitoso. Ya puedes iniciar sesión.");
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    } catch (error: any) {
+      setRegistroExitoso(false);
+      const mensajeError =
+        error?.response?.data?.message ||
+        "No se pudo completar el registro. Intenta nuevamente.";
+      setMensaje(
+        Array.isArray(mensajeError)
+          ? mensajeError.join(". ")
+          : String(mensajeError)
+      );
     }
-
-
-    console.log(formData);
-
-    // Aquí después conectaremos con NestJS
   };
 
 
@@ -57,58 +73,62 @@ export default function RegistroPage() {
 
 
         <input
-          name="nombre"
           placeholder="Nombre"
-          value={formData.nombre}
-          onChange={handleChange}
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
           required
         />
 
 
         <input
-          name="apellido"
           placeholder="Apellido"
-          value={formData.apellido}
-          onChange={handleChange}
+          value={apellido}
+          onChange={(e) => setApellido(e.target.value)}
+          required
+        />
+
+
+        <label htmlFor="documento">
+          Documento
+        </label>
+
+
+        <input
+          id="documento"
+          name="documento"
+          type="number"
+          inputMode="numeric"
+          min="0"
+          placeholder="Documento"
+          value={documento}
+          onChange={(e) => setDocumento(e.target.value)}
           required
         />
 
 
         <input
-          name="correo"
+          name="email"
           type="email"
           placeholder="Correo electrónico"
-          value={formData.correo}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           required
         />
 
 
         <input
-          name="telefono"
           placeholder="Teléfono"
-          value={formData.telefono}
-          onChange={handleChange}
+          value={telefono}
+          onChange={(e) => setTelefono(e.target.value)}
           required
         />
 
 
         <input
-          name="password"
           type="password"
           placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-
-
-        <input
-          name="confirmarPassword"
-          type="password"
-          placeholder="Confirmar contraseña"
-          value={formData.confirmarPassword}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
 
@@ -116,6 +136,14 @@ export default function RegistroPage() {
         <button type="submit">
           Registrarme
         </button>
+
+        {mensaje && <p>{mensaje}</p>}
+
+        {registroExitoso && (
+          <p>
+            Ir a iniciar sesión: <Link href="/login">/login</Link>
+          </p>
+        )}
 
 
       </form>

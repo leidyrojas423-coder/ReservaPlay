@@ -1,29 +1,48 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { ReservaEntity } from './entities/reserva.entity';
 import { ReservasController } from './reservas.controller';
 import { ReservasService } from './reservas.service';
 
-import { ReservaEntity } from './entities/reserva.entity';
+import { ClienteEntity } from '../clientes/entities/cliente.entity';
+import { CanchaEntity } from '../canchas/entities/cancha.entity';
+import { HorarioEntity } from '../horarios/entities/horario.entity';
 
 
 @Module({
-  imports:[
+
+  imports: [
+
     TypeOrmModule.forFeature([
+
       ReservaEntity,
+
+      ClienteEntity,
+
+      CanchaEntity,
+
+      HorarioEntity,
+
     ]),
+
   ],
 
-  controllers:[
+
+  controllers: [
+
     ReservasController,
+
   ],
 
-  providers:[
+
+  providers: [
+
     ReservasService,
+
   ],
 
-  exports:[
-    ReservasService,
-  ],
+
 })
+
 export class ReservasModule {}

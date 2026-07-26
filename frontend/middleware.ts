@@ -5,14 +5,18 @@ function isProtectedAdminRoute(pathname: string): boolean {
   return pathname === '/admin' || pathname.startsWith('/admin/');
 }
 
+function isPublicAdminRoute(pathname: string): boolean {
+  return pathname === '/admin/login' || pathname === '/admin/registro';
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(AUTH_TOKEN_COOKIE)?.value ?? readTokenFromCookieString(request.headers.get('cookie'));
   const hasValidToken = Boolean(token && !isJwtExpired(token));
 
-  if (pathname === '/admin/login') {
+  if (isPublicAdminRoute(pathname)) {
     if (hasValidToken) {
-      return NextResponse.redirect(new URL('/admin/canchas', request.url));
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
 
     return NextResponse.next();
