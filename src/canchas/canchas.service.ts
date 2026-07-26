@@ -10,18 +10,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
-
 import { HorarioEntity } from '../horarios/entities/horario.entity';
 
-import { ReservaEntity, ReservaEstado } from '../reservas/entities/reserva.entity';
+import {
+  ReservaEntity,
+  ReservaEstado,
+} from '../reservas/entities/reserva.entity';
 
 import { CreateCanchaDto } from './dto/create-cancha.dto';
-
 import { DisponibilidadCanchaDto } from './dto/disponibilidad-cancha.dto';
-
 import { UpdateCanchaDto } from './dto/update-cancha.dto';
 
-import { CanchaEntity } from './entities/cancha.entity';
+import {
+  CanchaEntity,
+  CanchaEstado,
+} from './entities/cancha.entity';
 
 
 
@@ -46,10 +49,7 @@ export class CanchasService {
     @InjectRepository(ReservaEntity)
     private readonly reservasRepository: Repository<ReservaEntity>,
 
-
   ) {}
-
-
 
 
 
@@ -58,9 +58,14 @@ export class CanchasService {
   ): Promise<CanchaEntity> {
 
 
-    await this.validateAdministrador(
-      createCanchaDto.administradorId
-    );
+    if(createCanchaDto.administradorId){
+
+      await this.validateAdministrador(
+        createCanchaDto.administradorId
+      );
+
+    }
+
 
 
     const cancha =
@@ -71,30 +76,28 @@ export class CanchasService {
         activo:
           createCanchaDto.activo ?? true,
 
+        estado:
+          CanchaEstado.DISPONIBLE,
+
       });
 
 
 
-
-    try {
-
+    try{
 
       return await this.canchasRepository.save(cancha);
 
 
-    } catch(error){
-
+    }catch(error){
 
       throw new InternalServerErrorException(
         'No se pudo crear la cancha'
       );
 
-
     }
 
 
   }
-
 
 
 
@@ -109,11 +112,9 @@ export class CanchasService {
         activo:true
       },
 
-
       relations:[
         'administrador'
       ],
-
 
       order:{
         nombre:'ASC'
@@ -123,7 +124,6 @@ export class CanchasService {
 
 
   }
-
 
 
 
@@ -175,7 +175,6 @@ export class CanchasService {
   ):Promise<CanchaEntity>{
 
 
-
     const cancha =
       await this.findOne(id);
 
@@ -189,14 +188,21 @@ export class CanchasService {
 
         ...updateCanchaDto,
 
+
         activo:
-        updateCanchaDto.activo ??
-        cancha.activo
+          updateCanchaDto.activo ??
+          cancha.activo,
+
+
+        estado:
+          (updateCanchaDto.estado as CanchaEstado)
+          ??
+          cancha.estado,
+
 
       }
 
     );
-
 
 
     return this.findOne(id);
@@ -210,11 +216,9 @@ export class CanchasService {
 
 
 
-
   async deactivate(
     id:string
   ):Promise<CanchaEntity>{
-
 
 
     const cancha =
@@ -222,7 +226,8 @@ export class CanchasService {
 
 
 
-    cancha.activo=false;
+    cancha.estado =
+      CanchaEstado.MANTENIMIENTO;
 
 
 
@@ -237,11 +242,9 @@ export class CanchasService {
 
 
 
-
   async consultarDisponibilidad(
     filtros:DisponibilidadCanchaDto
   ){
-
 
 
     const fecha =
@@ -251,16 +254,11 @@ export class CanchasService {
 
     if(Number.isNaN(fecha.getTime())){
 
-
       throw new BadRequestException(
         'Fecha inválida'
       );
 
-
     }
-
-
-
 
 
 
@@ -268,9 +266,13 @@ export class CanchasService {
       await this.canchasRepository.find({
 
         where:{
-          activo:true
-        }
 
+          activo:true,
+
+          estado:
+            CanchaEstado.DISPONIBLE
+
+        }
 
       });
 
@@ -291,35 +293,33 @@ export class CanchasService {
 
 
 
-
-
     return {
 
       fecha:filtros.fecha,
+
 
       canchas:
 
       canchas.map(cancha=>({
 
+        canchaId:
+          cancha.id,
 
-        canchaId:cancha.id,
+        nombre:
+          cancha.nombre,
 
-
-        nombre:cancha.nombre,
-
-
-        ubicacion:cancha.ubicacion,
+        ubicacion:
+          cancha.ubicacion,
 
 
         horariosDisponibles:
 
-        horarios.filter(
+          horarios.filter(
 
-          horario=>
-          horario.canchaId===cancha.id
+            horario =>
+              horario.canchaId === cancha.id
 
-        )
-
+          )
 
       }))
 
@@ -327,10 +327,7 @@ export class CanchasService {
     };
 
 
-
   }
-
-
 
 
 
@@ -353,21 +350,20 @@ export class CanchasService {
 
         where:{
 
-          canchaId:cancha.id,
+          canchaId:
+            cancha.id,
 
 
-          estado:ReservaEstado.PENDIENTE
+          estado:
+            ReservaEstado.PENDIENTE
 
         }
-
 
       });
 
 
 
-
-    if(reservas>0){
-
+    if(reservas > 0){
 
       throw new BadRequestException(
 
@@ -375,14 +371,11 @@ export class CanchasService {
 
       );
 
-
     }
 
 
 
-
     await this.canchasRepository.delete(id);
-
 
 
   }
@@ -398,7 +391,6 @@ export class CanchasService {
   ){
 
 
-
     const administrador =
       await this.administradoresRepository.findOne({
 
@@ -412,19 +404,16 @@ export class CanchasService {
 
     if(!administrador){
 
-
       throw new NotFoundException(
 
         'Administrador no encontrado'
 
       );
 
-
     }
 
 
   }
-
 
 
 }

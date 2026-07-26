@@ -41,6 +41,7 @@ function normalizarEstado(estado?: string) {
 
 export default function DashboardPage() {
   const [canchas, setCanchas] = useState(0);
+  const [canchasMantenimiento, setCanchasMantenimiento] = useState(0);
   const [horarios, setHorarios] = useState(0);
   const [reservas, setReservas] = useState<AdminReserva[]>([]);
   const [estadoApi, setEstadoApi] = useState('Sin verificar');
@@ -64,6 +65,7 @@ export default function DashboardPage() {
 
         setEstadoApi(dashboard.message ?? 'Panel disponible');
         setCanchas(canchasData.length);
+        setCanchasMantenimiento(canchasData.filter((cancha) => cancha.activo === false).length);
         setHorarios(horariosData.length);
         setReservas(reservasData);
       } catch (dashboardError) {
@@ -154,7 +156,7 @@ export default function DashboardPage() {
           </div>
 
           <ul className={styles.statusList}>
-            <li>Canchas en mantenimiento: {Math.max(canchas - resumen[0].valor, 0)}</li>
+            <li>Canchas en mantenimiento: {canchasMantenimiento}</li>
             <li>Reservas canceladas: {reservas.filter((reserva) => normalizarEstado(reserva.estado) === 'Cancelada').length}</li>
             <li>Reservas finalizadas: {reservas.filter((reserva) => normalizarEstado(reserva.estado) === 'Finalizada').length}</li>
             <li>Fuente de reservas: endpoint administrativo si existe, o fallback al listado disponible.</li>

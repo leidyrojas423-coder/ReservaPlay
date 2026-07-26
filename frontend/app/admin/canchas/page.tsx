@@ -1,192 +1,204 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getStoredAuthToken } from '../../../lib/auth';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './canchas.module.css';
+import {
+  actualizarCancha,
+  crearCancha,
+  desactivarCancha,
+  listarCanchas,
+  type AdminCancha,
+} from '../../../services/admin.service';
 
-
-interface Cancha {
-
-  id: string;
-
+type FormCancha = {
   nombre: string;
-
-  descripcion?: string;
-
-  ubicacion: string;
-
-  capacidad?: number;
-
-  precio?: number;
-
-  activo: boolean;
-
-}
-
-
-
-interface FormCancha {
-
-  nombre: string;
-
   descripcion: string;
-
   ubicacion: string;
-
   capacidad: string;
-
   precio: string;
+};
 
-  activo: boolean;
+const initialForm: FormCancha = {
+  nombre: '',
+  descripcion: '',
+  ubicacion: '',
+  capacidad: '',
+  precio: '',
+};
 
+function formatCurrency(value?: number) {
+  if (typeof value !== 'number') {
+    return 'Sin definir';
+  }
+
+  return value.toLocaleString('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  });
 }
-
-
 
 export default function AdminCanchasPage() {
 
-
-  const [canchas, setCanchas] = useState<Cancha[]>([]);
-
-
+  const [canchas, setCanchas] = useState<AdminCancha[]>([]);
+  const [form, setForm] = useState<FormCancha>(initialForm);
   const [loading, setLoading] = useState(true);
-
-
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-
-
-  const [success, setSuccess] = useState('');
-
-
-
-  const [form, setForm] = useState<FormCancha>({
-
-    nombre: '',
-
-    descripcion: '',
-
-    ubicacion: '',
-
-    capacidad: '',
-
-    precio: '',
-
-    activo: true,
-
-  });
-
-
-
-  const token = getStoredAuthToken();
-
-
-
 
 
   const cargarCanchas = async () => {
 
-
     try {
 
-
       setLoading(true);
+      setError('');
 
-
-
-      const response = await fetch(
-        'http://localhost:3000/canchas',
-        {
-
-          headers: {
-
-            Authorization: `Bearer ${token}`,
-
-          },
-
-        }
-      );
-
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          'No se pudieron cargar las canchas'
-        );
-
-      }
-
-
-
-      const data = await response.json();
-
-
+      const data = await listarCanchas();
 
       setCanchas(data);
 
-
-
-    } catch (error) {
-
+    } catch (loadError) {
 
       setError(
-
-        error instanceof Error
-
-        ? error.message
-
-        : 'Error inesperado'
-
+        loadError instanceof Error
+          ? loadError.message
+          : 'No se pudieron cargar las canchas.'
       );
-
 
     } finally {
 
-
       setLoading(false);
 
-
     }
-
 
   };
 
 
-
-
-
-
   useEffect(() => {
 
-
-    cargarCanchas();
-
+    void cargarCanchas();
 
   }, []);
 
 
+
+  const resumen = useMemo(() => {
+
+    const disponibles =
+      canchas.filter(
+        (cancha) =>
+          cancha.estado === 'Disponible'
+      ).length;
+
+
+    const mantenimiento =
+      canchas.filter(
+        (cancha) =>
+          cancha.estado === 'Mantenimiento'
+      ).length;
+
+
+    return {
+
+      total: canchas.length,
+
+      disponibles,
+
+      mantenimiento,
+
+    };
+
+
+  }, [canchas]);
 
 
 
 
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
 
-
-    const {name,value} = e.target;
-
+    const { name, value } = event.target;
 
 
-    setForm({
-
-      ...form,
-
+    setForm((current) => ({
+      ...current,
       [name]: value,
+    }));
 
-    });
+  };
 
+
+
+
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+
+    event.preventDefault();
+
+    setSaving(true);
+    setError('');
+    setMessage('');
+
+
+    try {
+
+
+      await crearCancha({
+
+        nombre: form.nombre,
+
+        descripcion: form.descripcion,
+
+        ubicacion: form.ubicacion,
+
+        capacidad: form.capacidad
+          ? Number(form.capacidad)
+          : undefined,
+
+        precio: form.precio
+          ? Number(form.precio)
+          : undefined,
+
+        activo: true,
+
+      });
+
+
+
+      setForm(initialForm);
+
+      setMessage(
+        'Cancha creada correctamente.'
+      );
+
+
+      await cargarCanchas();
+
+
+
+    } catch (submitError) {
+
+
+      setError(
+
+        submitError instanceof Error
+          ? submitError.message
+          : 'No se pudo crear la cancha.'
+
+      );
+
+
+    } finally {
+
+      setSaving(false);
+
+    }
 
   };
 
@@ -195,112 +207,65 @@ export default function AdminCanchasPage() {
 
 
 
-
-  const crearCancha = async (
-    e: React.FormEvent
+  const handleToggleEstado = async (
+    cancha: AdminCancha
   ) => {
 
 
-    e.preventDefault();
-
-
-
     setError('');
-
-    setSuccess('');
-
-
-
-    if(!token){
-
-      setError(
-        'Debe iniciar sesión como administrador'
-      );
-
-      return;
-
-    }
-
-
+    setMessage('');
 
 
 
     try {
 
 
-
-      const response = await fetch(
-
-        'http://localhost:3000/canchas',
-
-        {
-
-          method:'POST',
+      if (
+        cancha.estado === 'Mantenimiento'
+      ) {
 
 
-          headers:{
+        await actualizarCancha(
 
-            'Content-Type':
-            'application/json',
+          cancha.id,
 
+          {
 
-            Authorization:
-            `Bearer ${token}`,
+            nombre: cancha.nombre,
 
-          },
+            descripcion: cancha.descripcion,
 
+            ubicacion: cancha.ubicacion,
 
+            capacidad: cancha.capacidad,
 
-          body: JSON.stringify({
+            precio: cancha.precio,
 
-            nombre: form.nombre,
+            activo:true,
 
+            estado:'Disponible',
 
-            descripcion:
-            form.descripcion,
+          }
 
-
-            ubicacion:
-            form.ubicacion,
-
-
-            capacidad:
-            form.capacidad
-            ? Number(form.capacidad)
-            : undefined,
+        );
 
 
-            precio:
-            form.precio
-            ? Number(form.precio)
-            : undefined,
+        setMessage(
+          `La cancha ${cancha.nombre} quedó disponible.`
+        );
 
 
-            activo:
-            form.activo,
-
-
-          }),
-
-
-        }
-
-      );
+      } else {
 
 
 
+        await desactivarCancha(
+          cancha.id
+        );
 
 
-
-      if(!response.ok){
-
-
-        const data = await response.json();
-
-
-        throw new Error(
-          data.message ||
-          'No se pudo crear la cancha'
+        setMessage(
+          `La cancha ${cancha.nombre} pasó a mantenimiento.`
         );
 
 
@@ -308,55 +273,23 @@ export default function AdminCanchasPage() {
 
 
 
-
-
-      setSuccess(
-        'Cancha creada correctamente'
-      );
+      await cargarCanchas();
 
 
 
-      setForm({
-
-        nombre:'',
-
-        descripcion:'',
-
-        ubicacion:'',
-
-        capacidad:'',
-
-        precio:'',
-
-        activo:true,
-
-      });
-
-
-
-
-
-      cargarCanchas();
-
-
-
-
-    }catch(error){
+    } catch(toggleError) {
 
 
       setError(
 
-        error instanceof Error
-
-        ? error.message
-
-        : 'Error inesperado'
+        toggleError instanceof Error
+          ? toggleError.message
+          : 'No se pudo actualizar el estado de la cancha.'
 
       );
 
 
     }
-
 
 
   };
@@ -367,326 +300,405 @@ export default function AdminCanchasPage() {
 
 
 
+  return (
 
-return (
+    <section className={styles.container}>
 
 
-<main className={styles.container}>
+      <div className={styles.hero}>
 
 
-<h1 className={styles.title}>
-Gestión de Canchas
-</h1>
+        <div>
 
+          <p className={styles.eyebrow}>
+            Gestión de canchas
+          </p>
 
 
-<p className={styles.description}>
-Administra las canchas disponibles para reservas.
-</p>
+          <h2>
+            Disponibilidad, mantenimiento y alta operativa
+          </h2>
 
 
+          <p>
+            Administra inventario deportivo y controla qué canchas están listas para reservarse.
+          </p>
 
 
-{
-error && (
+        </div>
 
-<p className={styles.error}>
-{error}
-</p>
 
-)
-}
 
+        <div className={styles.stats}>
 
 
+          <div>
 
-{
-success && (
+            <span>Total</span>
 
-<p className={styles.success}>
-{success}
-</p>
+            <strong>
+              {resumen.total}
+            </strong>
 
-)
-}
+          </div>
 
 
 
+          <div>
 
+            <span>Disponibles</span>
 
+            <strong>
+              {resumen.disponibles}
+            </strong>
 
+          </div>
 
-<form
-className={styles.form}
-onSubmit={crearCancha}
->
 
 
+          <div>
 
+            <span>Mantenimiento</span>
 
-<input
+            <strong>
+              {resumen.mantenimiento}
+            </strong>
 
-name="nombre"
+          </div>
 
-placeholder="Nombre de la cancha"
 
-value={form.nombre}
+        </div>
 
-onChange={handleChange}
 
-required
+      </div>
 
-/>
 
 
 
 
+      <div className={styles.grid}>
 
-<input
 
-name="descripcion"
 
-placeholder="Descripción"
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit}
+        >
 
-value={form.descripcion}
 
-onChange={handleChange}
+          <div className={styles.sectionHeader}>
 
-/>
+            <h3>
+              Nueva cancha
+            </h3>
 
 
+            <p>
+              Registra una cancha y déjala lista para operación.
+            </p>
 
 
+          </div>
 
-<input
 
-name="ubicacion"
 
-placeholder="Ubicación"
 
-value={form.ubicacion}
 
-onChange={handleChange}
+          <div className={styles.formGrid}>
 
-required
 
-/>
+            <input
+              name="nombre"
+              placeholder="Nombre comercial"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
 
 
 
+            <input
+              name="ubicacion"
+              placeholder="Ubicación"
+              value={form.ubicacion}
+              onChange={handleChange}
+              required
+            />
 
 
 
-<input
+            <input
+              name="capacidad"
+              type="number"
+              min="1"
+              placeholder="Capacidad"
+              value={form.capacidad}
+              onChange={handleChange}
+            />
 
-name="capacidad"
 
-type="number"
 
-placeholder="Capacidad jugadores"
+            <input
+              name="precio"
+              type="number"
+              min="0"
+              placeholder="Precio por reserva"
+              value={form.precio}
+              onChange={handleChange}
+            />
 
-value={form.capacidad}
 
-onChange={handleChange}
 
-/>
+            <textarea
+              name="descripcion"
+              placeholder="Descripción operativa"
+              value={form.descripcion}
+              onChange={handleChange}
+              rows={4}
+            />
 
 
 
+          </div>
 
 
-<input
 
-name="precio"
 
-type="number"
+          <button
+            type="submit"
+            className={styles.primaryButton}
+            disabled={saving}
+          >
 
-placeholder="Precio"
+            {saving
+              ? 'Guardando...'
+              : 'Crear cancha'}
 
-value={form.precio}
+          </button>
 
-onChange={handleChange}
 
-/>
 
 
+          {error && (
+            <p className={styles.error}>
+              {error}
+            </p>
+          )}
 
 
 
+          {message && (
+            <p className={styles.success}>
+              {message}
+            </p>
+          )}
 
-<label className={styles.checkbox}>
 
 
-<input
+        </form>
 
-type="checkbox"
 
-checked={form.activo}
 
-onChange={(e)=>
 
-setForm({
 
-...form,
 
-activo:e.target.checked
 
-})
+        <div className={styles.panel}>
 
-}
 
-/>
+          <div className={styles.sectionHeader}>
 
 
-Activa
+            <h3>
+              Inventario actual
+            </h3>
 
 
-</label>
+            <p>
+              Cambia entre disponible y mantenimiento sin salir del panel.
+            </p>
 
 
+          </div>
 
 
 
 
-<button
-className={styles.button}
-type="submit"
->
 
-Crear Cancha
+          {loading && (
 
-</button>
+            <p className={styles.empty}>
+              Cargando canchas...
+            </p>
 
+          )}
 
 
-</form>
 
 
 
+          {!loading && canchas.length === 0 && (
 
+            <p className={styles.empty}>
+              No hay canchas registradas.
+            </p>
 
+          )}
 
 
-{
 
-loading ? (
 
-<p>
-Cargando canchas...
-</p>
 
-)
 
-:
+          <div className={styles.list}>
 
-(
 
+            {canchas.map((cancha)=>(
 
-<table className={styles.table}>
 
+              <article
+                key={cancha.id}
+                className={styles.card}
+              >
 
-<thead>
 
-<tr>
 
-<th>
-Nombre
-</th>
+                <div className={styles.cardHeader}>
 
 
-<th>
-Ubicación
-</th>
+                  <div>
 
+                    <h4>
+                      {cancha.nombre}
+                    </h4>
 
-<th>
-Capacidad
-</th>
 
+                    <p>
+                      {cancha.ubicacion ?? 'Ubicación no disponible'}
+                    </p>
 
-<th>
-Precio
-</th>
 
+                  </div>
 
-<th>
-Activo
-</th>
 
 
-</tr>
 
-</thead>
 
+                  <span
+                    className={
+                      cancha.estado === 'Mantenimiento'
+                        ? styles.statusOff
+                        : styles.statusOn
+                    }
+                  >
 
+                    {cancha.estado}
 
+                  </span>
 
 
-<tbody>
+                </div>
 
 
-{
 
-canchas.map((cancha)=>(
 
 
-<tr key={cancha.id}>
+                <dl className={styles.meta}>
 
 
-<td>
-{cancha.nombre}
-</td>
+                  <div>
 
+                    <dt>
+                      Capacidad
+                    </dt>
 
-<td>
-{cancha.ubicacion}
-</td>
 
+                    <dd>
+                      {cancha.capacidad ?? 'No definida'}
+                    </dd>
 
-<td>
-{cancha.capacidad ?? '-'}
-</td>
 
+                  </div>
 
-<td>
-{cancha.precio ?? '-'}
-</td>
 
 
-<td>
-{cancha.activo ? 'Sí':'No'}
-</td>
 
+                  <div>
 
-</tr>
+                    <dt>
+                      Tarifa
+                    </dt>
 
 
-))
+                    <dd>
+                      {formatCurrency(cancha.precio)}
+                    </dd>
 
 
-}
+                  </div>
 
 
+                </dl>
 
-</tbody>
 
 
-</table>
 
 
-)
+                <p className={styles.description}>
 
+                  {cancha.descripcion ||
+                  'Sin descripción adicional.'}
 
-}
+                </p>
 
 
 
 
 
-</main>
+                <button
 
+                  type="button"
 
-);
+                  className={styles.secondaryButton}
+
+                  onClick={() =>
+                    void handleToggleEstado(cancha)
+                  }
+
+                >
+
+                  {
+                    cancha.estado === 'Mantenimiento'
+                      ? 'Marcar disponible'
+                      : 'Pasar a mantenimiento'
+                  }
+
+
+                </button>
+
+
+
+
+              </article>
+
+
+            ))}
+
+
+          </div>
+
+
+        </div>
+
+
+
+      </div>
+
+
+    </section>
+
+
+  );
 
 
 }

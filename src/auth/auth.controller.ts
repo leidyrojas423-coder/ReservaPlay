@@ -18,7 +18,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Roles } from './decorators/roles.decorator';
 
 import { UserRole } from '../users/user.entity';
-import { UsersService } from '../users/users.service';
 
 
 
@@ -28,7 +27,6 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly usersService: UsersService,
   ) {}
 
 
@@ -41,8 +39,7 @@ export class AuthController {
   async register(
     @Body() registerDto: RegisterDto,
   ) {
-
-    return this.usersService.create(registerDto);
+    return this.authService.register(registerDto);
 
   }
 

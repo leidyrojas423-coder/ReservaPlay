@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,16 +13,20 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
+  async createClientUserForRegister(
+    createUserDto: Pick<CreateUserDto, 'name' | 'email' | 'password' | 'profile'>,
+    manager?: EntityManager,
+  ): Promise<User> {
+    const repository = manager ? manager.getRepository(User) : this.usersRepository;
     const { name, email, password } = createUserDto;
 
-    const existing = await this.usersRepository.findOne({ where: { email } });
+    const existing = await repository.findOne({ where: { email } });
     if (existing) {
       throw new ConflictException('El correo ya está registrado');
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const user = this.usersRepository.create({
+    const user = repository.create({
       name,
       email,
       password: hashedPassword,
@@ -31,11 +35,18 @@ export class UsersService {
       active: true,
     });
 
+    return repository.save(user);
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     try {
-      const saved = await this.usersRepository.save(user);
+      const saved = await this.createClientUserForRegister(createUserDto);
       const { password, ...userWithoutPassword } = saved;
       return userWithoutPassword;
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       throw new InternalServerErrorException('No se pudo crear el usuario');
     }
   }

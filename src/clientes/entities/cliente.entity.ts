@@ -2,9 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { User } from '../../users/user.entity';
 
 
 @Entity('clientes')
@@ -56,6 +60,19 @@ export class ClienteEntity {
     length: 255,
   })
   password!: string;
+
+
+  @Column({
+    type: 'uuid',
+    unique: true,
+    nullable: true,
+  })
+  userId?: string;
+
+
+  @OneToOne(() => User, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'userId' })
+  user?: User;
 
 
   @CreateDateColumn({

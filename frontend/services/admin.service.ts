@@ -199,6 +199,11 @@ export async function desactivarHorario(id: string) {
   return response.data as AdminHorario;
 }
 
+export async function actualizarHorario(id: string, payload: Partial<AdminHorario>) {
+  const response = await api.put(`/horarios/${id}`, payload);
+  return response.data as AdminHorario;
+}
+
 export async function listarReservasAdmin() {
   const payload = await tryGet<unknown>(['/reservas', '/reservas/mias']);
   return normalizeArray<AdminReserva>(payload);

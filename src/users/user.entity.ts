@@ -2,12 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
 
-import { ReservaEntity } from '../reservas/entities/reserva.entity';
+import { ClienteEntity } from '../clientes/entities/cliente.entity';
 
 
 export enum UserRole {
@@ -72,13 +72,11 @@ export class User {
   })
   active!: boolean;
 
-
-
-  @OneToMany(
-    () => ReservaEntity,
-    (reserva) => reserva.cliente,
+  @OneToOne(
+    () => ClienteEntity,
+    (cliente) => cliente.user,
   )
-  reservas!: ReservaEntity[];
+  cliente?: ClienteEntity;
 
 
 

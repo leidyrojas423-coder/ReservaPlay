@@ -27,7 +27,6 @@ import {
 import { HorarioEntity } from '../horarios/entities/horario.entity';
 
 
-
 @Injectable()
 export class ReservasService {
 
@@ -57,7 +56,7 @@ export class ReservasService {
 
 
 
-
+  // CLIENTE: ver sus propias reservas
 
   async findByClient(
     clienteId:string,
@@ -70,6 +69,11 @@ export class ReservasService {
         clienteId,
       },
 
+      relations:[
+        'cancha',
+        'horario',
+      ],
+
       order:{
         createdAt:'DESC',
       },
@@ -80,6 +84,27 @@ export class ReservasService {
 
 
 
+  // ADMINISTRADOR: ver todas las reservas
+
+  async findAll():Promise<ReservaEntity[]> {
+
+
+    return this.reservasRepository.find({
+
+      relations:[
+        'cliente',
+        'cancha',
+        'horario',
+      ],
+
+      order:{
+        createdAt:'DESC',
+      },
+
+    });
+
+
+  }
 
 
 
@@ -87,7 +112,7 @@ export class ReservasService {
 
   async create(
 
-    clienteId:string,
+    userId:string,
 
     createReservaDto:CreateReservaDto,
 
@@ -95,13 +120,11 @@ export class ReservasService {
 
 
 
-    // VALIDAR CLIENTE
-
     const cliente =
       await this.clientesRepository.findOne({
 
         where:{
-          id:clienteId,
+          userId,
         },
 
       });
@@ -118,11 +141,6 @@ export class ReservasService {
 
 
 
-
-
-
-
-    // VALIDAR CANCHA
 
     const cancha =
       await this.canchasRepository.findOne({
@@ -146,11 +164,6 @@ export class ReservasService {
 
 
 
-
-
-
-    // VALIDAR ESTADO DE CANCHA
-
     if(
       cancha.estado !== CanchaEstado.DISPONIBLE
     ){
@@ -163,11 +176,6 @@ export class ReservasService {
 
 
 
-
-
-
-
-    // VALIDAR HORARIO
 
     const horario =
       await this.horariosRepository.findOne({
@@ -191,11 +199,6 @@ export class ReservasService {
 
 
 
-
-
-
-    // VALIDAR QUE EL HORARIO PERTENEZCA A LA CANCHA
-
     if(
       horario.canchaId !== cancha.id
     ){
@@ -208,12 +211,6 @@ export class ReservasService {
 
 
 
-
-
-
-
-
-    // VALIDAR DOBLE RESERVA
 
     const reservaExistente =
       await this.reservasRepository.findOne({
@@ -233,8 +230,6 @@ export class ReservasService {
 
 
 
-
-
     if(reservaExistente){
 
       throw new BadRequestException(
@@ -248,18 +243,10 @@ export class ReservasService {
 
 
 
-
-
-
-
-
-    // CREAR RESERVA
-
-
     const reserva =
       this.reservasRepository.create({
 
-        clienteId,
+        clienteId:cliente.id,
 
         canchaId:createReservaDto.canchaId,
 
@@ -275,15 +262,10 @@ export class ReservasService {
 
 
 
-
     return this.reservasRepository.save(reserva);
 
 
   }
-
-
-
-
 
 
 
@@ -307,8 +289,6 @@ export class ReservasService {
 
 
 
-
-
     if(
       reserva.estado !== ReservaEstado.PENDIENTE
     ){
@@ -323,11 +303,8 @@ export class ReservasService {
 
 
 
-
-
     reserva.estado =
       ReservaEstado.CONFIRMADA;
-
 
 
 
@@ -337,10 +314,6 @@ export class ReservasService {
 
 
   }
-
-
-
-
 
 
 
@@ -370,9 +343,6 @@ export class ReservasService {
 
 
 
-
-
-
     if(
 
       reserva.estado === ReservaEstado.CANCELADA
@@ -393,10 +363,6 @@ export class ReservasService {
 
 
 
-
-
-
-
     reserva.estado =
       ReservaEstado.CANCELADA;
 
@@ -413,19 +379,12 @@ export class ReservasService {
 
 
 
-
-
-
     return this.reservasRepository.save(
       reserva
     );
 
 
   }
-
-
-
-
 
 
 
@@ -452,9 +411,6 @@ export class ReservasService {
 
 
 
-
-
-
     if(!reserva){
 
       throw new NotFoundException(
@@ -462,9 +418,6 @@ export class ReservasService {
       );
 
     }
-
-
-
 
 
 
@@ -479,8 +432,6 @@ export class ReservasService {
       );
 
     }
-
-
 
 
 

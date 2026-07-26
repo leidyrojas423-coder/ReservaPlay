@@ -1,8 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Bebas_Neue } from 'next/font/google';
+import { useEffect, useMemo, useState } from 'react';
 import styles from './reservas.module.css';
+
+import {
+  cancelarReservaAdmin,
+  confirmarReservaAdmin,
+  listarReservasAdmin,
+  registrarPagoManualAdmin,
+  type AdminReserva,
+} from '../../../services/admin.service';
 
 
 type EstadoReserva =
@@ -14,324 +21,207 @@ type EstadoReserva =
 
 
 
-interface ReservaAdmin {
+function normalizarEstado(estado?: string): EstadoReserva {
 
-  id: string;
+  const value = (estado ?? '').toLowerCase();
 
-  cliente: string;
 
-  cancha: string;
+  if (value.includes('cancel')) {
+    return 'Cancelada';
+  }
 
-  fecha: string;
 
-  hora: string;
+  if (value.includes('final')) {
+    return 'Finalizada';
+  }
 
-  monto: string;
 
-  estado: EstadoReserva;
+  if (value.includes('pag')) {
+    return 'Pagada';
+  }
+
+
+  if (value.includes('confirm')) {
+    return 'Confirmada';
+  }
+
+
+  return 'Pendiente';
 
 }
 
 
 
-const sportsTitleFont = Bebas_Neue({
 
-  weight: '400',
+function formatDate(value?: string) {
 
-  subsets: ['latin'],
+  if (!value) {
+    return 'Sin fecha';
+  }
 
-});
 
+  const date = new Date(value);
 
 
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
 
-const estados: EstadoReserva[] = [
 
-  'Pendiente',
-  'Confirmada',
-  'Pagada',
-  'Finalizada',
-  'Cancelada',
+  return date.toLocaleDateString('es-CO', {
+    day:'2-digit',
+    month:'2-digit',
+    year:'numeric',
+  });
 
-];
+}
 
 
 
 
+function formatTime(value?: string) {
 
-const transicionesPermitidas:
-Record<EstadoReserva, EstadoReserva[]> = {
+  if (!value) {
+    return '';
+  }
 
 
-  Pendiente: [
+  const date = new Date(value);
 
-    'Confirmada',
 
-    'Cancelada'
+  if (!Number.isNaN(date.getTime())) {
 
-  ],
+    return date.toLocaleTimeString('es-CO',{
+      hour:'2-digit',
+      minute:'2-digit',
+      hour12:false,
+    });
 
+  }
 
 
-  Confirmada: [
+  return value.slice(0,5);
 
-    'Pagada',
+}
 
-    'Cancelada'
 
-  ],
 
 
 
-  Pagada: [
+function getCliente(reserva: AdminReserva) {
 
-    'Finalizada'
+  if (!reserva.cliente) {
+    return 'Cliente no disponible';
+  }
 
-  ],
 
+  if (typeof reserva.cliente === 'string') {
+    return reserva.cliente;
+  }
 
 
-  Finalizada: [],
+  const nombre = [
+    reserva.cliente.nombre,
+    reserva.cliente.apellido,
+  ]
+  .filter(Boolean)
+  .join(' ')
+  .trim();
 
 
+  return nombre ||
+    reserva.cliente.email ||
+    'Cliente no disponible';
 
-  Cancelada: [],
+}
 
 
-};
 
 
 
+function getCancha(reserva: AdminReserva) {
 
+  if (!reserva.cancha) {
+    return 'Cancha no disponible';
+  }
 
 
+  if (typeof reserva.cancha === 'string') {
+    return reserva.cancha;
+  }
 
-const reservasIniciales: ReservaAdmin[] = [
 
+  return reserva.cancha.nombre ??
+    'Cancha no disponible';
 
-  {
+}
 
-    id:'R-001',
 
-    cliente:'Andrés Toro',
 
-    cancha:'Cancha Sintética 1',
 
-    fecha:'2026-07-25',
 
-    hora:'18:00 - 19:00',
+function getHorario(reserva: AdminReserva) {
 
-    monto:'$120.000',
+  if (!reserva.horario) {
+    return 'Horario no disponible';
+  }
 
-    estado:'Pendiente'
 
-  },
+  if (typeof reserva.horario === 'string') {
+    return reserva.horario;
+  }
 
 
+  const inicio =
+    formatTime(
+      reserva.horario.fechaInicio ??
+      reserva.horario.horaInicio
+    );
 
-  {
 
-    id:'R-002',
+  const fin =
+    formatTime(
+      reserva.horario.fechaFin ??
+      reserva.horario.horaFin
+    );
 
-    cliente:'Laura Méndez',
 
-    cancha:'Cancha Sintética 2',
 
-    fecha:'2026-07-26',
+  if (inicio && fin) {
 
-    hora:'20:00 - 21:00',
-
-    monto:'$150.000',
-
-    estado:'Confirmada'
-
-  },
-
-
-
-  {
-
-    id:'R-003',
-
-    cliente:'Carlos Díaz',
-
-    cancha:'Cancha Sintética 3',
-
-    fecha:'2026-07-20',
-
-    hora:'17:00 - 18:00',
-
-    monto:'$100.000',
-
-    estado:'Pagada'
+    return `${inicio} - ${fin}`;
 
   }
 
 
 
-];
+  return reserva.horario.nombre ??
+    'Horario no disponible';
+
+}
 
 
 
 
 
+function getValor(reserva: AdminReserva) {
+
+  const valor =
+    reserva.total ??
+    reserva.precio ??
+    reserva.monto;
 
 
-
-function getEstadoClase(
-  estado:EstadoReserva
-){
-
-  switch(estado){
-
-
-    case 'Pendiente':
-
-      return styles.pendiente;
-
-
-    case 'Confirmada':
-
-      return styles.confirmada;
-
-
-    case 'Pagada':
-
-      return styles.pagada;
-
-
-    case 'Finalizada':
-
-      return styles.finalizada;
-
-
-    case 'Cancelada':
-
-      return styles.cancelada;
-
-
-    default:
-
-      return '';
-
+  if (typeof valor !== 'number') {
+    return 'Pendiente';
   }
 
-}
 
-
-
-
-
-
-
-
-export default function AdminReservasPage(){
-
-
-
-const [reservas,setReservas] =
-useState<ReservaAdmin[]>(reservasIniciales);
-
-
-
-const [proximosEstados,setProximosEstados] =
-useState<Record<string,EstadoReserva>>(
-
-  Object.fromEntries(
-
-    reservasIniciales.map(
-
-      reserva =>
-
-      [
-        reserva.id,
-        reserva.estado
-      ]
-
-    )
-
-  )
-
-);
-
-
-
-const [mensaje,setMensaje] =
-useState('');
-
-
-
-
-
-
-const resumen = useMemo(()=>{
-
-
-return reservas.reduce(
-
-(acc,reserva)=>{
-
-
-acc[reserva.estado] +=1;
-
-
-return acc;
-
-
-},
-
-
-{
-
-Pendiente:0,
-
-Confirmada:0,
-
-Pagada:0,
-
-Finalizada:0,
-
-Cancelada:0
-
-
-} as Record<EstadoReserva,number>
-
-
-);
-
-
-},[reservas]);
-
-
-
-
-
-
-
-
-
-
-const cambiarEstado = (
-id:string
-)=>{
-
-
-const reserva =
-reservas.find(
-item=>item.id===id
-);
-
-
-
-const nuevoEstado =
-proximosEstados[id];
-
-
-
-
-if(!reserva || !nuevoEstado){
-
-return;
+  return valor.toLocaleString('es-CO',{
+    style:'currency',
+    currency:'COP',
+    maximumFractionDigits:0,
+  });
 
 }
 
@@ -339,348 +229,634 @@ return;
 
 
 
-const permitido =
-transicionesPermitidas[
-reserva.estado
-].includes(
-nuevoEstado
-);
+export default function AdminReservasPage() {
 
 
+  const [
+    reservas,
+    setReservas
+  ] = useState<AdminReserva[]>([]);
 
 
-if(!permitido){
+  const [
+    motivos,
+    setMotivos
+  ] = useState<Record<string,string>>({});
 
 
-setMensaje(
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
-`No permitido: ${reserva.estado} → ${nuevoEstado}`
 
-);
+  const [
+    message,
+    setMessage
+  ] = useState('');
 
 
-return;
+  const [
+    error,
+    setError
+  ] = useState('');
 
-}
 
 
 
 
+  const cargar = async () => {
 
-setReservas(
+    try {
 
-actual=>
+      setLoading(true);
+      setError('');
 
-actual.map(
+      const data =
+        await listarReservasAdmin();
 
-item=>
 
-item.id===id
+      setReservas(data);
 
-?
 
-{
+    } catch(errorCarga) {
 
-...item,
 
-estado:nuevoEstado
+      setError(
+        errorCarga instanceof Error
+          ? errorCarga.message
+          : 'No se pudieron cargar las reservas.'
+      );
 
-}
 
-:
+    } finally {
 
-item
+      setLoading(false);
 
-)
+    }
 
-);
+  };
 
 
 
-setMensaje(
 
-`Reserva ${id} actualizada correctamente`
 
-);
+  useEffect(() => {
 
+    void cargar();
 
+  }, []);
 
-};
 
 
 
 
 
 
+  const resumen =
+    useMemo(
 
+      () =>
 
+      reservas.reduce(
 
+        (acc,reserva)=>{
 
-return (
+          acc[
+            normalizarEstado(reserva.estado)
+          ] += 1;
 
 
-<section className={styles.container}>
+          return acc;
 
+        },
 
-<header>
+        {
+          Pendiente:0,
+          Confirmada:0,
+          Pagada:0,
+          Finalizada:0,
+          Cancelada:0,
+        } as Record<EstadoReserva,number>
 
+      ),
 
-<p className={styles.subtitle}>
-Panel administrativo
-</p>
+      [reservas]
 
+    );
 
 
-<h1 className={`${styles.title} ${sportsTitleFont.className}`}>
 
-Gestión de Reservas
 
-</h1>
 
 
+  const actualizarEstado = (
+    id:string,
+    estado:EstadoReserva
+  ) => {
 
-<p>
 
-Administra el ciclo de vida de las reservas.
+    setReservas(
 
-</p>
+      actuales =>
 
+      actuales.map(
 
-</header>
+        reserva =>
 
+        String(reserva.id) === id
 
+        ?
 
+        {
+          ...reserva,
+          estado
+        }
 
+        :
 
+        reserva
 
-<div className={styles.summary}>
+      )
 
+    );
 
-{
-Object.entries(resumen).map(
+  };
 
-([estado,cantidad])=>(
 
 
-<div
-key={estado}
-className={styles.card}
->
 
 
-<span>
-{estado}
-</span>
 
 
-<strong>
-{cantidad}
-</strong>
+  const confirmar = async(id:string)=>{
 
+    try {
 
-</div>
+      await confirmarReservaAdmin(id);
 
+      actualizarEstado(
+        id,
+        'Confirmada'
+      );
 
-)
+      setMessage(
+        'Reserva confirmada correctamente.'
+      );
 
-)
 
-}
+    } catch(error){
 
+      setError(
+        error instanceof Error
+        ? error.message
+        : 'No se pudo confirmar.'
+      );
 
-</div>
+    }
 
+  };
 
 
 
 
 
 
-{
-mensaje &&
 
-<p className={styles.message}>
+  const pagar = async(id:string)=>{
 
-{mensaje}
+    try {
 
-</p>
+      await registrarPagoManualAdmin(id);
 
-}
+      actualizarEstado(
+        id,
+        'Pagada'
+      );
 
 
+      setMessage(
+        'Pago registrado correctamente.'
+      );
 
 
+    } catch(error){
 
+      setError(
+        error instanceof Error
+        ? error.message
+        : 'No se pudo registrar el pago.'
+      );
 
+    }
 
+  };
 
-<div className={styles.grid}>
 
 
-{
 
-reservas.map(reserva=>(
 
 
 
-<article
-key={reserva.id}
-className={styles.reserva}
->
+  const cancelar = async(id:string)=>{
 
 
+    try {
 
-<div className={styles.headerCard}>
 
+      await cancelarReservaAdmin(
+        id,
+        motivos[id]
+      );
 
-<h2>
 
-{reserva.cliente}
+      actualizarEstado(
+        id,
+        'Cancelada'
+      );
 
-</h2>
 
+      setMessage(
+        'Reserva cancelada correctamente.'
+      );
 
-<span
-className={
-getEstadoClase(
-reserva.estado
-)
-}
->
 
-{reserva.estado}
+    } catch(error){
 
-</span>
 
+      setError(
+        error instanceof Error
+        ? error.message
+        : 'No se pudo cancelar.'
+      );
 
-</div>
 
+    }
 
 
+  };
 
 
 
 
-<p>
-Cancha:
-{reserva.cancha}
-</p>
 
 
-<p>
-Fecha:
-{reserva.fecha}
-</p>
 
+  return (
 
-<p>
-Horario:
-{reserva.hora}
-</p>
+    <section className={styles.container}>
 
 
-<p>
-Valor:
-{reserva.monto}
-</p>
+      <div className={styles.hero}>
 
+        <div>
 
+          <p className={styles.eyebrow}>
+            Gestión de reservas
+          </p>
 
 
+          <h2>
+            Administración de reservas
+          </h2>
 
 
-<select
+          <p>
+            Controla confirmaciones, pagos manuales y cancelaciones.
+          </p>
 
-value={
-proximosEstados[reserva.id]
-}
+        </div>
 
-onChange={
 
-e=>
 
-setProximosEstados(
+        <div className={styles.summary}>
 
-{
+          {
+            Object.entries(resumen)
+            .map(([estado,cantidad])=>(
 
-...proximosEstados,
+              <div
+                key={estado}
+                className={styles.metric}
+              >
 
-[reserva.id]:
-e.target.value as EstadoReserva
+                <span>
+                  {estado}
+                </span>
 
-}
 
-)
+                <strong>
+                  {cantidad}
+                </strong>
 
-}
 
+              </div>
 
->
+            ))
+          }
 
+        </div>
 
-{
 
-estados.map(estado=>(
+      </div>
 
 
-<option
-key={estado}
-value={estado}
->
 
-{estado}
 
-</option>
 
+      {
+        error &&
+        <p className={styles.error}>
+          {error}
+        </p>
+      }
 
-))
 
-}
 
+      {
+        message &&
+        <p className={styles.success}>
+          {message}
+        </p>
+      }
 
-</select>
 
 
 
+      {
+        loading ?
 
+        <p className={styles.empty}>
+          Cargando reservas...
+        </p>
 
-<button
+        :
 
-onClick={()=>
-cambiarEstado(reserva.id)
-}
+        reservas.length === 0 ?
 
->
+        <p className={styles.empty}>
+          No hay reservas.
+        </p>
 
-Actualizar estado
+        :
 
-</button>
+        <div className={styles.grid}>
 
 
+        {
+          reservas.map(reserva=>{
 
 
+            const estado =
+              normalizarEstado(
+                reserva.estado
+              );
 
 
-</article>
+            return (
 
+              <article
+                key={reserva.id}
+                className={styles.card}
+              >
 
 
-))
+                <div className={styles.cardHeader}>
 
-}
+                  <div>
 
+                    <p className={styles.code}>
+                      Reserva {reserva.id}
+                    </p>
 
 
-</div>
+                    <h3>
+                      {getCliente(reserva)}
+                    </h3>
 
+                  </div>
 
 
+                  <span
+                    className={
+                      styles[`status${estado}`]
+                      ??
+                      styles.statusPendiente
+                    }
+                  >
 
+                    {estado}
 
-</section>
+                  </span>
 
 
-);
+                </div>
+
+
+
+
+
+                <dl className={styles.meta}>
+
+
+                  <div>
+
+                    <dt>
+                      Cancha
+                    </dt>
+
+                    <dd>
+                      {getCancha(reserva)}
+                    </dd>
+
+                  </div>
+
+
+
+                  <div>
+
+                    <dt>
+                      Fecha
+                    </dt>
+
+                    <dd>
+                      {
+                        formatDate(
+                          reserva.fechaReserva
+                        )
+                      }
+                    </dd>
+
+                  </div>
+
+
+
+
+                  <div>
+
+                    <dt>
+                      Horario
+                    </dt>
+
+
+                    <dd>
+                      {getHorario(reserva)}
+                    </dd>
+
+                  </div>
+
+
+
+
+                  <div>
+
+                    <dt>
+                      Valor
+                    </dt>
+
+
+                    <dd>
+                      {getValor(reserva)}
+                    </dd>
+
+                  </div>
+
+
+                </dl>
+
+
+
+
+
+                <input
+
+                  className={styles.input}
+
+                  placeholder="Motivo de cancelación"
+
+                  value={
+                    motivos[String(reserva.id)]
+                    ??
+                    ''
+                  }
+
+                  onChange={
+                    e=>
+
+                    setMotivos(
+                      actual=>
+                      ({
+                        ...actual,
+                        [String(reserva.id)]:
+                        e.target.value
+                      })
+                    )
+                  }
+
+                />
+
+
+
+
+
+                <div className={styles.actions}>
+
+
+                  <button
+
+                    className={styles.actionPrimary}
+
+                    disabled={
+                      estado !== 'Pendiente'
+                    }
+
+                    onClick={()=>
+                      void confirmar(
+                        String(reserva.id)
+                      )
+                    }
+
+                  >
+
+                    Confirmar
+
+                  </button>
+
+
+
+
+
+                  <button
+
+                    className={styles.actionSecondary}
+
+                    disabled={
+                      estado === 'Cancelada'
+                      ||
+                      estado === 'Finalizada'
+                    }
+
+                    onClick={()=>
+                      void pagar(
+                        String(reserva.id)
+                      )
+                    }
+
+                  >
+
+                    Registrar pago manual
+
+                  </button>
+
+
+
+
+
+                  <button
+
+                    className={styles.actionDanger}
+
+                    disabled={
+                      estado === 'Cancelada'
+                      ||
+                      estado === 'Finalizada'
+                    }
+
+                    onClick={()=>
+                      void cancelar(
+                        String(reserva.id)
+                      )
+                    }
+
+                  >
+
+                    Cancelar
+
+                  </button>
+
+
+
+                </div>
+
+
+
+              </article>
+
+            );
+
+          })
+
+        }
+
+
+        </div>
+
+      }
+
+
+    </section>
+
+  );
 
 
 }

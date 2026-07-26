@@ -24,7 +24,7 @@ const reservasIniciales: ReservaAdmin[] = [
   {
     id: 'R-1201',
     cliente: 'Andres Toro',
-    cancha: 'Cancha 1 - Futbol 5',
+    cancha: 'Cancha 1 - Fútbol 5',
     fecha: '2026-07-19',
     hora: '18:00 - 19:00',
     monto: '$120.000',
@@ -33,7 +33,7 @@ const reservasIniciales: ReservaAdmin[] = [
   {
     id: 'R-1202',
     cliente: 'Laura Mendez',
-    cancha: 'Cancha 2 - Futbol 7',
+    cancha: 'Cancha 2 - Fútbol 7',
     fecha: '2026-07-20',
     hora: '20:00 - 21:00',
     monto: '$165.000',
@@ -51,7 +51,7 @@ const reservasIniciales: ReservaAdmin[] = [
   {
     id: 'R-1204',
     cliente: 'Sofia Rojas',
-    cancha: 'Cancha 1 - Futbol 5',
+    cancha: 'Cancha 1 - Fútbol 5',
     fecha: '2026-07-22',
     hora: '19:00 - 20:00',
     monto: '$120.000',

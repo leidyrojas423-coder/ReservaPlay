@@ -35,6 +35,7 @@ export class ClientesService {
     const {
       correo,
       password,
+      userId,
     } = createClienteDto;
 
 
@@ -69,6 +70,8 @@ export class ClientesService {
         ...createClienteDto,
 
         password: hashedPassword,
+
+        userId,
 
       });
 
@@ -127,6 +130,8 @@ export class ClientesService {
         'telefono',
 
         'correo',
+
+        'userId',
 
         'createdAt',
 
@@ -228,6 +233,8 @@ export class ClientesService {
           'telefono',
 
           'correo',
+
+          'userId',
 
           'createdAt',
 
