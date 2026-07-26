@@ -109,15 +109,12 @@ export default function ReservarPage() {
       setMensaje("Reserva creada correctamente");
       setHorarioId("");
       setFechaReserva("");
-    } catch (error: any) {
-      const mensajeError =
-        error?.response?.data?.message || "Error al crear reserva";
-
-      setError(
-        Array.isArray(mensajeError)
-          ? mensajeError.join(". ")
-          : String(mensajeError)
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.trim().length > 0) {
+        setError(error.message);
+      } else {
+        setError("Error al crear reserva");
+      }
     } finally {
       setEnviando(false);
     }

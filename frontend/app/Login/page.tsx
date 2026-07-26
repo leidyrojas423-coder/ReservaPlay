@@ -80,6 +80,10 @@ export default function LoginPage() {
 
         <button type="submit">Iniciar sesión</button>
 
+        <p className={styles.helper}>
+          <Link href="/recuperar-password">¿Olvidaste tu contraseña?</Link>
+        </p>
+
         <p>
           ¿No tienes cuenta? <Link href="/registro">Regístrate aquí</Link>
         </p>
