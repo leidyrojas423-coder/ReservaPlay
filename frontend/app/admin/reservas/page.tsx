@@ -12,6 +12,33 @@ import {
 } from '../../../services/admin.service';
 
 
+type AdminReservaVista = Omit<
+  AdminReserva,
+  'cliente' | 'cancha' | 'horario'
+> & {
+  cliente?:
+    | {
+        nombre?: string;
+        correo?: string;
+        email?: string;
+      }
+    | string;
+  cancha?:
+    | {
+        nombre?: string;
+        ubicacion?: string;
+      }
+    | string;
+  horario?:
+    | {
+        nombre?: string;
+        fechaInicio?: string;
+        fechaFin?: string;
+      }
+    | string;
+};
+
+
 type EstadoReserva =
   | 'Pendiente'
   | 'Confirmada'
@@ -79,39 +106,10 @@ function formatDate(value?: string) {
 
 
 
-function formatTime(value?: string) {
-
-  if (!value) {
-    return '';
-  }
-
-
-  const date = new Date(value);
-
-
-  if (!Number.isNaN(date.getTime())) {
-
-    return date.toLocaleTimeString('es-CO',{
-      hour:'2-digit',
-      minute:'2-digit',
-      hour12:false,
-    });
-
-  }
-
-
-  return value.slice(0,5);
-
-}
-
-
-
-
-
-function getCliente(reserva: AdminReserva) {
+function getClienteNombre(reserva: AdminReservaVista) {
 
   if (!reserva.cliente) {
-    return 'Cliente no disponible';
+    return 'Sin cliente';
   }
 
 
@@ -120,18 +118,28 @@ function getCliente(reserva: AdminReserva) {
   }
 
 
-  const nombre = [
-    reserva.cliente.nombre,
-    reserva.cliente.apellido,
-  ]
-  .filter(Boolean)
-  .join(' ')
-  .trim();
+  return reserva.cliente.nombre || 'Sin cliente';
+
+}
 
 
-  return nombre ||
+
+
+function getClienteCorreo(reserva: AdminReservaVista) {
+
+  if (!reserva.cliente) {
+    return 'Sin correo';
+  }
+
+
+  if (typeof reserva.cliente === 'string') {
+    return 'Sin correo';
+  }
+
+
+  return reserva.cliente.correo ||
     reserva.cliente.email ||
-    'Cliente no disponible';
+    'Sin correo';
 
 }
 
@@ -139,10 +147,10 @@ function getCliente(reserva: AdminReserva) {
 
 
 
-function getCancha(reserva: AdminReserva) {
+function getCancha(reserva: AdminReservaVista) {
 
   if (!reserva.cancha) {
-    return 'Cancha no disponible';
+    return 'Sin cancha';
   }
 
 
@@ -152,7 +160,7 @@ function getCancha(reserva: AdminReserva) {
 
 
   return reserva.cancha.nombre ??
-    'Cancha no disponible';
+    'Sin cancha';
 
 }
 
@@ -160,10 +168,10 @@ function getCancha(reserva: AdminReserva) {
 
 
 
-function getHorario(reserva: AdminReserva) {
+function getHorario(reserva: AdminReservaVista) {
 
   if (!reserva.horario) {
-    return 'Horario no disponible';
+    return 'Sin horario';
   }
 
 
@@ -172,31 +180,29 @@ function getHorario(reserva: AdminReserva) {
   }
 
 
-  const inicio =
-    formatTime(
-      reserva.horario.fechaInicio ??
-      reserva.horario.horaInicio
-    );
-
-
-  const fin =
-    formatTime(
-      reserva.horario.fechaFin ??
-      reserva.horario.horaFin
-    );
-
+  const inicio = reserva.horario.fechaInicio;
+  const fin = reserva.horario.fechaFin;
 
 
   if (inicio && fin) {
+    const inicioDate = new Date(inicio);
+    const finDate = new Date(fin);
 
-    return `${inicio} - ${fin}`;
-
+    if (!Number.isNaN(inicioDate.getTime()) && !Number.isNaN(finDate.getTime())) {
+      return `${inicioDate.toLocaleTimeString('es-CO', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })} - ${finDate.toLocaleTimeString('es-CO', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })}`;
+    }
   }
 
 
-
-  return reserva.horario.nombre ??
-    'Horario no disponible';
+  return reserva.horario.nombre ?? 'Sin horario';
 
 }
 
@@ -235,7 +241,7 @@ export default function AdminReservasPage() {
   const [
     reservas,
     setReservas
-  ] = useState<AdminReserva[]>([]);
+  ] = useState<AdminReservaVista[]>([]);
 
 
   const [
@@ -271,22 +277,19 @@ export default function AdminReservasPage() {
 
       setLoading(true);
       setError('');
+      setMessage('');
 
       const data =
         await listarReservasAdmin();
 
 
-      setReservas(data);
+      setReservas(data as AdminReservaVista[]);
 
 
-    } catch(errorCarga) {
+    } catch {
+      setError('Error de conexión con el servidor');
 
-
-      setError(
-        errorCarga instanceof Error
-          ? errorCarga.message
-          : 'No se pudieron cargar las reservas.'
-      );
+      setReservas([]);
 
 
     } finally {
@@ -592,6 +595,12 @@ export default function AdminReservasPage() {
 
         :
 
+        error ?
+
+        null
+
+        :
+
         reservas.length === 0 ?
 
         <p className={styles.empty}>
@@ -631,7 +640,7 @@ export default function AdminReservasPage() {
 
 
                     <h3>
-                      {getCliente(reserva)}
+                      {getClienteNombre(reserva)}
                     </h3>
 
                   </div>
@@ -662,11 +671,38 @@ export default function AdminReservasPage() {
                   <div>
 
                     <dt>
+                      Cliente
+                    </dt>
+
+                    <dd>
+                      {getClienteNombre(reserva)}
+                    </dd>
+
+                  </div>
+
+
+                  <div>
+
+                    <dt>
                       Cancha
                     </dt>
 
                     <dd>
                       {getCancha(reserva)}
+                    </dd>
+
+                  </div>
+
+
+
+                  <div>
+
+                    <dt>
+                      Correo
+                    </dt>
+
+                    <dd>
+                      {getClienteCorreo(reserva)}
                     </dd>
 
                   </div>
@@ -682,7 +718,7 @@ export default function AdminReservasPage() {
                     <dd>
                       {
                         formatDate(
-                          reserva.fechaReserva
+                          reserva.fechaReserva ?? reserva.fecha
                         )
                       }
                     </dd>
@@ -705,6 +741,21 @@ export default function AdminReservasPage() {
 
                   </div>
 
+
+
+
+                  <div>
+
+                    <dt>
+                      Estado
+                    </dt>
+
+
+                    <dd>
+                      {estado}
+                    </dd>
+
+                  </div>
 
 
 

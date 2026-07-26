@@ -20,6 +20,7 @@ export type AdminCancha = {
   nombre: string;
   descripcion?: string;
   ubicacion?: string;
+  estado?: 'Disponible' | 'Ocupada' | 'Mantenimiento';
   capacidad?: number;
   precio?: number;
   activo?: boolean;
@@ -53,9 +54,14 @@ export type AdminReserva = {
   estado?: string;
   canchaId?: string;
   horarioId?: string;
-  cancha?: { nombre?: string } | string;
+  cancha?: {
+    id?: string;
+    nombre?: string;
+    ubicacion?: string;
+  } | string;
   horario?:
     | {
+        id?: string;
         nombre?: string;
         horaInicio?: string;
         horaFin?: string;
@@ -65,8 +71,10 @@ export type AdminReserva = {
     | string;
   cliente?:
     | {
+        id?: string;
         nombre?: string;
         apellido?: string;
+        correo?: string;
         email?: string;
       }
     | string;
@@ -107,22 +115,45 @@ function normalizeArray<T>(payload: unknown): T[] {
   return [];
 }
 
-async function tryGet<T>(paths: string[]): Promise<T> {
-  let lastError: unknown;
-
-  for (const path of paths) {
-    try {
-      const response = await api.get<T>(path);
-      return response.data;
-    } catch (error) {
-      lastError = error;
-      if (!axios.isAxiosError(error) || (error.response?.status && error.response.status < 500 && error.response.status !== 404)) {
-        throw error;
-      }
-    }
+function getApiErrorMessage(error: unknown): string {
+  if (!axios.isAxiosError(error)) {
+    return error instanceof Error ? error.message : 'No se pudo completar la operación.';
   }
 
-  throw lastError ?? new Error('No se pudo completar la consulta.');
+  if (!error.response) {
+    return 'No se pudo conectar con el backend. Verifica que el servicio esté activo y accesible desde el frontend.';
+  }
+
+  const responseData = error.response.data as
+    | { message?: string | string[]; error?: string }
+    | undefined;
+
+  if (Array.isArray(responseData?.message)) {
+    return responseData.message.join(', ');
+  }
+
+  if (typeof responseData?.message === 'string' && responseData.message.trim().length > 0) {
+    return responseData.message;
+  }
+
+  if (typeof responseData?.error === 'string' && responseData.error.trim().length > 0) {
+    return responseData.error;
+  }
+
+  return `Error ${error.response.status}: ${error.response.statusText || 'No fue posible completar la solicitud.'}`;
+}
+
+function isRetryableRequestError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+
+  if (!error.response) {
+    return true;
+  }
+
+  const status = error.response.status;
+  return status >= 500 || status === 404;
 }
 
 async function tryPatch<T>(paths: string[], body?: unknown): Promise<T> {
@@ -134,13 +165,13 @@ async function tryPatch<T>(paths: string[], body?: unknown): Promise<T> {
       return response.data;
     } catch (error) {
       lastError = error;
-      if (!axios.isAxiosError(error) || (error.response?.status && error.response.status < 500 && error.response.status !== 404)) {
-        throw error;
+      if (!isRetryableRequestError(error)) {
+        throw new Error(getApiErrorMessage(error));
       }
     }
   }
 
-  throw lastError ?? new Error('No se pudo completar la operación.');
+  throw new Error(getApiErrorMessage(lastError));
 }
 
 export async function loginAdministrador(datosLogin: AdminLoginPayload) {
@@ -205,8 +236,8 @@ export async function actualizarHorario(id: string, payload: Partial<AdminHorari
 }
 
 export async function listarReservasAdmin() {
-  const payload = await tryGet<unknown>(['/reservas', '/reservas/mias']);
-  return normalizeArray<AdminReserva>(payload);
+  const response = await api.get<AdminReserva[]>('/reservas');
+  return response.data;
 }
 
 export async function confirmarReservaAdmin(id: string) {
