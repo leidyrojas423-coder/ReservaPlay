@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.css';
+import { useAuth } from '../../providers';
+import { getJwtRole } from '../../../lib/auth';
 import {
   listarCanchas,
   listarHorarios,
@@ -40,6 +43,8 @@ function normalizarEstado(estado?: string) {
 }
 
 export default function DashboardPage() {
+  const { isAuthenticated, isReady, token } = useAuth();
+  const router = useRouter();
   const [canchas, setCanchas] = useState(0);
   const [canchasMantenimiento, setCanchasMantenimiento] = useState(0);
   const [horarios, setHorarios] = useState(0);
@@ -48,6 +53,15 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+
+    if (!isAuthenticated || !token || getJwtRole(token) !== 'admin') {
+      router.replace('/admin/login?next=/admin/dashboard');
+      return;
+    }
+
     let activo = true;
 
     const cargar = async () => {
@@ -82,7 +96,7 @@ export default function DashboardPage() {
     return () => {
       activo = false;
     };
-  }, []);
+  }, [isAuthenticated, isReady, router, token]);
 
   const resumen = useMemo(() => {
     const conteo = reservas.reduce(

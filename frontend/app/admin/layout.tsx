@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
+import AdminSessionBar from '../components/admin-session-bar';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -31,9 +32,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <p className="eyebrow">Centro de operaciones</p>
             <h1>ReservaPlay Admin</h1>
           </div>
-          <div className="admin-session-bar" role="presentation">
-            <span className="admin-session-bar__state">Gestión deportiva en tiempo real</span>
-          </div>
+          <AdminSessionBar />
         </div>
       </header>
 

@@ -16,8 +16,18 @@ export async function loginUsuario(datosLogin: any) {
 	return response.data;
 }
 
-export async function loginAdministrador(datosLogin: any) {
-	return loginAdministradorRequest(datosLogin as AdminLoginPayload);
+type AdminLoginResponse = {
+	access_token?: string;
+	token?: string;
+};
+
+export async function loginAdministrador(datosLogin: AdminLoginPayload): Promise<AdminLoginResponse> {
+	const payload: AdminLoginPayload = {
+		email: datosLogin.email.trim(),
+		password: datosLogin.password,
+	};
+
+	return loginAdministradorRequest(payload);
 }
 
 export async function registrarAdministrador(datosRegistro: AdminRegisterPayload) {

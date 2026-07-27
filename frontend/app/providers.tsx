@@ -23,16 +23,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const storedToken = getStoredAuthToken();
+    try {
+      const storedToken = getStoredAuthToken();
 
-    if (storedToken && !isJwtExpired(storedToken)) {
-      setToken(storedToken);
-    } else {
+      if (storedToken && !isJwtExpired(storedToken)) {
+        setToken(storedToken);
+      } else {
+        clearStoredAuthToken();
+        setToken(null);
+      }
+    } catch {
       clearStoredAuthToken();
       setToken(null);
+    } finally {
+      setIsReady(true);
     }
-
-    setIsReady(true);
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
@@ -40,6 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: Boolean(token),
     isReady,
     login: (nextToken: string) => {
+      if (!nextToken || isJwtExpired(nextToken)) {
+        clearStoredAuthToken();
+        setToken(null);
+        return;
+      }
+
       setStoredAuthToken(nextToken);
       setToken(nextToken);
     },

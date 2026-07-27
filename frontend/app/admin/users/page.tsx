@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getStoredAuthToken } from '../../../lib/auth';
+import styles from './styles.module.css';
 
 interface User {
   id: string;
@@ -43,9 +44,9 @@ export default function AdminUsersPage() {
   }, []);
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <div className="login-header">
+    <main className={styles.loginPage}>
+      <section className={styles.loginCard}>
+        <div className={styles.loginHeader}>
           <h1>Administración de Usuarios</h1>
           <p>Lista de usuarios registrados en ReservaPlay.</p>
         </div>
@@ -53,9 +54,9 @@ export default function AdminUsersPage() {
         {loading ? (
           <p>Cargando usuarios...</p>
         ) : error ? (
-          <p className="login-error">{error}</p>
+          <p className={styles.loginError}>{error}</p>
         ) : (
-          <div className="user-table">
+          <div className={styles.userTable}>
             <table>
               <thead>
                 <tr>

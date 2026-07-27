@@ -8,6 +8,17 @@ export interface CrearReservaPayload {
 
 }
 
+function normalizeFechaReserva(fechaReserva: string): string {
+	const trimmedFecha = fechaReserva.trim();
+
+	// Input type="date" entrega YYYY-MM-DD; lo convertimos a ISO para backend.
+	if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedFecha)) {
+		return `${trimmedFecha}T00:00:00.000Z`;
+	}
+
+	return trimmedFecha;
+}
+
 function buildAuthConfig() {
 	const token = getStoredAuthToken();
 
@@ -28,7 +39,12 @@ export const obtenerMisReservas = async () => {
 };
 
 export const crearReserva = async (datosReserva: CrearReservaPayload) => {
-	const response = await api.post("/reservas", datosReserva, buildAuthConfig());
+	const payload: CrearReservaPayload = {
+		...datosReserva,
+		fechaReserva: normalizeFechaReserva(datosReserva.fechaReserva),
+	};
+
+	const response = await api.post("/reservas", payload, buildAuthConfig());
 	return response.data;
 };
 

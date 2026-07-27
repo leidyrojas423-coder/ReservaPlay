@@ -1,21 +1,42 @@
 'use client';
 
 import Link from 'next/link';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from "./login.module.css";
 import { useAuth } from '../../providers';
 import { loginAdministrador } from '../../../services/auth.service';
+import { isAdminJwt } from '../../../lib/auth';
+
+function getSafeAdminRedirect(nextParam: string | null): string {
+  if (!nextParam) {
+    return '/admin/dashboard';
+  }
+
+  if (!nextParam.startsWith('/admin') || nextParam.startsWith('//')) {
+    return '/admin/dashboard';
+  }
+
+  return nextParam;
+}
 
 
 function AdminLoginForm() {
-  const { login } = useAuth();
+  const { isAuthenticated, isReady, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const redirectPath = getSafeAdminRedirect(searchParams.get('next'));
+
+  useEffect(() => {
+    if (isReady && isAuthenticated) {
+      router.replace('/admin/dashboard');
+    }
+  }, [isAuthenticated, isReady, router]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -29,8 +50,12 @@ function AdminLoginForm() {
         throw new Error('El servidor no devolvió token de acceso');
       }
 
+      if (!isAdminJwt(token)) {
+        throw new Error('La cuenta autenticada no tiene rol de administrador.');
+      }
+
       login(token);
-      router.push(searchParams.get('next') || '/admin/dashboard');
+      router.replace(redirectPath);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Error iniciando sesión');
     } finally {
@@ -53,7 +78,6 @@ function AdminLoginForm() {
       <input
         id="admin-email"
         type="email"
-        className={styles.inputField}
         placeholder="admin@reservaplay.com"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
@@ -66,14 +90,13 @@ function AdminLoginForm() {
       <input
         id="admin-password"
         type="password"
-        className={styles.inputField}
         placeholder="Tu contraseña"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         required
       />
 
-      <button type="submit" className={styles.submitButton} disabled={loading}>
+      <button type="submit" disabled={loading}>
         {loading ? 'Validando acceso...' : 'Entrar al dashboard'}
       </button>
 

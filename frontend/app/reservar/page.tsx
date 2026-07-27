@@ -21,6 +21,21 @@ export default function ReservarPage() {
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
 
+  const getErrorMessage = (err: unknown) => {
+    if (err instanceof Error && err.message.trim().length > 0) {
+      return err.message;
+    }
+
+    if (typeof err === "object" && err !== null) {
+      const message = (err as { message?: unknown }).message;
+      if (typeof message === "string" && message.trim().length > 0) {
+        return message;
+      }
+    }
+
+    return "Error al crear reserva";
+  };
+
   const formatHora = (valor: string) =>
     new Date(valor).toLocaleTimeString("es-CO", {
       hour: "2-digit",
@@ -110,11 +125,7 @@ export default function ReservarPage() {
       setHorarioId("");
       setFechaReserva("");
     } catch (error: unknown) {
-      if (error instanceof Error && error.message.trim().length > 0) {
-        setError(error.message);
-      } else {
-        setError("Error al crear reserva");
-      }
+      setError(getErrorMessage(error));
     } finally {
       setEnviando(false);
     }

@@ -39,7 +39,7 @@ export default function LoginPage() {
 
       setEsError(false);
       setMensaje("Inicio de sesión exitoso.");
-      router.push("/reservar");
+      router.push("/cliente/dashboard");
     } catch (loginError) {
       setEsError(true);
       setMensaje(loginError instanceof Error ? loginError.message : "Error al iniciar sesión.");
