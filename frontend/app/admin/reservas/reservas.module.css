@@ -1,0 +1,251 @@
+.container {
+  display: grid;
+  gap: 20px;
+}
+
+.hero,
+.card,
+.metric,
+.banner {
+  border-radius: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.hero {
+  padding: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.14), transparent 26%),
+    linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
+  display: grid;
+  gap: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #c2410c;
+}
+
+.hero h2,
+.banner,
+.empty,
+.error,
+.success,
+.code,
+.cardHeader h3 {
+  margin: 0;
+}
+
+.hero h2 {
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  color: #0f172a;
+}
+
+.hero p {
+  margin: 12px 0 0;
+  color: #475569;
+  line-height: 1.7;
+  max-width: 44rem;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.metric span {
+  display: block;
+  color: #64748b;
+}
+
+.metric strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.banner,
+.error,
+.success {
+  padding: 14px 16px;
+}
+
+.banner {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.error {
+  border-radius: 16px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.success {
+  border-radius: 16px;
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.empty {
+  color: #64748b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.card {
+  padding: 22px;
+  background: #ffffff;
+  display: grid;
+  gap: 16px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.code {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.cardHeader h3 {
+  margin-top: 4px;
+  color: #0f172a;
+}
+
+.statusPendiente,
+.statusConfirmada,
+.statusPagada,
+.statusFinalizada,
+.statusCancelada {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.statusPendiente {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.statusConfirmada {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusPagada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusFinalizada {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.statusCancelada {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.meta div {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.meta dt {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.meta dd {
+  margin: 6px 0 0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.actionPrimary,
+.actionSecondary,
+.actionDanger {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionPrimary {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.actionSecondary {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.actionDanger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.actionPrimary:disabled,
+.actionSecondary:disabled,
+.actionDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .summary,
+  .grid,
+  .meta,
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}

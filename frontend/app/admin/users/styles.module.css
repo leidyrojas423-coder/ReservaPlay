@@ -1,0 +1,56 @@
+.loginPage {
+  display: grid;
+  gap: 16px;
+}
+
+.loginCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 18px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.loginHeader h1 {
+  margin: 0 0 6px;
+  color: #0f172a;
+}
+
+.loginHeader p {
+  margin: 0;
+  color: #64748b;
+}
+
+.loginError {
+  margin: 12px 0 0;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 10px 12px;
+}
+
+.userTable {
+  overflow-x: auto;
+}
+
+.userTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.userTable th,
+.userTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.userTable th {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.userTable tr:hover {
+  background: #f1f5f9;
+}

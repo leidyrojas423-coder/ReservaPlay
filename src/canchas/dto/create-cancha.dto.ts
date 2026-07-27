@@ -1,38 +1,64 @@
-import { IsBoolean, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
+
+import { CanchaEstado } from '../entities/cancha.entity';
+
+
 
 export class CreateCanchaDto {
+
+
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(100)
   nombre!: string;
 
-  @IsString()
+
+
   @IsOptional()
+  @IsString()
   descripcion?: string;
 
+
+
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(150)
   ubicacion!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @IsIn(['Disponible', 'Ocupada', 'Mantenimiento'])
-  estado!: string;
 
-  @IsUUID()
-  @IsNotEmpty()
-  administradorId!: string;
 
-  @IsInt()
   @IsOptional()
-  @Min(1)
+  @IsEnum(CanchaEstado)
+  estado?: CanchaEstado;
+
+
+
+  @IsOptional()
+  @IsInt()
   capacidad?: number;
 
-  @IsNumber({ maxDecimalPlaces: 2 })
+
+
   @IsOptional()
-  @Min(0)
+  @IsNumber()
   precio?: number;
 
-  @IsBoolean()
+
+
+  @IsOptional()
+  @IsUUID()
+  administradorId?: string;
+
+
+
   @IsOptional()
   activo?: boolean;
+
+
 }

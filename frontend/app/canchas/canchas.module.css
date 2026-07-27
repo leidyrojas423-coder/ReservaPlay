@@ -1,0 +1,51 @@
+.container {
+    padding: 40px;
+}
+
+
+.container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+
+.card h2 {
+    margin-bottom: 15px;
+}
+
+.card p {
+    margin: 8px 0;
+}
+
+.message {
+    text-align: center;
+    color: #555;
+}
+
+.error {
+    text-align: center;
+    color: #b42318;
+    font-weight: 600;
+}
+
+
+.card button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}

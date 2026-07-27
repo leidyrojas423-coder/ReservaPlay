@@ -1,33 +1,89 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
 import { User } from '../../users/user.entity';
+
 
 @Entity('clientes')
 export class ClienteEntity {
+
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 100 })
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   nombre!: string;
 
-  @Column({ length: 100 })
+
+  @Column({
+    type: 'varchar',
+    length: 100,
+  })
   apellido!: string;
 
-  @Column({ length: 20 })
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+    unique: true,
+  })
+  documento!: string;
+
+
+  @Column({
+    type: 'varchar',
+    length: 20,
+  })
   telefono!: string;
 
-  @Column({ default: true })
-  estado!: boolean;
 
-  @Column({ type: 'uuid', unique: true })
-  userId!: string;
+  @Column({
+    type: 'varchar',
+    length: 150,
+    unique: true,
+  })
+  correo!: string;
 
-  @ManyToOne(() => User)
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+  })
+  password!: string;
+
+
+  @Column({
+    type: 'uuid',
+    unique: true,
+    nullable: true,
+  })
+  userId?: string;
+
+
+  @OneToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'userId' })
-  user!: User;
+  user?: User;
 
-  @CreateDateColumn({ name: 'created_at' })
+
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt!: Date;
+
 }

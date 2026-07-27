@@ -14,6 +14,10 @@ export class CreateClienteDto {
 
   @IsString()
   @IsNotEmpty()
+  documento!: string;
+
+  @IsString()
+  @IsNotEmpty()
   telefono!: string;
 
   @IsString()
@@ -22,4 +26,8 @@ export class CreateClienteDto {
 
   @IsOptional()
   estado?: boolean;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

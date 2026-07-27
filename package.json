@@ -6,6 +6,9 @@
   "scripts": {
     "start": "nest start",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm run start:dev",
     "build": "tsc -p tsconfig.build.json",
     "test": "jest --runInBand"
   },
@@ -17,6 +20,7 @@
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.3.2",
     "@nestjs/typeorm": "^10.0.0",
+    "axios": "^1.18.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.0",

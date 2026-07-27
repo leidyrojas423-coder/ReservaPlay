@@ -1,39 +1,143 @@
-import { Body, Controller, Get, Param, Patch, Post, Request, UseGuards } from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+
 import { CreateReservaDto } from './dto/create-reserva.dto';
 import { CancelReservaDto } from './dto/cancel-reserva.dto';
+
 import { ReservasService } from './reservas.service';
 
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+
+
 @Controller('reservas')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('client')
 export class ReservasController {
-	constructor(private readonly reservasService: ReservasService) {}
 
-	@Get('mias')
-	async findMine(@Request() req: ExpressRequest) {
-		return this.reservasService.findByClient((req.user as any).userId);
-	}
 
-	@Post()
-	async create(@Request() req: ExpressRequest, @Body() createReservaDto: CreateReservaDto) {
-		return this.reservasService.create((req.user as any).userId, createReservaDto);
-	}
+  constructor(
+    private readonly reservasService: ReservasService,
+  ) {}
 
-	@Patch(':id/confirmar')
-	async confirm(@Request() req: ExpressRequest, @Param('id') id: string) {
-		return this.reservasService.confirm((req.user as any).userId, id);
-	}
 
-	@Patch(':id/cancelar')
-	async cancel(
-		@Request() req: ExpressRequest,
-		@Param('id') id: string,
-		@Body() cancelReservaDto: CancelReservaDto,
-	) {
-		return this.reservasService.cancel((req.user as any).userId, id, cancelReservaDto);
-	}
+
+
+  // ADMINISTRADOR: todas las reservas
+
+  @Get()
+  async findAll(){
+
+    return this.reservasService.findAll();
+
+  }
+
+
+
+
+
+  // CLIENTE: sus reservas
+
+  @Get('mias')
+  async findMine(){
+
+
+    return this.reservasService.findByClient(
+
+      '37e65aa3-ba11-4e13-8f1b-2bf7352da5cc'
+
+    );
+
+
+  }
+
+
+
+
+
+  @Post()
+
+  @UseGuards(JwtAuthGuard)
+
+  async create(
+
+    @Body() createReservaDto:CreateReservaDto,
+
+    @Request() req:any,
+
+  ){
+
+
+    return this.reservasService.create(
+
+      req.user.userId,
+
+      createReservaDto,
+
+    );
+
+
+  }
+
+
+
+
+
+
+  @Patch(':id/confirmar')
+
+  async confirm(
+
+    @Param('id') id:string,
+
+  ){
+
+
+    return this.reservasService.confirm(
+
+      '37e65aa3-ba11-4e13-8f1b-2bf7352da5cc',
+
+      id,
+
+    );
+
+
+  }
+
+
+
+
+
+
+  @Patch(':id/cancelar')
+
+  async cancel(
+
+    @Param('id') id:string,
+
+    @Body() cancelReservaDto:CancelReservaDto,
+
+  ){
+
+
+    return this.reservasService.cancel(
+
+      '37e65aa3-ba11-4e13-8f1b-2bf7352da5cc',
+
+      id,
+
+      cancelReservaDto,
+
+    );
+
+
+  }
+
+
 }

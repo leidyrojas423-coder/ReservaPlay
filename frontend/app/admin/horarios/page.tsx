@@ -1,191 +1,237 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getStoredAuthToken } from '../../../lib/auth';
+import { useEffect, useMemo, useState } from 'react';
+import styles from './horarios.module.css';
+import {
+  actualizarHorario,
+  crearHorario,
+  desactivarHorario,
+  listarCanchas,
+  listarHorarios,
+  type AdminCancha,
+  type AdminHorario,
+} from '../../../services/admin.service';
 
-interface Horario {
-  id: string;
+type FormHorario = {
   nombre: string;
-  descripcion?: string;
+  descripcion: string;
+  canchaId: string;
   fechaInicio: string;
   fechaFin: string;
-  activo: boolean;
-  canchaId?: string;
+};
+
+const initialForm: FormHorario = {
+  nombre: '',
+  descripcion: '',
+  canchaId: '',
+  fechaInicio: '',
+  fechaFin: '',
+};
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString('es-CO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
 }
 
 export default function AdminHorariosPage() {
-  const [horarios, setHorarios] = useState<Horario[]>([]);
+  const [horarios, setHorarios] = useState<AdminHorario[]>([]);
+  const [canchas, setCanchas] = useState<AdminCancha[]>([]);
+  const [form, setForm] = useState<FormHorario>(initialForm);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [form, setForm] = useState({
-    nombre: '',
-    descripcion: '',
-    canchaId: '',
-    fechaInicio: '',
-    fechaFin: '',
-    activo: true,
-  });
 
-  const token = getStoredAuthToken();
-
-  const cargarHorarios = async () => {
-    if (!token) {
-      setError('Debe iniciar sesión como administrador.');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
+  const cargarDatos = async () => {
     try {
-      const response = await fetch('http://localhost:3000/horarios', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'No se pudieron cargar los horarios');
-      }
-
-      const data = await response.json();
-      setHorarios(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
+      setLoading(true);
+      setError('');
+      const [canchasData, horariosData] = await Promise.all([listarCanchas(), listarHorarios()]);
+      setCanchas(canchasData);
+      setHorarios(horariosData);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : 'No se pudieron cargar los horarios.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    cargarHorarios();
+    void cargarDatos();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+  const activos = useMemo(() => horarios.filter((horario) => horario.activo !== false).length, [horarios]);
 
-    if (!token) {
-      setError('Debe iniciar sesión como administrador.');
+  const canchaPorId = useMemo(
+    () => Object.fromEntries(canchas.map((cancha) => [cancha.id, cancha.nombre])),
+    [canchas],
+  );
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (form.fechaInicio >= form.fechaFin) {
+      setError('La fecha inicial debe ser menor a la fecha final.');
       return;
     }
 
-    try {
-      const response = await fetch('http://localhost:3000/horarios', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          nombre: form.nombre,
-          descripcion: form.descripcion,
-          canchaId: form.canchaId,
-          fechaInicio: form.fechaInicio,
-          fechaFin: form.fechaFin,
-          activo: form.activo,
-        }),
-      });
+    setSaving(true);
+    setError('');
+    setMessage('');
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'No se pudo crear el horario');
+    try {
+      await crearHorario({ ...form, activo: true });
+      setForm(initialForm);
+      setMessage('Horario creado correctamente.');
+      await cargarDatos();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'No se pudo crear el horario.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggle = async (horario: AdminHorario) => {
+    setError('');
+    setMessage('');
+
+    try {
+      if (horario.activo === false) {
+        await actualizarHorario(horario.id, {
+          nombre: horario.nombre,
+          descripcion: horario.descripcion,
+          fechaInicio: horario.fechaInicio,
+          fechaFin: horario.fechaFin,
+          canchaId: horario.canchaId,
+          activo: true,
+        });
+        setMessage(`Horario ${horario.nombre} reactivado.`);
+      } else {
+        await desactivarHorario(horario.id);
+        setMessage(`Horario ${horario.nombre} enviado a mantenimiento operativo.`);
       }
 
-      setSuccess('Horario creado correctamente');
-      setForm({
-        nombre: '',
-        descripcion: '',
-        canchaId: '',
-        fechaInicio: '',
-        fechaFin: '',
-        activo: true,
-      });
-      await cargarHorarios();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Error inesperado');
+      await cargarDatos();
+    } catch (toggleError) {
+      setError(toggleError instanceof Error ? toggleError.message : 'No se pudo actualizar el horario.');
     }
   };
 
   return (
-    <main style={{ maxWidth: 1200, margin: '40px auto', padding: 24 }}>
-      <h1>Gestión de Horarios</h1>
-      <p>Administra los bloques de horario por cancha.</p>
+    <section className={styles.container}>
+      <div className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>Gestión de horarios</p>
+          <h2>Agenda operativa por cancha</h2>
+          <p>Configura franjas disponibles y bloquea horarios cuando una cancha esté fuera de servicio.</p>
+        </div>
 
-      {error ? <p style={{ color: 'crimson' }}>{error}</p> : null}
-      {success ? <p style={{ color: 'green' }}>{success}</p> : null}
+        <div className={styles.stats}>
+          <div>
+            <span>Total horarios</span>
+            <strong>{horarios.length}</strong>
+          </div>
+          <div>
+            <span>Activos</span>
+            <strong>{activos}</strong>
+          </div>
+          <div>
+            <span>Bloqueados</span>
+            <strong>{horarios.length - activos}</strong>
+          </div>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
-        <input
-          placeholder="Nombre del horario"
-          value={form.nombre}
-          onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-          required
-        />
-        <input
-          placeholder="Descripción"
-          value={form.descripcion}
-          onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
-        />
-        <input
-          placeholder="Cancha ID"
-          value={form.canchaId}
-          onChange={(e) => setForm({ ...form, canchaId: e.target.value })}
-          required
-        />
-        <input
-          type="datetime-local"
-          value={form.fechaInicio}
-          onChange={(e) => setForm({ ...form, fechaInicio: e.target.value })}
-          required
-        />
-        <input
-          type="datetime-local"
-          value={form.fechaFin}
-          onChange={(e) => setForm({ ...form, fechaFin: e.target.value })}
-          required
-        />
-        <label>
-          <input
-            type="checkbox"
-            checked={form.activo}
-            onChange={(e) => setForm({ ...form, activo: e.target.checked })}
-          />
-          Activo
-        </label>
-        <button type="submit" style={{ maxWidth: 200 }}>
-          Crear Horario
-        </button>
-      </form>
+      <div className={styles.grid}>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.sectionHeader}>
+            <h3>Nuevo horario</h3>
+            <p>Asocia la franja a una cancha disponible.</p>
+          </div>
 
-      {loading ? (
-        <p>Cargando horarios...</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: 8 }}>Nombre</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Inicio</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Fin</th>
-              <th style={{ textAlign: 'left', padding: 8 }}>Activo</th>
-            </tr>
-          </thead>
-          <tbody>
+          <div className={styles.formGrid}>
+            <input name="nombre" placeholder="Nombre del bloque" value={form.nombre} onChange={handleChange} required />
+            <select name="canchaId" value={form.canchaId} onChange={handleChange} required>
+              <option value="">Selecciona una cancha</option>
+              {canchas.map((cancha) => (
+                <option key={cancha.id} value={cancha.id}>
+                  {cancha.nombre}
+                </option>
+              ))}
+            </select>
+            <input name="fechaInicio" type="datetime-local" value={form.fechaInicio} onChange={handleChange} required />
+            <input name="fechaFin" type="datetime-local" value={form.fechaFin} onChange={handleChange} required />
+            <textarea name="descripcion" placeholder="Notas del horario" value={form.descripcion} onChange={handleChange} rows={4} />
+          </div>
+
+          <button type="submit" className={styles.primaryButton} disabled={saving}>
+            {saving ? 'Guardando...' : 'Crear horario'}
+          </button>
+
+          {error ? <p className={styles.error}>{error}</p> : null}
+          {message ? <p className={styles.success}>{message}</p> : null}
+        </form>
+
+        <div className={styles.panel}>
+          <div className={styles.sectionHeader}>
+            <h3>Bloques registrados</h3>
+            <p>Activa o bloquea horarios según operación diaria.</p>
+          </div>
+
+          {loading ? <p className={styles.empty}>Cargando horarios...</p> : null}
+
+          {!loading && horarios.length === 0 ? <p className={styles.empty}>No hay horarios creados.</p> : null}
+
+          <div className={styles.list}>
             {horarios.map((horario) => (
-              <tr key={horario.id}>
-                <td style={{ padding: 8 }}>{horario.nombre}</td>
-                <td style={{ padding: 8 }}>{horario.fechaInicio}</td>
-                <td style={{ padding: 8 }}>{horario.fechaFin}</td>
-                <td style={{ padding: 8 }}>{horario.activo ? 'Sí' : 'No'}</td>
-              </tr>
+              <article key={horario.id} className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <h4>{horario.nombre}</h4>
+                    <p>{horario.cancha?.nombre ?? canchaPorId[horario.canchaId] ?? 'Cancha no disponible'}</p>
+                  </div>
+                  <span className={horario.activo === false ? styles.statusOff : styles.statusOn}>
+                    {horario.activo === false ? 'Bloqueado' : 'Activo'}
+                  </span>
+                </div>
+
+                <dl className={styles.meta}>
+                  <div>
+                    <dt>Inicio</dt>
+                    <dd>{formatDateTime(horario.fechaInicio)}</dd>
+                  </div>
+                  <div>
+                    <dt>Fin</dt>
+                    <dd>{formatDateTime(horario.fechaFin)}</dd>
+                  </div>
+                </dl>
+
+                <p className={styles.description}>{horario.descripcion || 'Sin notas operativas.'}</p>
+
+                <button type="button" className={styles.secondaryButton} onClick={() => void handleToggle(horario)}>
+                  {horario.activo === false ? 'Reactivar horario' : 'Bloquear horario'}
+                </button>
+              </article>
             ))}
-          </tbody>
-        </table>
-      )}
-    </main>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -1,11 +1,11 @@
-import { Injectable, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 
-import { CreateAdministradorDto } from './dto/create-administrador.dto';
-import { UpdateAdministradorDto } from './dto/update-administrador.dto';
 import { AdministradorEntity } from './entities/administrador.entity';
+
+type AdministradorSinPassword = Omit<AdministradorEntity, 'password'>;
+type CrearAdministradorInput = Pick<AdministradorEntity, 'nombre' | 'correo' | 'password'>;
 
 @Injectable()
 export class AdministradoresService {
@@ -14,65 +14,69 @@ export class AdministradoresService {
     private readonly administradorRepository: Repository<AdministradorEntity>,
   ) {}
 
-  async create(createAdministradorDto: CreateAdministradorDto): Promise<Omit<AdministradorEntity, 'password'>> {
-    const { correo, password } = createAdministradorDto;
-
-    const existing = await this.administradorRepository.findOne({ where: { correo } });
-    if (existing) {
-      throw new ConflictException('El correo ya está registrado');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
+  async create(data: CrearAdministradorInput): Promise<AdministradorSinPassword> {
     const administrador = this.administradorRepository.create({
-      ...createAdministradorDto,
-      password: hashedPassword,
-      estado: createAdministradorDto.estado ?? true,
+      nombre: data.nombre,
+      correo: data.correo,
+      password: data.password,
     });
 
-    try {
-      const saved = await this.administradorRepository.save(administrador);
-      const { password: _, ...administradorSinPassword } = saved;
-      return administradorSinPassword;
-    } catch (error) {
-      throw new InternalServerErrorException('No se pudo crear el administrador');
-    }
+    const saved = await this.administradorRepository.save(administrador);
+    const { password: _, ...administradorSinPassword } = saved;
+
+    return administradorSinPassword;
   }
 
-  async findAll(): Promise<Omit<AdministradorEntity, 'password'>[]> {
+  async findAll(): Promise<AdministradorSinPassword[]> {
     return this.administradorRepository.find({
-      select: ['id', 'nombre', 'apellido', 'correo', 'telefono', 'estado', 'fechaRegistro'],
+      select: ['id', 'nombre', 'correo', 'createdAt', 'updatedAt'],
     });
   }
 
-  async update(id: string, updateAdministradorDto: UpdateAdministradorDto): Promise<Omit<AdministradorEntity, 'password'>> {
-    const administrador = await this.administradorRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<AdministradorSinPassword> {
+    const administrador = await this.administradorRepository.findOne({
+      where: { id },
+      select: ['id', 'nombre', 'correo', 'createdAt', 'updatedAt'],
+    });
+
     if (!administrador) {
       throw new NotFoundException('Administrador no encontrado');
     }
 
-    const updateData: Partial<UpdateAdministradorDto> = { ...updateAdministradorDto };
-    if (updateData.password) {
-      updateData.password = await bcrypt.hash(updateData.password, 12);
-    }
+    return administrador;
+  }
 
-    await this.administradorRepository.update(id, updateData);
-
-    const updated = await this.administradorRepository.findOne({
-      where: { id },
-      select: ['id', 'nombre', 'apellido', 'correo', 'telefono', 'estado', 'fechaRegistro'],
+  async update(
+    id: string,
+    data: Partial<AdministradorEntity>,
+  ): Promise<AdministradorSinPassword> {
+    const administrador = await this.administradorRepository.preload({
+      id,
+      nombre: data.nombre,
+      correo: data.correo,
+      password: data.password,
     });
 
-    if (!updated) {
-      throw new NotFoundException('Administrador no encontrado después de actualizar');
+    if (!administrador) {
+      throw new NotFoundException('Administrador no encontrado');
     }
 
-    return updated;
+    const saved = await this.administradorRepository.save(administrador);
+    const { password: _, ...administradorSinPassword } = saved;
+
+    return administradorSinPassword;
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.administradorRepository.delete(id);
-    if (result.affected === 0) {
+    const administrador = await this.administradorRepository.findOne({
+      where: { id },
+      select: ['id'],
+    });
+
+    if (!administrador) {
       throw new NotFoundException('Administrador no encontrado');
     }
+
+    await this.administradorRepository.delete(id);
   }
 }

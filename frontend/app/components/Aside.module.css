@@ -1,0 +1,51 @@
+.aside {
+  background: linear-gradient(180deg, #14532d 0%, #166534 100%);
+  color: #f0fdf4;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(20, 83, 45, 0.25);
+}
+
+.brand {
+  margin-bottom: 1rem;
+}
+
+.brandName {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.nav {
+  display: block;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.link {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  color: #dcfce7;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.link:focus-visible {
+  outline: 2px solid #86efac;
+  outline-offset: 2px;
+}

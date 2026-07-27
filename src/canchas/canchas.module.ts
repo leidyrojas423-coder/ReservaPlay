@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+import { CanchasController } from './canchas.controller';
+import { CanchasService } from './canchas.service';
+
+import { CanchaEntity } from './entities/cancha.entity';
 import { AdministradorEntity } from '../administradores/entities/administrador.entity';
 import { HorarioEntity } from '../horarios/entities/horario.entity';
 import { ReservaEntity } from '../reservas/entities/reserva.entity';
-import { CanchasController } from './canchas.controller';
-import { CanchasService } from './canchas.service';
-import { CanchaEntity } from './entities/cancha.entity';
+
 
 @Module({
   imports: [
@@ -16,7 +19,17 @@ import { CanchaEntity } from './entities/cancha.entity';
       ReservaEntity,
     ]),
   ],
-  controllers: [CanchasController],
-  providers: [CanchasService],
+
+  controllers: [
+    CanchasController,
+  ],
+
+  providers: [
+    CanchasService,
+  ],
+
+  exports: [
+    CanchasService,
+  ],
 })
 export class CanchasModule {}

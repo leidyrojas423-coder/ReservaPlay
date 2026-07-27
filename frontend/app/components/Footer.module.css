@@ -1,0 +1,16 @@
+.footer {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg, #14532d 0%, #166534 100%);
+  border-top: 2px solid #22c55e;
+  color: #ecfdf5;
+  text-align: center;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(20, 83, 45, 0.22);
+}
+
+.text {
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}

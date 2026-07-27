@@ -1,39 +1,134 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+
 import { AdministradorEntity } from '../../administradores/entities/administrador.entity';
+import { HorarioEntity } from '../../horarios/entities/horario.entity';
+
+
+export enum CanchaEstado {
+
+  DISPONIBLE = 'Disponible',
+
+  OCUPADA = 'Ocupada',
+
+  MANTENIMIENTO = 'Mantenimiento',
+
+}
+
 
 @Entity('canchas')
 export class CanchaEntity {
+
+
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 100 })
+
+
+  @Column({
+    length: 100,
+  })
   nombre!: string;
 
-  @Column({ length: 250, nullable: true })
+
+
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
   descripcion?: string;
 
-  @Column({ length: 100 })
+
+
+  @Column({
+    length: 150,
+  })
   ubicacion!: string;
 
-  @Column({ type: 'int', nullable: true })
+
+
+  @Column({
+    type: 'enum',
+    enum: CanchaEstado,
+    default: CanchaEstado.DISPONIBLE,
+  })
+  estado!: CanchaEstado;
+
+
+
+  @Column({
+    type: 'int',
+    nullable: true,
+  })
   capacidad?: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+
+
+  @Column({
+    type: 'decimal',
+    nullable: true,
+  })
   precio?: number;
 
-  @Column({ default: true })
+
+
+  @Column({
+    default: true,
+  })
   activo!: boolean;
 
-  @Column({ type: 'uuid' })
-  administradorId!: string;
 
-  @ManyToOne(() => AdministradorEntity, { onDelete: 'RESTRICT' })
-  @JoinColumn({ name: 'administradorId' })
-  administrador!: AdministradorEntity;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  administradorId?: string;
+
+
+
+  @ManyToOne(
+    () => AdministradorEntity,
+    {
+      nullable: true,
+      eager: false,
+      onDelete: 'SET NULL',
+    },
+  )
+  @JoinColumn({
+    name: 'administradorId',
+  })
+  administrador?: AdministradorEntity;
+
+
+
+  @OneToMany(
+    () => HorarioEntity,
+    (horario) => horario.cancha,
+  )
+  horarios?: HorarioEntity[];
+
+
+
+  @CreateDateColumn({
+    name:'created_at',
+  })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+
+
+  @UpdateDateColumn({
+    name:'updated_at',
+  })
   updatedAt!: Date;
+
+
 }
